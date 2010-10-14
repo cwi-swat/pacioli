@@ -3,6 +3,7 @@ module Pacioli
 import Matrix;
 import IO;
 import List;
+import Closure;
 
 data Product = product(str name);
 
@@ -104,6 +105,9 @@ public Volume predictedTotal(list[Product] products, BOM bom, Volume output, Vec
   return mulMV(closure(products, divMV(bom, success)), divVV(output, success));
 } 
 
+public Volume myTotal(BOM bom, Volume output, Vector[Product] success) {
+  return mulMV(closure(divMV(bom, success)), divVV(output, success));
+} 
 
 public Vector[Product] actualRejectRatio(BOM bom, Volume output, Volume total) {
   return divVV(addVV(output, mulMV(bom, total)), total);
