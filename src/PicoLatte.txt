@@ -1,0 +1,53 @@
+
+enterprise PicoLatte
+
+
+reference
+
+enum Color { 
+  blue, red, black 
+}
+
+type Product {
+  sell: price
+  buy: price
+  parts: Product -> real
+  color: dist(Color)
+}
+
+Product = { 
+  Product     |  sell        | buy             | parts                                 
+  ------------+--------------+-----------------+-------------------------------------  
+  taart       | 20.00 euro   |                 | 2 appels, 1 deeg, 0.5 suiker          
+  appelgebak  | 4.40 euro    |                 | 0.125 taart
+  appels      |              | 4.40 euro/kg    |
+  deeg        | 5.00 euro/kg | 2.25 euro/kg    | 0.33 bloem, 0.33 boter, 0.33 eieren
+  suiker      |              | 4.40 euro/kg    |
+  bloem       |              | 2.25 euro/kg    |
+  boter       |              | 2.25 euro/kg    |
+  eieren      |              | 2.25 euro/stuk  |
+  rozijnen    |              | 2.25 euro/kg    |
+  room        |              | 4.40 euro/liter |
+  koffiebonen |              | 2.25 euro/kg    |
+  koffie      | 2.25 euro    |                 | 0.2 koffiebonen
+}
+
+Product taart = {
+  sell: 20.00 euro
+  parts: {
+    appels: 2
+    deeg: 1
+    suiker: 0.5
+  }
+}
+
+evaluation
+ 
+ input output: ;
+ input tot;
+ 
+ uitval = (output + bom*tot)/tot;
+ 
+ 
+
+
