@@ -4,18 +4,81 @@ import Matrix;
 import IO;
 import List;
 import Closure;
+import Map;
+
+
+public void testje() {
+  println("\nOriginal matrix");
+  display(bom2);  
+  println("\nstar with inverse:");
+  display(closure(bom2, theProducts));
+  println("\nand with plus:");    
+  display(plus(bom2));
+} 
+
+/*******************************************************************************
+ Dictionary
+ *******************************************************************************/
 
 data Product = product(str name);
 
+
+
+
+
 alias Pricing = map[Product,Quantity];
 
-data Quantity = quantity(real amount, str unit);
+
+
+public Vec[Product] sp = (
+ product("koffie"): quantity(2.25, "euro/kopje"),
+ product("appelgebak"): quantity(4.40, "euro/punt")
+  
+);
+
+
+
+
+
+/*******************************************************************************
+ Example
+ *******************************************************************************/
+
+public set[Product] theProducts = {
+product("taart"),
+product("appelgebak"),
+product("appels"),
+product("deeg"),
+product("suiker"),
+product("bloem"),
+product("boter"),
+product("eieren"),
+product("rozijnen"),
+product("room"),
+product("koffiebonen"),
+product("koffie")
+};
+
+public Mat[Product, Product] bom2 = (
+  <product("taart"), product("appelgebak")> :   quantity(0.125, ""),
+  <product("appels"), product("taart")> :       quantity(2.0, ""),
+  <product("deeg"), product("taart")> :         quantity(1.0, "kg"),
+  <product("suiker"), product("taart")> :       quantity(0.5, "kg"),
+  <product("bloem"), product("deeg")> :         quantity(0.33, "kg/kg"),
+  <product("boter"), product("deeg")> :         quantity(0.33, "kg/kg"),
+  <product("eieren"), product("deeg")> :        quantity(0.33, "kg/kg"),
+  <product("koffiebonen"), product("koffie")> : quantity(200, "g/kop"),
+  <product("koffie"), product("koffiebonen")> : quantity(0, "g/kop")
+);
+
 
 public Pricing sales = (
  product("koffie"): quantity(2.25, "euro/kopje"),
  product("appelgebak"): quantity(4.40, "euro/punt")
   
 );
+
+/*
 
 public Pricing purchase = (
  product("koffiebonen"): quantity(2.25, "euro/kg"),
@@ -41,6 +104,7 @@ public BOM bom = {
   <product("eieren"), product("deeg"), 0.33>,
   <product("koffiebonen"), product("koffie"), 0.2>
 };
+
 
 
 public list[Product] products = [
@@ -117,3 +181,4 @@ public Vector[Product] actualRejectRatio(BOM bom, Volume output, Volume total) {
 public Volume expectedOutput(BOM bom, Volume total, Vector[Product] success) {
   return subVV(mulVV(success, total), mulMV(bom, total));
 }
+*/

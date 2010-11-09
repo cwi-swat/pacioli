@@ -1,132 +1,141 @@
 module Matrix
 
+import Map;
+import Set;
 import List;
 import Relation;
 import IO;
 
-alias Matrix[&T,&U] = rel[&T row, &U col, real val];
+/*******************************************************************************
+ Quick hack for units
+ *******************************************************************************/
 
-alias Vector[&T] = rel[&T index, real val];
+alias Unit = str;
 
-public real innerProduct(Vector[&T] v1, Vector[&T] v2) {
-   return (0.0 | it + a * b | <t, a> <- v1, <t, b> <- v2 );
-}
-
-public Vector[&T] addVV(Vector[&T] v1, Vector[&T] v2) {
-   return { <t1, v> | <t1, v> <- v1, t1 notin domain(v2) } +
-          { <t2, v> | <t2, v> <- v2, t2 notin domain(v1) } +
-          { <t, x + y> | <t, x> <- v1, <t, y> <- v2, x + y != 0.0 };
-}
-
-public Vector[&T] subVV(Vector[&T] v1, Vector[&T] v2) {
-   return { <t1, v> | <t1, v> <- v1, t1 notin domain(v2) } +
-          { <t2, -v> | <t2, v> <- v2, t2 notin domain(v1) } +
-          { <t, x - y> | <t, x> <- v1, <t, y> <- v2, x - y != 0.0 };
-}
-
-public Vector[&T] mulVV(Vector[&T] v1, Vector[&T] v2) {
-   return { <t, x * y> | <t, x> <- v1, <t, y> <- v2 };
-}
-
-public Vector[&T] divVV(Vector[&T] v1, Vector[&T] v2) {
-   return { <t1, v / 0.0> | <t1, v> <- v1, t1 notin domain(v2) } +
-          { <t2, 0.0> | <t2, _> <- v2, t2 notin domain(v1) } +
-          { <t, x / y> | <t, x> <- v1, <t, y> <- v2  };
-}
-
-public Matrix[&T, &U] addMM(Matrix[&T,&U] m1, Matrix[&T,&U] m2) {
-  return 
-     { <x, y, v> | <x, y, v> <- m1, <x, y> notin m2<0,1> } + 
-     { <x, y, v> | <x, y, v> <- m2, <x, y> notin m1<0,1> } + 
-     { <x, y, v1 + v2> | <x, y, v1> <- m1, <x, y, v2> <- m2, v1 + v2 != 0.0 };  
-}
-
-public Matrix[&T, &U] subMM(Matrix[&T,&U] m1, Matrix[&T,&U] m2) {
-  return 
-     { <x, y, v> | <x, y, v> <- m1, <x, y> notin m2<0,1> } + 
-     { <x, y, -v> | <x, y, v> <- m2, <x, y> notin m1<0,1> } + 
-     { <x, y, v1 - v2> | <x, y, v1> <- m1, <x, y, v2> <- m2, v1 - v2 != 0.0 };  
-}
-
-
-public Matrix[&T, &U] mulMS(Matrix[&T, &U] m, real r) {
-  return { <x, y, v * r> | <x, y, v> <- m  };  
-}
-
-public Vector[&T] mulMV(Matrix[&T, &U] m, Vector[&T] v) {
-  return { <t, innerProduct(row(t, m), v)> | t <- m<0> }; 
-}
-
-public Matrix[&T, &U] divMV(Matrix[&T, &U] m, Vector[&T] v) {
-  return { <t, u, y / x> | <t, x> <- v, <t, u, y> <- m } +
-         { <t, u, y / 0.0> | <t, u, y> <- m, t notin domain(v) }; 
-}
-
-
-public Vector[&U] row(&T t, Matrix[&T, &U] m) {
-  return m[t];
-}
-
-public Vector[&T] col(&U u, Matrix[&T, &U] m) {
-  return { <t, v> | <t, u, v> <- m };
-}
-
-public Matrix[&T,&V] mulMM(Matrix[&T, &U] m1, Matrix[&U, &V] m2) {
-  return { <t, v, x> | t <- m1<0>, v <- m2<1>,
-     real x := innerProduct(row(t, m1), col(v, m2)),
-     x != 0.0
-   };
-}
-
-
-public Matrix[&U, &T] transpose(Matrix[&T, &U] m) {
-  return m<1,0,2>;  
-}
-
-public Matrix[&T, &T] identity(list[&T] r) {
-  return identity(r, r);
-}
-
-public Matrix[&T, &U] identity(list[&T] r, list[&U] c) {
-  return { <r[i], c[j], 1.0> | i <- domain(r), j <- domain(c), i == j };
-}
-
-public void display(Vector[&T] v) {
-  for (<k, x> <- v) {
-     println("<k> <x>");
+public Unit sum(Unit x, Unit y) {
+  if (x == y) {
+    return x;
+  } else {
+    return "(<x>)+(<y>)"; //throw "Cannot add units <x> and <y>. They should be equal.";
   }
 }
 
-public void display(list[&T] car, Matrix[&T, &T] m) {
-  return display(car, car, m);
+public Unit product(Unit x, Unit y) {
+  if (x == "") {
+    return y;
+  } else {
+    if (y == "") {
+      return x;
+    } else {
+      return "(<x>)·(<y>)";
+    }
+  }
+}
+/*******************************************************************************
+ A quantity is a numeric amount with a unit field. 
+ *******************************************************************************/
+
+data Quantity = quantity(num amount, Unit unit);
+
+public Quantity scale(Quantity q, num c) {
+  return quantity(q.amount*c, q.unit);
 }
 
-public void display(list[&T] rc, list[&U] cc, Matrix[&T, &U] m) {
-  for (x <- rc) {
-    s = "";
-    for (y <- cc) {
-       value p = 0;
-       if (<x, y, v> <- m) {
-	  p = v;
+public Quantity product(Quantity q1, Quantity q2) {
+  return quantity(q1.amount * q2.amount, product(q1.unit, q2.unit));
+}
+
+public Quantity sum(Quantity q1, Quantity q2) {
+  return quantity(q1.amount + q2.amount, product(q1.unit, q2.unit));
+}
+
+/*******************************************************************************
+ Vectors and matrices
+ *******************************************************************************/
+
+alias Vec[&T] = map[&T,Quantity];
+alias Mat[&X, &Y] = map[tuple[&X, &Y], Quantity];
+
+public Mat[&T, &T] identity(set[&T] r) {
+  return (<x,x> : quantity(1,"") | x <- r);
+}
+ 
+public Quantity inner(Vec[&T] v1, Vec[&T] v2) {
+   return (quantity(0,"") | sum(it, product(v1[a], v2[a])) 
+                          | a <- domain(v1) & domain(v2));
+}
+
+public Mat[&X, &Y] sum(Mat[&X, &Y] m0, Mat[&X, &Y] m1) {
+   return (<r,c> : sum(deref(m0, r, c), deref(m1, r, c)) 
+                    | <r, c> <- domain(m0) + domain(m1));
+}
+
+public Quantity deref(Mat[&X, &Y] m, &X r , &Y c) {
+  return m[<r,c>] ? quantity(0,"");
+}
+
+public Mat[&X, &Y] scale(Mat[&X, &Y] m, num a) {
+   return (<r,c> : product(quantity(a,""),m[<r, c>]) | <r, c> <- domain(m) );
+}
+
+// waarom kan mult niet overloaden met inner?
+public Mat[&T, &V] mult(Mat[&T, &U] m1, Mat[&U, &V] m2) {
+   return (<r,c> : inner(row(m1,r), col(m2,c)) | r <- domain(m1)<0>,
+                                                 c <- domain(m2)<1>);
+}
+
+public Mat[&U, &T] transpose(Mat[&T, &U] m) {
+   return (<t[1],t[0]> : m[t] | t <- domain(m));
+}
+
+public Mat[&T, &T] star(Mat[&T, &T] m) {
+   tmp = identity(theProducts);
+   acc = tmp;
+   for (i <- [0..30]) {
+     tmp = mult(m, tmp);
+     acc = sum(acc, tmp);
+   }
+   return acc;
+}
+
+public Mat[&T, &T] plus(Mat[&T, &T] m) {
+   tmp = m;
+   acc = tmp;
+   for (i <- [0..30]) {
+     tmp = mult(m, tmp);
+     acc = sum(acc, tmp);     
+   }
+   return acc;
+}
+
+public set[&T] primaldomain(Mat[&T,&U] m) {
+  return domain(m)<0>;  
+}
+
+public set[&U] dualdomain(Mat[&T,&U] m) {
+  return domain(m)<1>;  
+}
+
+public Vec[&T] row(Mat[&T, &U] m, &T r) {
+  return (c : m[<r, c>] | <r, c> <- domain(m) );
+}
+
+public Vec[&T] col(Mat[&T, &U] m, &T c) {
+  return (r : m[<r, c>] | <r, c> <- domain(m) );
+}
+
+public void display(Mat[&T, &U] m) {
+  for (&T r <- primaldomain(m)) {
+    for (&U c <- dualdomain(m)) {
+       p = m[<r,c>] ? quantity(0,"");
+       x = r; //.name;
+       y = c; //.name;
+       a = p.amount; // amount(p);
+       // Raar dat de volgende test nodig is. Reproduceert niet in de repl
+       if (a != 0.0 && a != 0) {
+         println("<x>, <y> -\> <p.amount> <p.unit>");
        }
-       s += "<p> ";
     }
-    println(s);
   }  
 }
-
-/*
-
-These require lib/ujmp-complete-0.2.5.jar which has not been
-committed to the stdlib of Rascal (and will not be).
-
-@doc{Closure over a square matrix}
-@javaClass{org.rascalmpl.library.Matrix}
-public Matrix[&T,&T] java closure(list[&T] carrier, Matrix[&T, &T] m);
-
-@doc{Inverse of a square matrix}
-@javaClass{org.rascalmpl.library.Matrix}
-public Matrix[&T,&T] java invert(list[&T] carrier, Matrix[&T, &T] m);
-
-*/
 
