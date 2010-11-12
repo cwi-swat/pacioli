@@ -84,6 +84,11 @@ public Mat[&T, &V] mult(Mat[&T, &U] m1, Mat[&U, &V] m2) {
                                                  c <- domain(m2)<1>);
 }
 
+public Vec[&U] multv(Mat[&T, &U] m1, Vec[&U] v) {
+   return (r : inner(row(m1,r), v) | r <- domain(m1)<0>);
+}
+
+
 public Mat[&U, &T] transpose(Mat[&T, &U] m) {
    return (<t[1],t[0]> : m[t] | t <- domain(m));
 }
@@ -136,6 +141,18 @@ public void display(Mat[&T, &U] m) {
          println("<x>, <y> -\> <p.amount> <p.unit>");
        }
     }
+  }  
+}
+
+public void displayv(Vec[&T] v) {
+  for (&T r <- domain(v)) {
+       p = v[r] ? quantity(0,"");
+       x = r; //.name;
+       a = p.amount; // amount(p);
+       // Raar dat de volgende test nodig is. Reproduceert niet in de repl
+       if (a != 0.0 && a != 0) {
+         println("<x> -\> <p.amount> <p.unit>");
+       }
   }  
 }
 
