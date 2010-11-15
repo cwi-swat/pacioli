@@ -46,7 +46,7 @@ public Quantity product(Quantity q1, Quantity q2) {
 }
 
 public Quantity sum(Quantity q1, Quantity q2) {
-  return quantity(q1.amount + q2.amount, product(q1.unit, q2.unit));
+  return quantity(q1.amount + q2.amount, sum(q1.unit, q2.unit));
 }
 
 /*******************************************************************************
