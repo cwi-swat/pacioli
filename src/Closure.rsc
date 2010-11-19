@@ -33,16 +33,19 @@ public Eqn[&T] eliminate(&T item, Eqn[&T] eq, set[&T] carrier) {
 }
 
 public Quantity yo2(Mat[&T,&T] m, &T r, &T c, &T item, Mat[&T,&T] m2) {
-  d = deref(m,item,item).amount;
+  d = (m[<item,item>] ? quantity(0, "")).amount; //deref(m,item,item).amount;
   if (d == 0) {
     throw("singular");
-  } else {
-    if (r == item) {
-      return scale(deref(m2,r,c), 1/d);
-    } else {
-      s = deref(m,r,item).amount / d;
-      return sum(deref(m2,r,c), scale(deref(m2,item,c),-s)); 
-    }
   }
+  
+  d2 = m2[<r,c>] ? quantity(0, ""); //deref(m2,r,c);
+  if (r == item) {
+    return scale(d2, 1/d);
+  } 
+
+
+  s = deref(m,r,item).amount / d;
+  return sum(d2, scale(deref(m2,item,c),-s)); 
+ 
 }
 
