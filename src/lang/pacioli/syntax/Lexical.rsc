@@ -2,7 +2,7 @@ module lang::pacioli::syntax::Lexical
 
 syntax Layout
 	= lex whitespace: [\t-\n\r\ ] 
-	| lex Comment 
+	| @category="Comment" lex Comment 
 	;
 
 layout Layouts = Layout* 

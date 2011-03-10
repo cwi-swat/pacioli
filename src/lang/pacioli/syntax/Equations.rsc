@@ -21,14 +21,6 @@ Q: Where are the numbers on the edges in equations?
 
 
 type WholeSale
-	parameters
-		vatPercentage: percentage
-		salesPrice: currency // cents!
-		purPrice: currency
-		coll: natural
-		pay: natural
-	where
-		salesPrice > purPrice
 
 	derived
 		salesVat = vatPercentage * salesPrice
@@ -58,19 +50,62 @@ syntax Type
 	
 syntax Section 
 	= Buffers
+	| Transactions
+	| Parameters
+	| Deriveds
 	| Equations
 	;
+
+syntax Transactions
+	= @Foldable "transactions" Decl*
+	;
+	
+syntax Parameters
+	= @Foldable "parameters" Param* Where?
+	;
+	
+syntax Deriveds
+	= "derived" Definition*
+	;
+	
+syntax Definition
+	= Ident "=" Expression
+	;
+	
+syntax Param
+	= Ident ":" Type
+	;
+	
+syntax Type
+	= "natural"
+	| "currency"
+	| "percentage"
+	;
+	
+syntax Where
+	= "where" {Constraint ","}+
+	;
+	
+syntax Constraint 
+	= non-assoc (
+		Expression "\<" Expression
+		| Expression "\<=" Expression
+		| Expression "\>" Expression
+		| Expression "\>=" Expression
+	)
+	;
+	
 	
 syntax Buffers 
-	= "buffers" Assets Liabilities
+	= @Foldable "buffers" Assets Liabilities
 	;
 
 syntax Assets
-	= "assets" Decl* 
+	= @Foldable "assets" Decl* 
 	;
 
 syntax Liabilities
-	= "liabilities" Decl*
+	= @Foldable "liabilities" Decl*
 	;
 
 syntax Decl
@@ -78,11 +113,11 @@ syntax Decl
 	;
 
 syntax Description 
-	= lex ![\n]* [\n]
+	= @category="Comment" lex ![\n]* [\n]
 	;
 	
 syntax Equations 
-	= "equations" Equation*
+	= @Foldable "equations" Equation*
 	;
 
 syntax Equation
