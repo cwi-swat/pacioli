@@ -1,4 +1,4 @@
-module languages::pacioli::ast::Pacioli
+module lang::pacioli::ast::Pacioli
 
 data Pacioli = Pacioli(Module mod);
 
