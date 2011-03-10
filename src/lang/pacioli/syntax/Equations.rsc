@@ -19,6 +19,7 @@ Q: Units are with accounts?
 Q: Where are the numbers on the edges in equations?
 
 
+
 type WholeSale
 	parameters
 		vatPercentage: percentage
@@ -32,32 +33,6 @@ type WholeSale
 	derived
 		salesVat = vatPercentage * salesPrice
 		purVat = vatPercentage * purPrice
-
-	buffers
-	   assets		
-		  Deb	: Debtors
-		  Art	: Articles
-		  Mon	: Money
-
-	   liabilities
-		  Cred: Creditors
-		  VAT: Value-Added Tax
-
-	transactions
-		PayVAT  : Pay VAT
-		ColVAT  : Collect VAT
-		PayCred	: Pay to Creditors
-		ColDeb	: Collect on Debtors
-		Sal		: Sales
-		Pur		: Purchase 
-	
-
-	equations
-		Deb	: salesPrice * Sal[Deb] - Col@coll[Deb]
-		Art	: Pur[Art] - Sal[Art]
-		Cred: purPrice * Pur[Cred] - Pay@pay[Cred]
-		Mon	: ColDeb[Mon] + ColVar[Mon] - PayCred[Mon] - PayVAT[Mon]
-		VAT	: salesVat * Sal[VAT] - PayVAT@salesVat[VAT] + ColVat@purVat[VAT] - purVat * Pur[VAT] 
 end
 
 NB: # is non-assoc
@@ -66,12 +41,12 @@ NB: # is non-assoc
 
 
 start syntax Pacioli
-	= Type
+	= Equations
+	| Type
 	;
 	
 syntax Keyword
 	= "type"
-	| "end"
 	| "buffers"
 	| "assets"
 	| "liabilities"
@@ -86,16 +61,16 @@ syntax Section
 	| Equations
 	;
 	
-syntax Buffers =
-	| "buffers" Assets Liabilities "end"
+syntax Buffers 
+	= "buffers" Assets Liabilities
 	;
 
 syntax Assets
-	= "assets" Decl* "end"
+	= "assets" Decl* 
 	;
 
 syntax Liabilities
-	= "liabilities" Decl* "end"
+	= "liabilities" Decl*
 	;
 
 syntax Decl
@@ -103,11 +78,11 @@ syntax Decl
 	;
 
 syntax Description 
-	= Ident*
+	= lex ![\n]* [\n]
 	;
 	
 syntax Equations 
-	= "equations" Equation* "end"
+	= "equations" Equation*
 	;
 
 syntax Equation
