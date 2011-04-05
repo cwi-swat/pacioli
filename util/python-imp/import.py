@@ -169,17 +169,36 @@ class Importer:
             d.execute("INSERT OR REPLACE INTO in_group (journal_id, group_id) VALUES (?, ?)", (journal_id, hashes[h]))
             d.close()
 
+class FullImporter(Importer):
+    
+    def import_accounts(self):
+        c = self.db.cursor()
+        data = csv.reader(open(self.accounts_file, "r"))
+        data.next()
+
+        first = True
+        for row in data:
+            account_id = str(int(row[1])) # We get a different result with "row[1].strip()" with grouping ??
+            description = row[2]
+            is_balance = row[3] == "B"
+            is_asset = row[4] == "D"
+            values = (account_id, description, is_asset, is_balance)
+            print values
+            c.execute("INSERT INTO accounts (id, description, is_asset, is_balance) VALUES(?, ?, ?, ?)", values)
+        c.close()
+
+    
 if __name__ == "__main__":
 	import sys
 	
 	if len(sys.argv) != 4:
-		print "usage: python generate_graph.py [database] [accounts.csv] [journals.csv]"
+		print "usage: python generate_graph.py [database] [accounts_full.csv] [journals.csv]"
 		print ""
 		print "Imports data from the two csv files into the database"
 		print sys.argv
 		exit(1)
 
-	importer = Importer(sys.argv[1], sys.argv[2], sys.argv[3])
+	importer = FullImporter(sys.argv[1], sys.argv[2], sys.argv[3])
 
 	importer.create_tables()
 	importer.import_accounts()
