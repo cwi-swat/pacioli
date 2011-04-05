@@ -14,38 +14,52 @@ if len(sys.argv) < 2:
 db = sqlite3.connect(sys.argv[1])
 c = db.cursor()
 
+accounts = dict()
+
+def load_accounts():
+    rows = c.execute("SELECT CAST(id AS NUMERIC), description, CAST(is_asset AS BOOLEAN) FROM accounts")
+    for row in rows:
+        (id, description, is_asset) = row
+        # print row
+        accounts[id] = { "description": description, "asset": is_asset == 1, "used": False }
+
 def print_transactions():
     limit = 10
     if len(sys.argv) >= 3 and len(sys.argv[2]) > 0:
         limit = sys.argv[2]
 
     rows = c.execute("SELECT id, hash, description, CAST(total_debit AS FLOAT) from groups ORDER BY CAST(total_debit AS FLOAT) DESC LIMIT ?", (limit, ))
-    accounts = set();
+
     for row in rows:
         h = row[1][1:-1].split(" ")
         for i in range(0, len(h), 2):
-            account = int(h[i])
-            accounts.add(account)
-            print "Trans%s [shape=box, label=\"%s\"]" % (row[0], row[2])
-            if not h[i+1].startswith("-"):
-                print "Trans%s -> Acc%04i" % (row[0], account)
+            account_id = int(h[i])
+            account = accounts[account_id]
+            account["used"] = True
+            print "Trans%s [shape=box, label=\"%s\"];" % (row[0], row[2])
+            if h[i+1].startswith("-") != account["asset"]:
+                print "Trans%s -> Acc%04i;" % (row[0], account_id)
             else:
-                print "Acc%04i -> Trans%s" % (account, row[0])
+                print "Acc%04i -> Trans%s;" % (account_id, row[0])
     return accounts
 
-def print_accounts(accounts):
-    rows = c.execute("SELECT CAST(id AS NUMERIC), description FROM accounts")
-    for (id, description) in rows:
-        if id in accounts:
-            print "Acc%04i [label=\"%s\"]" % (id, description)
+def print_accounts():
+    for id in accounts:
+        account = accounts[id]        
+        if account["used"]:
+            label = account["description"]
+            if not account["asset"]:
+                label += "[-]"
+            print "Acc%04i [label=\"%s\"]" % (id, label)
         
 print "digraph G {"
-print "  edge [len=2;]"
-accounts = print_transactions()
-print_accounts(accounts)
-print "Finish [shape=box, label=\"Winst\"]"
-print "Acc7000 -> Finish"
-print "Finish -> Acc8000"
+print "  edge [len=2]"
+load_accounts()
+print_transactions()
+print_accounts()
+print "Finish [shape=box, label=\"Winst\"];"
+print "Acc7000 -> Finish;"
+print "Finish -> Acc8000;"
 print "}"
 
 c.close()
