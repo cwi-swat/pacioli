@@ -162,6 +162,7 @@ class Importer:
             h = self.generate_hash(lines)
             print h
             if not h in hashes:
+                # NOTE: total_debit is not the total debit, it's just the last debit
                 d.execute("INSERT OR REPLACE INTO groups (hash, description, total_debit, accounts) VALUES (?, ?, ?, ?)",
                     (h, description, str(self.journal_lines_debet(lines)), ", ".join(sorted(map(lambda x: x[2], lines)))))
                 hashes[h] = d.lastrowid
