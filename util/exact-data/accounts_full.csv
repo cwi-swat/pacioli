@@ -1,0 +1,87 @@
+ID,reknr,oms25_0,bal_vw,debcrd,btw_code,kstplrek,aantallen,omzrek,type_rek,mineraal,afletteren,act_rek,type_rek2,centr_account
+108,     0010,Aandelenkapitaal,B,C,0  ,0,0,N,O,O,0,0,N,A
+294,     0011,Resultaat,B,C,0  ,0,0,N,O,O,0,0,N,A
+109,     0020,Algemene reserves,B,C,0  ,0,0,N,O,O,0,0,N,A
+278,     0060,Machines,B,D,0  ,0,0,A,O,O,0,1,N,A
+279,     0065,Afschrijving Machines,B,C,0  ,0,0,A,O,O,0,1,N,A
+110,     0070,Winst lopend boekjaar,B,C,0  ,0,0,N,O,O,0,0,N,A
+222,     0100,Lening,B,C,0  ,0,0,N,O,O,0,0,N,A
+291,     0105,Onderhanden werk saldo,B,C,0  ,0,0,N,O,O,0,0,N,A
+111,     0200,Gebouwen,B,D,0  ,0,0,A,O,O,0,1,N,A
+282,     0205,Afschrijving Gebouwen,B,C,0  ,0,0,A,O,O,0,1,N,A
+283,     0220,Inventaris,B,D,0  ,0,0,A,O,O,0,1,N,A
+284,     0225,Afschrijving inventaris,B,C,0  ,0,0,A,O,O,0,1,N,A
+285,     0230,Wagenpark,B,D,0  ,0,0,A,O,O,0,1,N,A
+286,     0235,Afschrijving wagenpark,B,C,0  ,0,0,A,O,O,0,1,N,A
+112,     1000,Kasboek,B,D,0  ,0,0,S,O,O,0,0,N,A
+304,     1010,Beleggingsrekening,B,D,0  ,0,0,S,O,O,0,0,N,A
+225,     1100,ABN AMRO Bank 0885210956,B,D,0  ,0,0,B,O,O,0,0,N,A
+277,     1150,RABO Bank 0118292161,B,D,0  ,0,0,N,O,O,0,0,N,A
+310,     1160,bank nieuw,B,D,0  ,0,0,B,O,O,0,0,N,A
+226,     1200,Postbank P9452367,B,D,0  ,0,0,B,O,O,0,0,N,A
+228,     1300,Debiteuren,B,D,0  ,0,0,D,O,O,0,0,N,A
+242,     1502,BTW af te dragen,B,D,0  ,0,0,C,O,O,1,0,N,A
+244,     1511,BTW Inkopen,B,D,0  ,0,0,C,O,O,1,0,N,A
+227,     1600,Crediteuren,B,C,0  ,0,0,C,O,O,0,0,N,A
+258,     1700,Af te dragen Loonheffing,B,C,0  ,0,0,N,A,V,0,0,I,N
+259,     1732,Te vorderen Loonheffingen,B,C,0  ,0,0,N,A,V,0,0,I,N
+260,     1740,Af te dragen Sociale premies Werknemer,B,C,0  ,0,0,N,A,V,0,0,I,N
+263,     1741,Af te dragen Overige Werknemerspremies,B,C,0  ,0,0,N,A,V,0,0,I,N
+262,     1745,Af te dragen Sociale premies Werkgever,B,C,0  ,0,0,N,A,V,0,0,I,N
+265,     1746,Af te dragen Overige Werkgeverspremies,B,C,0  ,0,0,N,A,V,0,0,I,N
+272,     1770,Te betalen Reservering 13e maand,B,C,0  ,0,0,N,A,V,0,0,I,N
+274,     1771,Reservering Werkgeverslasten 13e maand,B,C,0  ,0,0,N,A,V,0,0,I,N
+268,     1780,Te Betalen Reservering Vakantiegeld,B,C,0  ,0,0,N,A,V,0,0,I,N
+270,     1781,Reservering Werkgeverslasten Vakantiegeld,B,D,0  ,0,0,N,A,V,0,0,I,N
+299,     1910,Onderhanden Werk,B,D,0  ,0,0,N,A,O,0,0,I,N
+308,     2000,Belegd vermogen,B,D,0  ,0,0,G,A,O,0,0,I,N
+309,     2010,Beleggingsresultaat,B,D,0  ,0,0,N,A,O,0,0,I,N
+303,     2222,ongerealiseerd resultaat beleggingen,B,D,0  ,0,0,N,A,O,0,0,I,N
+231,     2300,Reservering,B,D,0  ,0,0,N,O,O,0,0,N,A
+236,     2400,Nog te ontvangen fakturen/goederen,B,D,0  ,0,1,N,O,O,0,0,N,A
+237,     2500,Tussenrekening logistiek,B,D,0  ,0,1,N,O,O,0,0,N,A
+238,     2600,Tussenrekening memoriaal,B,D,0  ,0,0,N,O,O,0,0,N,A
+239,     2700,Niet toegewezen betalingen/ontvangsten,B,D,0  ,0,0,N,O,O,0,0,N,A
+305,     2800,Belegd Vermogen,B,D,0  ,0,0,N,O,O,0,0,N,A
+306,     2810,Ongerealiseerd beleggingsresultaat,B,D,0  ,0,0,N,O,O,0,0,N,A
+229,     3000,Voorraad,B,D,0  ,0,1,G,O,O,0,0,N,A
+118,     4000,Brutolonen,W,D,0  ,0,0,K,O,O,0,0,N,A
+256,     4010,Bijzondere Beloningen,W,D,0  ,1,0,K,A,V,0,0,I,N
+257,     4021,Kosten nettovergoedingen,W,D,0  ,1,0,K,A,V,0,0,I,N
+266,     4030,Bijdrage Ziektekosten,W,D,0  ,1,0,K,A,V,0,0,I,N
+261,     4041,Kosten Sociale premies werkgever,W,D,0  ,1,0,K,A,V,0,0,I,N
+264,     4042,Kosten Overige Werkgeverpremies,W,D,0  ,1,0,K,A,V,0,0,I,N
+276,     4050,Opbrengsten Afdrachtverminderingen,W,D,0  ,1,0,K,A,V,0,0,I,N
+275,     4051,Kosten Spaarloon,W,D,0  ,1,0,K,A,V,0,0,I,N
+267,     4080,Kosten Vakantiegeld,W,D,0  ,1,0,K,A,V,0,0,I,N
+269,     4081,Kosten Werkgeverslasten Vakantiegeld,W,D,0  ,1,0,K,A,V,0,0,I,N
+271,     4090,Kosten 13e Maand,W,D,0  ,1,0,K,A,V,0,0,I,N
+273,     4091,Kosten Werkgeverslasten 13e Maand,W,D,0  ,1,0,K,A,V,0,0,I,N
+207,     4100,Waterabonnement,W,D,0  ,0,0,K,O,O,0,0,N,A
+119,     4400,Productiekosten,W,D,0  ,0,0,K,O,O,0,0,N,A
+120,     4500,Afschrijvingskosten Activa,W,D,0  ,0,0,N,O,O,0,1,N,A
+251,     4800,Bankkosten,W,D,0  ,0,0,K,O,O,0,0,N,A
+289,     5000,Dekking uren,B,D,0  ,0,0,G,O,O,0,0,N,A
+290,     5100,Onderhanden werk wijzigen,W,D,0  ,0,0,N,O,O,0,0,N,A
+240,     6000,Onderhanden werk,B,D,0  ,0,1,N,O,O,0,0,N,A
+295,     6010,Productiekosten,W,D,0  ,0,1,K,O,O,0,0,N,A
+296,     6020,Productieopbrengsten,W,D,0  ,0,1,J,O,O,0,0,N,A
+297,     6030,Afval,W,D,0  ,0,1,K,O,O,0,0,N,A
+298,     6040,Productieresultaten,W,D,0  ,0,1,J,O,O,0,0,N,A
+302,     6060,Uitval,W,D,0  ,0,1,N,O,O,0,0,N,A
+232,     7000,Kostprijs verkopen,W,D,0  ,0,1,K,O,O,0,0,N,A
+230,     8000,Omzet,W,C,2  ,0,1,J,O,O,0,0,N,A
+307,     8010,Beleggingsresultaat,W,D,0  ,0,1,J,O,O,0,0,N,A
+129,     9050,Prijsverschillen,W,D,0  ,0,0,N,O,O,0,0,N,A
+300,     9060,Rentekosten,W,D,0  ,0,1,N,O,O,0,0,N,A
+301,     9070,Additionele kosten,W,D,0  ,0,1,N,O,O,0,0,N,A
+233,     9100,Rekenverschillen,W,D,0  ,0,0,K,O,O,0,0,N,A
+234,     9200,Euro rekenverschillen,W,D,0  ,0,0,K,O,O,0,0,N,A
+292,     9250,Koeswinst/verlies,W,D,0  ,0,0,K,O,O,0,0,N,A
+293,     9280,Herwaardering financieel,W,D,0  ,0,0,K,O,O,0,0,N,A
+235,     9400,Verkoopkortingen,W,D,0  ,0,0,K,O,O,0,0,N,A
+246,     9410,Inkoopkortingen,W,D,0  ,0,0,J,O,O,0,0,N,A
+247,     9420,Betalingsverschillen verkoop,W,D,0  ,0,0,K,O,O,0,0,N,A
+248,     9430,Betalingsverschillen inkoop,W,D,0  ,0,0,K,O,O,0,0,N,A
+249,     9440,Kredietbeperking verkoop,W,D,0  ,0,0,K,O,O,0,0,N,A
+250,     9450,Kredietbeperking inkoop,W,D,0  ,0,0,K,O,O,0,0,N,A
