@@ -99,10 +99,36 @@ public Unit raise(Unit u, int pwr) =
 
 alias Binding = map[str, Unit];
 
+public bool unitLess (Unit u) = bases(u) != {};
+
 public tuple[bool, Binding] unifyUnits(Unit u1, Unit u2) { 
   tuple[bool, Binding] unify(Unit unit) {
     metas = filterUnit(bool (Unit u) {return u is variable;}, unit);
     nonMetas = filterUnit(bool (Unit u) {return !(u is variable);}, unit);
+    if (unitLess(metas)) {
+    	return <unitLess(nonMetas), ()>;
+    } else {
+      int m = size(bases(metas));
+      if (m == 1) {
+       if (all(power(x, unit) % power(y, unit) == 0, x <- bases(metas), y <- bases(nonMetas))) {
+         if (head <- bases(metas)) {
+           return ( head : raise(nonMetas, -1 / power(head, unit)) );
+         }
+       }
+       else {
+         return <false, ()>;
+       }
+      } else {
+         U = complicateSubst;
+         <success, S> = unify(apply(U, unit));
+         if (success) {
+           return compose(S, U);
+         }
+         return <false, ()>;
+      }
+    }
+    
+    
     println(metas);
     println(nonMetas);
     return <true, ()>;
