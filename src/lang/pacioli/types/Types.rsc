@@ -5,6 +5,9 @@ import Set;
 import List;
 import IO;
 
+import lang::pacioli::ast::KernelPacioli;
+import lang::pacioli::utils::Implode;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Required mathematical functions
 
@@ -438,23 +441,7 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Expressions
 
-data Expression = variable(str name)
-                | pair2(Expression first, Expression second)
-				| abstraction(str var, Expression body)
- 				| application(Expression fn, Expression arg);
-
-public str pprint(Expression exp) {
-	switch(exp) {
-		case variable(x): return "<x>";
-		case pair2(x,y): return "(<pprint(x)>,<pprint(y)>)";
-		case abstraction(x,y): return "lambda <x> <pprint(y)>";	
-		case application(x,pair2(y,z)): return "<pprint(x)><pprint(pair2(y,z))>";	
-		case application(x,y): return "<pprint(x)> <pprint(y)>";
-	}
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Type Inference
@@ -728,6 +715,20 @@ public void testje6 () {
                        env); 
 	println(pprint(t));
 }
+
+public void testje7 () {
+	
+	<t, s1> = inferType(parseImplodePacioli("lambda x sqrt sum mult (x,x)"), env); 
+	println(pprint(t));
+}
+
+public void testje8 () {
+	
+	<t, s1> = inferType(parseImplodePacioli("lambda x lambda y join (minus(x,y),minus(y,x))"), env); 
+	println(pprint(t));
+}
+
+
 
 public void runAll() {
 	testje0();

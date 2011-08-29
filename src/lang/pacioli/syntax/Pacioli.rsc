@@ -1,6 +1,6 @@
 module lang::pacioli::syntax::Pacioli
 
-import lang::pacioli::syntax::Lexical;
+extend lang::pacioli::syntax::Lexical;
 
 start syntax Pacioli = Pacioli: Module mod;
 
