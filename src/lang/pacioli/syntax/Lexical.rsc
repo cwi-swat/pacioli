@@ -1,7 +1,7 @@
 module lang::pacioli::syntax::Lexical
 
 lexical Ident 
-	= id: ([A-Za-z] !<< [a-zA-Z][a-zA-Z0-9]* !>> [A-Za-z0-9]) \ Keywords 
+	= id: ([A-Za-z_] !<< [a-zA-Z_][a-zA-Z_0-9]* !>> [A-Za-z_0-9]) \ Keywords 
 	;
 	
 lexical Number 

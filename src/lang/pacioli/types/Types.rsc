@@ -50,11 +50,13 @@ data Unit
   | named(str symbolic, Unit definition)
   | scaled(Unit namedUnit, Prefix prefix)
   | powerProduct(Powers powers, real factor)
+  | compoundUnit(list[Unit])
   ;
   
 data Prefix
   = prefix(str symbolic, real factor)
   ; 
+  
 public set[Unit] bases(powerProduct(Powers ps, real _)) = ps.units;
   
 public int power(powerProduct(powers, _), Unit base) = powers[base] ? 0;
@@ -160,7 +162,7 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
     		if (size(bases(nonVars)) == 0) {
       			return <true, b>;
       		} else {
-      			error = "unit failure: <u1> <u2>";
+      			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
       			return <false, b>;
       		}
     	} else {
@@ -173,7 +175,7 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	       		    	power(unit, x) % minp == 0)) {
 	           		return <true, mergeUnits(b, (name: raise(nonVars, -1 / minp)))>;
 	       		} else {
-	       			error = "unit failure: <u1> <u2>";
+	       			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
 	         		return <false, b>;
 	       		}
 	      	} else {
@@ -237,9 +239,10 @@ data IndexType
 
 data EntityType
   = entityVar(str name)
-  | compound(list[EntityType] types)
-  | simple(str name)
+  | compound(list[SimpleEntity] types)
   ;
+
+data SimpleEntity = simple(str name);
 
 public Scheme schemeSubs(substitution(ub, eb, tb),
 						 forall(unitVars, entityVars, typeVars, typ)) {
@@ -281,18 +284,47 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 	unitText = (unit == uno()) ? "" : ".<pprint(unit)>";
 	switch (entity) {
 		case entityVar(x): return "\'<x><unitText>";
-		case compound(x): return "<x><unitText>";
-		case simple(x): return "<x><unitText>";
-		default: return "<unit>";
+		case compound([]): return "empty";
+		case compound(x): {
+			simpleIndices = [pprintSimpleIndex(ent,un) | <ent,un> <- indexList(x,unit)];
+			return ("<head(simpleIndices)>" | "<it> * <y>" | y <- tail(simpleIndices));
+		}
 	}
 } 
+
+
+private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
+	switch (<entities,unit>) {
+		case <[],_>: return [];
+		case <x, compoundUnit(y)>: {
+			return [<head(x),head(y)>] + indexList(tail(x), compoundUnit(tail(y)));
+		}
+		case <x, y>: {
+			return [<head(x),y>] + indexList(tail(x), y);
+		}
+		default: println(<entities,unit>);
+	}
+}
+
+private str pprintSimpleIndex(simple(name), Unit unit) {
+	return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
+}
 
 public str pprint(Type t) {
 	switch (t) {
 		case typeVar(x): return "\'<x>";
-		case matrix(a,pu0,qv0): return "<pprint(a)> * <pprint(pu0)> per <pprint(qv0)>";
+		case matrix(a,pu0,qv0): {
+			fact = pprint(a);
+			row = pprint(pu0);
+			col = pprint(qv0);
+			front = (fact == "1") ? "" : "<fact>";	
+			rows = (row == "empty") ? "" : "<row>";
+			cols = (col == "empty") ? "" : " per <col>";
+			sep = (front != "" && rows != "") ? " * " : "";
+			return "<front><sep><rows><cols>";
+		}
 		case function(x,y): return "(<pprint(x)> -\> <pprint(y)>)";
-		case pair(x,y): return "(<pprint(x)> x <pprint(y)>)";
+		case pair(x,y): return "(<pprint(x)>,<pprint(y)>)";
 		default: return "<t>";
 	}
 } 
@@ -305,7 +337,6 @@ alias EntityBinding = map[str, EntityType];
 public EntityType entitySubs(EntityBinding b, EntityType typ) {
 	switch (typ) {
 		case entityVar(x): return (x in b) ? entitySubs(b, b[x]) : typ;
-		case compound(x): return compound([entitySubs(b,t) | t <- x]);
 		default: return typ;
 	}
 }
@@ -321,7 +352,6 @@ public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, Enti
 	}
 	
 	switch (<x,y>) {
-		case <simple(a), simple(a)>: return <true, binding>; 
 		case <compound(a), compound(a)>: return <true, binding>;
 		case <entityVar(a), entityVar(a)>: return <true, binding>; 
 		case <EntityType a, entityVar(b)>: return unifyVar(b,a); 
@@ -385,8 +415,12 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			return unifyTypes(typeSubs(binding, typeVar(var)), b, binding);
 			
 		} else {
-			//todo, also in other unifyVar functions!!!
-			//println("occurs <var> <typeVariables(typeSubs(binding,b))>");
+			// todo: decide on unification strategy
+			//if (var in typeVariables(typeSubs(binding,b))) {
+			if (var in typeVariables(b)) {
+				error = "cycle";
+				return <false, ident>;
+			}
 			return <true, merge(binding, bindTypeVar(var,b))>;
 		}	
 	}
@@ -440,8 +474,6 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 		}
 	}
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Type Inference
@@ -517,6 +549,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 
 public Unit gram = named("g", self());
 public Unit metre = named("m", self());
+public Unit dollar = named("$", self());
 
 //public Type vt0 = typeVar("t0");
 //public Type vt1 = typeVar("t1");
@@ -540,17 +573,31 @@ public Unit metre = named("m", self());
 // unifyUnits(gram, multiply(vu1, vu1), ());
 // unifyUnits(gram, multiply(raise(vu0,2), vu1), ());
 
-public EntityType Product = simple("Product");
+public IndexType empty = duo(compound([]), uno());
+
+public EntityType Product = compound([simple("Product")]);
 public Unit tradeUnit = named("trade_unit", self());
 public Unit bomUnit = named("bom_unit", self());
 
-public IndexType tradeType = duo(Product, tradeUnit);
-public IndexType bomType = duo(Product, bomUnit);
+public IndexType tradeIndex = duo(Product, tradeUnit);
+public IndexType bomIndex = duo(Product, bomUnit);
 
-//public Type mt1 = matrix(uno(), bomType, bomType);
+
+public SimpleEntity Commodity = simple("Commodity");
+public SimpleEntity Year = simple("Year");
+public SimpleEntity Region = simple("Region");
+public Unit commodityUnit = named("unit", self());
+
+//public IndexType commodityUnitIndex = duo(Commodity, commodityUnit);
+//public IndexType commodityIndex = duo(Commodity, uno());
+//public IndexType yearIndex = duo(Year, uno());
+//public IndexType regionIndex = duo(Region, uno());
+
+
+//public Type mt1 = matrix(uno(), bomIndex, bomIndex);
 //public Type mt2 = matrix(va0, duo(vP, vu0), duo(vQ, vu1));
 //
-//public Type mt3 = matrix(va0, duo(vP, vu0), bomType);
+//public Type mt3 = matrix(va0, duo(vP, vu0), bomIndex);
 //public Type mt4 = matrix(va1, duo(vQ, vu1), duo(vQ, vu1));
 
 
@@ -559,7 +606,14 @@ public IndexType bomType = duo(Product, bomUnit);
 // typeSubs(substitution(("u0": gram, "u1": metre),(),()), mt2);
   
 public Environment env =
-  ("bom": forall({},{},{}, matrix(uno(), bomType, bomType)),
+  ("bom": forall({},{},{}, matrix(uno(), bomIndex, bomIndex)),
+   "conv": forall({},{},{}, matrix(uno(), tradeIndex, bomIndex)),
+   "output": forall({},{},{}, matrix(uno(), tradeIndex, empty)),
+   "purchase_price": forall({},{},{}, matrix(uno(), tradeIndex, empty)),
+   "sales_price": forall({},{},{}, matrix(dollar, empty, tradeIndex)),
+   "sales": forall({},{},{}, matrix(dollar, empty, duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
+   "amount": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), uno()), empty)),   
+   "P0": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), uno()), duo(compound([Commodity]), uno()))),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(pair(matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -570,13 +624,20 @@ public Environment env =
 				           matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("R"), unitVar("w"))))),
+	"trans": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("Q"), raise(unitVar("v"),-1)),
+  				  				  duo(entityVar("P"), raise(unitVar("u"),-1))))),
 	"sum": forall({"a"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), uno()),
   				  				  duo(entityVar("Q"), uno())),
 				           matrix(unitVar("a"), 
-  				  				  duo(compound([]), uno()),
-  				  				  duo(compound([]), uno())))),
+  				  				  empty,
+  				  				  empty))),
 	"sqrt": forall({"a"},{},{},
   				  function(matrix(multiply(unitVar("a"),unitVar("a")), 
   				  				  duo(compound([]), uno()),
@@ -584,6 +645,16 @@ public Environment env =
 				           matrix(unitVar("a"), 
   				  				  duo(compound([]), uno()),
   				  				  duo(compound([]), uno())))),
+   "plus": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(pair(matrix(unitVar("a"), 
+  				  					   duo(entityVar("P"), unitVar("u")),
+  				  					   duo(entityVar("Q"), unitVar("v"))),
+  				  				matrix(unitVar("a"), 
+  				  					   duo(entityVar("P"), unitVar("u")),
+  				  					   duo(entityVar("Q"), unitVar("v")))),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
    "mult": forall({"a", "b", "u", "v", "w", "z"},{"P", "Q"},{},
 				function(pair(matrix(unitVar("a"), 
   				  					 duo(entityVar("P"), unitVar("u")),
@@ -595,147 +666,36 @@ public Environment env =
   				  				duo(entityVar("P"), multiply(unitVar("u"), unitVar("w"))),
   				  				duo(entityVar("Q"), multiply(unitVar("v"), unitVar("z")))))),
    "minus": forall({"a", "u", "v"},{"P", "Q"},{},
-  				  function(pair(matrix(unitVar("a"), 
-  				  					   duo(entityVar("P"), unitVar("u")),
-  				  					   duo(entityVar("Q"), unitVar("v"))),
-  				  				matrix(unitVar("a"), 
-  				  					   duo(entityVar("P"), unitVar("u")),
-  				  					   duo(entityVar("Q"), unitVar("v")))),
+  				  function(matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))),
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
-  				  				  duo(entityVar("Q"), unitVar("v"))))));
-				     
-public void testje0 () {
-	<t, s1> = inferType(abstraction(
-							"x", 
-							application(
-								variable("join"), 
-                                pair2(variable("x"),
-                                      variable("x")))),
-                       env); 
-	println(pprint(t));
-}
-
-public void testje1 () {
-	<t, s1> = inferType(abstraction(
-							"x", 
-							application(
-								variable("join"), 
-                                pair2(variable("bom"),
-                                      variable("x")))),
-                       env); 
-	println(pprint(t));
-}
-				     
-public void testje2 () {
-	<t, s1> = inferType(
-				abstraction(
-					"x", 
-					abstraction(
-						"y", 
-						application(
-							variable("join"), 
-                            pair2(application(
-									variable("minus"), 
-                                    pair2(variable("x"),
-                                          variable("y"))),
-                                  application(
-									variable("minus"), 
-                                    pair2(variable("y"),
-                                          variable("x"))))))),
-                       env); 
-	println(pprint(t));
-}
-
-public void testje3 () {
-	<t, s1> = inferType(
-					abstraction(
-						"y", 
-						application(
-							variable("minus"), 
-                            pair2(application(
-									variable("minus"), 
-                                    pair2(variable("y"),
-                                          variable("y"))),
-                                  application(
-									variable("minus"), 
-                                    pair2(variable("y"),
-                                          variable("y")))))),
-                       env); 
-	println(pprint(t));
-}
-
-public void testje4 () {
-	<t, s1> = inferType(
-				abstraction(
-					"x", 
-					abstraction(
-						"y", 
-						application(
-							variable("mult"), 
-                            pair2(application(
-									variable("minus"), 
-                                    pair2(variable("x"),
-                                          variable("y"))),
-                                  application(
-									variable("minus"), 
-                                    pair2(variable("y"),
-                                          variable("x"))))))),
-                       env); 
-	println(pprint(t));
-}
-
-public void testje5 () {
-	<t, s1> = inferType(
-					abstraction(
-						"x", 
-					        application(
-								variable("sum"), 
-                                application(
-									variable("mult"), 
-                                    pair2(variable("x"),
-                                          variable("x"))))),
-                       env); 
-	println(pprint(t));
-}
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
+   "reci": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))),
+				           matrix(raise(unitVar("a"),-1), 
+  				  				  duo(entityVar("P"), raise(unitVar("u"), -1)),
+  				  				  duo(entityVar("Q"), raise(unitVar("v"), -1))))));
 
 
-public void testje6 () {
-	<t, s1> = inferType(
-					abstraction(
-						"x", 
-						application(
-							variable("sqrt"), 
-                            application(
-								variable("sum"), 
-                                application(
-									variable("mult"), 
-                                    pair2(variable("x"),
-                                          variable("x")))))),
-                       env); 
+public void show (str exp) {
+	<t, s> = inferType(parseImplodePacioli(exp), env); 
 	println(pprint(t));
 }
-
-public void testje7 () {
 	
-	<t, s1> = inferType(parseImplodePacioli("lambda x sqrt sum mult (x,x)"), env); 
-	println(pprint(t));
-}
-
-public void testje8 () {
-	
-	<t, s1> = inferType(parseImplodePacioli("lambda x lambda y join (minus(x,y),minus(y,x))"), env); 
-	println(pprint(t));
-}
-
-
-
-public void runAll() {
-	testje0();
-	testje1();
-	testje2();
-	testje3();
-	testje4();
-	testje5();
-	testje6();
+public void showAll() {
+	stack = [];
+	show("lambda x join(x,x)");
+	show("lambda x join(bom,x)");
+	show("lambda x plus(plus(x,x),plus(x,x))");
+	show("lambda x mult(plus(x,x),plus(x,x))");
+	show("lambda x sum mult (x,x)");
+	show("lambda x sqrt sum mult (x,x)");
+	show("lambda x lambda y join (plus(x,minus(y)),plus(y,minus(x)))");
+	show("lambda x lambda y plus(join(x,y),minus(join(y,x)))");
+	show("(lambda bom2 join(bom2,output)) join(conv,join(bom,reci trans conv))");
+	show("mult(sales,reci trans amount)");
 }
