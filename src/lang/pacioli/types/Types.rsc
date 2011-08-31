@@ -35,9 +35,9 @@ public int floor(int x, int div) {
 ////////////////////////////////////////////////////////////////////////////////
 // General Utilities
 
-public int counter = 0;
+public int glbcounter = 0;
 
-public str fresh(str x) {counter += 1; return "<x><counter>";}
+public str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Units
@@ -48,7 +48,7 @@ data Unit
   = unitVar(str name)
   | self()
   | named(str symbolic, Unit definition)
-  | scaled(Unit namedUnit, Prefix prefix)
+  | scaled(Unit unit, Prefix prefix)
   | powerProduct(Powers powers, real factor)
   | compoundUnit(list[Unit])
   ;
@@ -77,8 +77,6 @@ public Unit powerProduct(powers, 1.0) {
   fail;
 }
     
-public bool unitLess (Unit u) = bases(u) == {};
-
 public Unit multiply(Unit u1, Unit u2) =  
   powerProduct((base: p | base <- bases(u1) + bases(u2), 
                           p := power(u1, base) + power(u2, base), 
@@ -91,14 +89,23 @@ public Unit raise(Unit u, int pwr) =
                        p != 0),
                expt(factor(u), pwr));
 
-public Unit divide(Unit u1, Unit u2) = multiply(u1, raise(u2,-1));
+public Unit divide(Unit u1, Unit u2) = multiply(u1, reciprocal(u2));
 
 public Unit reciprocal(Unit u) = raise(u,-1);
 
 public Unit uno() = powerProduct((), 1.0);
 
+public Unit nthUnit(Unit unit, int n) {
+	return mapUnit(Unit(Unit u) {
+	 	switch(u) {
+	 		case compoundUnit(x): return x[n];
+	 		default: return u;
+		}
+	}, unit); 
+}
+
 public &T foldUnit(&T(Unit) baseFun, &T(&T, &T) productFun, &T(&T) inverse, Unit unit, &T init) {
-  // Is een call van baseFun op uno() ipv init argument ook een optie? Meen me te 
+  // Is een call van baseFun op uno() ipv init argument ook een optie? of op nul args? Meen me te 
   // herinneren dat het een slecht idee is. Waarom heeft de Lisp fold geen init?
 	lst = [];
 	for (x <- bases(unit)) {
@@ -124,12 +131,18 @@ public str pprint(Unit u) {
 			text = (f == 1.0) ? "" : "<f>*";
 			for (x <- p) {
 				//text = text + "·<pprint(x)>^<p[x]>";
-				text = text + "<pprint(x)>^<p[x]>";
+				text = text + "<pprint(x)><(p[x] == 1) ? "" : "^<p[x]>">";
 			}
 			if (text == "") {
 				text = "1";
 			}
 			return text;
+		}
+		case compoundUnit([]): {
+			return "1";
+		}
+		case compoundUnit(units): {
+			return (pprint(head(units)) | "<it>*<pprint(x)>" | x <- tail(units));
 		}
 		default: return "<u>";
 	}
@@ -162,7 +175,7 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
     		if (size(bases(nonVars)) == 0) {
       			return <true, b>;
       		} else {
-      			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
+      			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
       			return <false, b>;
       		}
     	} else {
@@ -175,7 +188,7 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	       		    	power(unit, x) % minp == 0)) {
 	           		return <true, mergeUnits(b, (name: raise(nonVars, -1 / minp)))>;
 	       		} else {
-	       			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
+	       			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
 	         		return <false, b>;
 	       		}
 	      	} else {
@@ -190,34 +203,13 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	      	}
     	}
 	}
-	return unify(multiply(u1, raise(u2, -1)), binding);
+	return unify(multiply(u1, reciprocal(u2)), binding);
 }
 
-// Hoe te folden zonder initial value?
 private Unit minBase(Unit metas) {
-	m = abs(power(metas, maxBase(metas)));
-	Unit base;
-    for (x <- bases(metas)) {
-    	p = abs(power(metas, x));
-    	if (p <= m) {
-    		m = p;
-    		base = x; 
-    	}
-    }
-    return base;
-}
-
-public Unit maxBase(Unit metas) {
-	m = 0;
-	Unit base;
-    for (x <- bases(metas)) {
-    	p = abs(power(metas, x));
-    	if (p >= m) {
-    		m = p;
-    		base = x;
-    	}
-    }
-    return base;
+	private int f(base) = abs(power(metas, base));
+	baseList = [b | b <- bases(metas)];
+	return (head(baseList) | (f(it) > f(x)) ? x : it | x <- baseList);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -243,6 +235,9 @@ data EntityType
   ;
 
 data SimpleEntity = simple(str name);
+
+public int order(compound(x)) = size(x);
+public int order(duo(x,_)) = oder(x);
 
 public Scheme schemeSubs(substitution(ub, eb, tb),
 						 forall(unitVars, entityVars, typeVars, typ)) {
@@ -280,36 +275,6 @@ public set[str] typeVariables(function(x,y)) = typeVariables(x)+typeVariables(y)
 public set[str] typeVariables(pair(x,y)) = typeVariables(x)+typeVariables(y);
 public set[str] typeVariables(_) = {};
 
-public str pprint(duo(EntityType entity, Unit unit)) {
-	unitText = (unit == uno()) ? "" : ".<pprint(unit)>";
-	switch (entity) {
-		case entityVar(x): return "\'<x><unitText>";
-		case compound([]): return "empty";
-		case compound(x): {
-			simpleIndices = [pprintSimpleIndex(ent,un) | <ent,un> <- indexList(x,unit)];
-			return ("<head(simpleIndices)>" | "<it> * <y>" | y <- tail(simpleIndices));
-		}
-	}
-} 
-
-
-private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
-	switch (<entities,unit>) {
-		case <[],_>: return [];
-		case <x, compoundUnit(y)>: {
-			return [<head(x),head(y)>] + indexList(tail(x), compoundUnit(tail(y)));
-		}
-		case <x, y>: {
-			return [<head(x),y>] + indexList(tail(x), y);
-		}
-		default: println(<entities,unit>);
-	}
-}
-
-private str pprintSimpleIndex(simple(name), Unit unit) {
-	return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
-}
-
 public str pprint(Type t) {
 	switch (t) {
 		case typeVar(x): return "\'<x>";
@@ -318,8 +283,8 @@ public str pprint(Type t) {
 			row = pprint(pu0);
 			col = pprint(qv0);
 			front = (fact == "1") ? "" : "<fact>";	
-			rows = (row == "empty") ? "" : "<row>";
-			cols = (col == "empty") ? "" : " per <col>";
+			rows = (row == "(empty).(1)") ? "" : "<row>";
+			cols = (col == "(empty).(1)") ? "" : " per <col>";
 			sep = (front != "" && rows != "") ? " * " : "";
 			return "<front><sep><rows><cols>";
 		}
@@ -328,6 +293,42 @@ public str pprint(Type t) {
 		default: return "<t>";
 	}
 } 
+public str pprint(duo(EntityType entity, Unit unit)) {
+
+	private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
+		return [ <entities[i],nthUnit(unit,i)> | i <- [0..size(entities)-1]];
+	}
+	
+	private str pprintSimpleIndex(simple(name), Unit unit) {
+		return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
+	}
+
+	switch (entity) {
+		case entityVar(x): return "\'<x>.<pprint(unit)>";
+		default: {
+			if (entityVariables(entity) == {} && unitVariables(unit) == {} && compound(x) := entity) {
+				if (x == []) {
+					return "(empty).(1)";
+				} else {
+					simpleIndices = [pprintSimpleIndex(ent,un) | <ent,un> <- indexList(x,unit)];
+					return ("<head(simpleIndices)>" | "<it>*<y>" | y <- tail(simpleIndices));
+				} 
+			} else {
+				return "[<entityVariables(entity)> <unitVariables(unit)>](<pprint(entity)>).(<pprint(unit)>)";
+			}
+		}
+	}
+} 
+
+public str pprint(EntityType t) {
+	switch (t) {
+		case entityVar(x): return "\'<x>";
+		case compound([]): return "empty";
+		case compound(x): return ("<pprint(head(x))>" | "<it>*<pprint(y)>" | y <- tail(x)); 
+	}
+}
+
+public str pprint(simple(x)) = x;
 
 ////////////////////////////////////////////////////////////////////////////////
 // EntityType unification
@@ -357,7 +358,7 @@ public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, Enti
 		case <EntityType a, entityVar(b)>: return unifyVar(b,a); 
 		case <entityVar(a), EntityType b>: return unifyVar(a,b); 
 		default: {
-			error = "entity failure: <x> and <y>";
+			glberror = "entity failure: <pprint(x)> and <pprint(y)>";
 			return <false, ()>;
 		}
 	}
@@ -379,6 +380,23 @@ public bool containsType (substitution(ub,eb,tb), str name) = name in tb;
 public Substitution bindUnitVar(str key, Type typ) = substitution((key: typ),(),()); 
 public Substitution bindEntityVar(str key, Type typ) = substitution((),(key: typ),());
 public Substitution bindTypeVar(str key, Type typ) = substitution((),(),(key: typ));
+
+public Type unfresh(Type t) {
+	s = substitution(unitUnfresh(unitVariables(t)),entityUnfresh(entityVariables(t)),());
+	return typeSubs(s,t);
+}
+
+public UnitBinding unitUnfresh(set[str] variables) {
+	int counter = 0;
+	private int f() {counter = counter + 1; return counter-1;};
+	return (name: unitVar("u<f()>") | name <- variables);
+}
+
+public EntityBinding entityUnfresh(set[str] variables) {
+	int counter = 0;
+	private int f() {counter = counter + 1; return counter-1;};
+	return (name: entityVar("E<f()>") | name <- variables);
+}
 
 public Substitution merge(substitution(ub0,eb0,tb0), substitution(ub1,eb1,tb1)) {
 	return substitution(mergeUnits(ub0,ub1),
@@ -415,10 +433,8 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			return unifyTypes(typeSubs(binding, typeVar(var)), b, binding);
 			
 		} else {
-			// todo: decide on unification strategy
-			//if (var in typeVariables(typeSubs(binding,b))) {
 			if (var in typeVariables(b)) {
-				error = "cycle";
+				glberror = "cycle";
 				return <false, ident>;
 			}
 			return <true, merge(binding, bindTypeVar(var,b))>;
@@ -484,22 +500,8 @@ public Environment envSubs(Substitution s, Environment e) {
 	return (key: schemeSubs(s, e[key]) | key <- e);
 }
 
-public list[str] stack = [];
-public str error = "so far, so good";
-
-public str filler(int n) = (n==0) ? "" : ("" | it + " " | _ <- [1..n]); 
-
-public void push(str log) {
-	stack = [log] + stack;
-	n = size(stack); 
-	println("<filler(n)><n>\> <head(stack)>");
-}
-
-public void pop(str log) {
-	n = size(stack);
-	println("<filler(n)>\<<n> <log>");
-	stack = tail(stack); 
-}
+public list[str] glbstack = [];
+public str glberror = "so far, so good";
 
 public tuple[Type, Substitution] inferType(Expression exp, Environment assumptions) {
 	push("<pprint(exp)>");
@@ -521,16 +523,15 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			<argType, s2> = inferType(y, envSubs(s1, assumptions));
 			s12 = merge(s1,s2);
 			beta = fresh("identifier");
-			fn = typeSubs(s2, funType);
 			template = function(argType, typeVar(beta));
-			<succ, s3> = unifyTypes(fn, template, s12);
+			<succ, s3> = unifyTypes(typeSubs(s2, funType), template, s12);
 			if (succ) {
 				s123 = merge(s12,s3);
 				typ = typeSubs(s123, typeVar(beta));
 				pop("<pprint(typ)>");
 				return <typ, s123>;
 			} else {
-				println("app FAILURE!!!!!!!!! <error> \n <exp>\n <fn>\n <template>\n\n<stack>");
+				println("\nType error: <glberror>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
 			}
 		}
 		case abstraction(x,b): {
@@ -540,80 +541,61 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			pop("<pprint(typ)>");
 			return <typ, s1>;
 		}
-		default: println("<exp>  FAILURE!!!!!!!!! <error> \n\n<stack>");
 	}
 }
+
+public void push(str log) {
+	glbstack = [log] + glbstack;
+	n = size(glbstack)-1; 
+	println("<filler(n)><n>\> <head(glbstack)>");
+}
+
+public void pop(str log) {
+	n = size(glbstack)-1;
+	println("<filler(n)><n>\< <log>");
+	glbstack = tail(glbstack); 
+}
+
+public str filler(int n) = (n==0) ? "" : ("" | it + " " | _ <- [1..n]); 
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
 
-public Unit gram = named("g", self());
-public Unit metre = named("m", self());
-public Unit dollar = named("$", self());
+public Environment env() {
 
-//public Type vt0 = typeVar("t0");
-//public Type vt1 = typeVar("t1");
-//public Type vt2 = typeVar("t2");
-//public Unit va0 = unitVar("a0");  // scalar by convention
-//public Unit va1 = unitVar("a1");
-//public Unit vu0 = unitVar("u0");  // vector by convention
-//public Unit vu1 = unitVar("u1");
-//public Unit vu2 = unitVar("u2");
-//public EntityType vP = entityVar("P");
-//public EntityType vQ = entityVar("Q");
-//public EntityType vR = entityVar("R");
+	Unit gram = named("g", self());
+	Unit metre = named("m", self());
+	Unit dollar = named("$", self());
 
-// unifyUnits(gram, gram, ());
-// unifyUnits(gram, metre, ());
-// unifyUnits(vu0, metre, ());
-// unifyUnits(vu0, multiply(metre, gram), ());
-// unifyUnits(vu0, multiply(metre, vu1), ());
-// unifyUnits(gram, multiply(metre, vu1), ());
-// unifyUnits(gram, multiply(vu0, vu1), ());
-// unifyUnits(gram, multiply(vu1, vu1), ());
-// unifyUnits(gram, multiply(raise(vu0,2), vu1), ());
-
-public IndexType empty = duo(compound([]), uno());
-
-public EntityType Product = compound([simple("Product")]);
-public Unit tradeUnit = named("trade_unit", self());
-public Unit bomUnit = named("bom_unit", self());
-
-public IndexType tradeIndex = duo(Product, tradeUnit);
-public IndexType bomIndex = duo(Product, bomUnit);
+	IndexType empty = duo(compound([]), uno());
+	
+	EntityType Product = compound([simple("Product")]);
+	Unit tradeUnit = named("trade_unit", self());
+	Unit bomUnit = named("bom_unit", self());
+	
+	IndexType tradeIndex = duo(Product, tradeUnit);
+	IndexType bomIndex = duo(Product, bomUnit);
+	
+	SimpleEntity Commodity = simple("Commodity");
+	SimpleEntity Year = simple("Year");
+	SimpleEntity Region = simple("Region");
+	Unit commodityUnit = named("unit", self());
 
 
-public SimpleEntity Commodity = simple("Commodity");
-public SimpleEntity Year = simple("Year");
-public SimpleEntity Region = simple("Region");
-public Unit commodityUnit = named("unit", self());
-
-//public IndexType commodityUnitIndex = duo(Commodity, commodityUnit);
-//public IndexType commodityIndex = duo(Commodity, uno());
-//public IndexType yearIndex = duo(Year, uno());
-//public IndexType regionIndex = duo(Region, uno());
-
-
-//public Type mt1 = matrix(uno(), bomIndex, bomIndex);
-//public Type mt2 = matrix(va0, duo(vP, vu0), duo(vQ, vu1));
-//
-//public Type mt3 = matrix(va0, duo(vP, vu0), bomIndex);
-//public Type mt4 = matrix(va1, duo(vQ, vu1), duo(vQ, vu1));
-
-
-// unifyTypes(mt1, mt1, ident);
-// unifyTypes(mt1, mt2, ident);
-// typeSubs(substitution(("u0": gram, "u1": metre),(),()), mt2);
-  
-public Environment env =
-  ("bom": forall({},{},{}, matrix(uno(), bomIndex, bomIndex)),
+  return (
+   "bom": forall({},{},{}, matrix(uno(), bomIndex, bomIndex)),
    "conv": forall({},{},{}, matrix(uno(), tradeIndex, bomIndex)),
    "output": forall({},{},{}, matrix(uno(), tradeIndex, empty)),
    "purchase_price": forall({},{},{}, matrix(uno(), tradeIndex, empty)),
    "sales_price": forall({},{},{}, matrix(dollar, empty, tradeIndex)),
-   "sales": forall({},{},{}, matrix(dollar, empty, duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
-   "amount": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), uno()), empty)),   
+   "sales": forall({},{},{}, matrix(dollar, empty, duo(compound([Commodity, Year, Region]), uno()))),
+   "amount": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])), empty)),
    "P0": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), uno()), duo(compound([Commodity]), uno()))),
+   "P1": forall({},{},{}, matrix(uno(), duo(compound([Commodity, Year, Region]), uno()), duo(compound([Commodity, Year]), uno()))),   
+   "P2": forall({},{},{}, matrix(uno(), duo(compound([Year, Commodity]), compoundUnit([uno(), commodityUnit])),
+                                        duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
+   "P3": forall({},{},{}, matrix(uno(), duo(compound([Year]), uno()),
+                                        duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(pair(matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -629,8 +611,8 @@ public Environment env =
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))),
 				           matrix(unitVar("a"), 
-  				  				  duo(entityVar("Q"), raise(unitVar("v"),-1)),
-  				  				  duo(entityVar("P"), raise(unitVar("u"),-1))))),
+  				  				  duo(entityVar("Q"), reciprocal(unitVar("v"))),
+  				  				  duo(entityVar("P"), reciprocal(unitVar("u")))))),
 	"sum": forall({"a"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), uno()),
@@ -676,18 +658,19 @@ public Environment env =
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))),
-				           matrix(raise(unitVar("a"),-1), 
-  				  				  duo(entityVar("P"), raise(unitVar("u"), -1)),
-  				  				  duo(entityVar("Q"), raise(unitVar("v"), -1))))));
-
+				           matrix(reciprocal(unitVar("a")), 
+  				  				  duo(entityVar("P"), reciprocal(unitVar("u"))),
+  				  				  duo(entityVar("Q"), reciprocal(unitVar("v")))))));
+}
 
 public void show (str exp) {
-	<t, s> = inferType(parseImplodePacioli(exp), env); 
-	println(pprint(t));
+	glbstack = [];
+	parsed = parseImplodePacioli(exp);
+	<typ, _> = inferType(parsed, env());
+	println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
 }
 	
 public void showAll() {
-	stack = [];
 	show("lambda x join(x,x)");
 	show("lambda x join(bom,x)");
 	show("lambda x plus(plus(x,x),plus(x,x))");
@@ -698,4 +681,6 @@ public void showAll() {
 	show("lambda x lambda y plus(join(x,y),minus(join(y,x)))");
 	show("(lambda bom2 join(bom2,output)) join(conv,join(bom,reci trans conv))");
 	show("mult(sales,reci trans amount)");
+	show("(lambda price mult(join(price, reci trans P2),join(price, reci trans P2))) mult(sales,reci trans amount)");
+	show("(lambda price join(price, reci trans P2)) mult(sales,reci trans amount)");
 }
