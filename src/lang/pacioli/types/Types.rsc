@@ -129,9 +129,17 @@ public str pprint(Unit u) {
 		case unitVar(x): return "\'<x>";
 		case powerProduct(p, f): {
 			text = (f == 1.0) ? "" : "<f>*";
-			for (x <- p) {
-				//text = text + "·<pprint(x)>^<p[x]>";
+			for (x <- p,p[x]>0) {
+				//text = text + "·<pprint(x)><(p[x] == 1) ? "" : "^<p[x]>">";
 				text = text + "<pprint(x)><(p[x] == 1) ? "" : "^<p[x]>">";
+			}
+			if ({x | x <- p, p[x]<0} != {}) {
+				text = text + "/";
+			}
+			for (x <- p, p[x]<0) {
+				//text = text + "·<pprint(x)><(p[x] == 1) ? "" : "^<p[x]>">";
+				po = -p[x];
+				text = text + "<pprint(x)><(po == 1) ? "" : "^<po>">";
 			}
 			if (text == "") {
 				text = "1";
@@ -305,6 +313,7 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 
 	switch (entity) {
 		case entityVar(x): return "\'<x>.<pprint(unit)>";
+		case compound([]): return "(empty).(1)";
 		default: {
 			if (entityVariables(entity) == {} && unitVariables(unit) == {} && compound(x) := entity) {
 				if (x == []) {
@@ -314,7 +323,7 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 					return ("<head(simpleIndices)>" | "<it>*<y>" | y <- tail(simpleIndices));
 				} 
 			} else {
-				return "[<entityVariables(entity)> <unitVariables(unit)>](<pprint(entity)>).(<pprint(unit)>)";
+				return "(<pprint(entity)>).(<pprint(unit)>)";
 			}
 		}
 	}
@@ -531,7 +540,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 				pop("<pprint(typ)>");
 				return <typ, s123>;
 			} else {
-				println("\nType error: <glberror>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
+				throw("\nType error: <glberror>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
 			}
 		}
 		case abstraction(x,b): {
@@ -547,12 +556,12 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 public void push(str log) {
 	glbstack = [log] + glbstack;
 	n = size(glbstack)-1; 
-	println("<filler(n)><n>\> <head(glbstack)>");
+	//println("<filler(n)><n>\> <head(glbstack)>");
 }
 
 public void pop(str log) {
 	n = size(glbstack)-1;
-	println("<filler(n)><n>\< <log>");
+	//println("<filler(n)><n>\< <log>");
 	glbstack = tail(glbstack); 
 }
 
@@ -565,6 +574,7 @@ public Environment env() {
 
 	Unit gram = named("g", self());
 	Unit metre = named("m", self());
+	Unit second = named("s", self());
 	Unit dollar = named("$", self());
 
 	IndexType empty = duo(compound([]), uno());
@@ -583,6 +593,10 @@ public Environment env() {
 
 
   return (
+   "gram": forall({},{},{}, matrix(gram, empty, empty)),
+   "metre": forall({},{},{}, matrix(metre, empty, empty)),
+   "second": forall({},{},{}, matrix(second, empty, empty)),
+   "dollar": forall({},{},{}, matrix(dollar, empty, empty)),
    "bom": forall({},{},{}, matrix(uno(), bomIndex, bomIndex)),
    "conv": forall({},{},{}, matrix(uno(), tradeIndex, bomIndex)),
    "output": forall({},{},{}, matrix(uno(), tradeIndex, empty)),
@@ -606,14 +620,14 @@ public Environment env() {
 				           matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("R"), unitVar("w"))))),
-	"trans": forall({"a", "u", "v"},{"P", "Q"},{},
+	"transpose": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))),
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("Q"), reciprocal(unitVar("v"))),
   				  				  duo(entityVar("P"), reciprocal(unitVar("u")))))),
-	"sum": forall({"a"},{"P", "Q"},{},
+	"total": forall({"a"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), uno()),
   				  				  duo(entityVar("Q"), uno())),
@@ -627,7 +641,7 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  duo(compound([]), uno()),
   				  				  duo(compound([]), uno())))),
-   "plus": forall({"a", "u", "v"},{"P", "Q"},{},
+   "sum": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(pair(matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
   				  					   duo(entityVar("Q"), unitVar("v"))),
@@ -637,7 +651,7 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))))),
-   "mult": forall({"a", "b", "u", "v", "w", "z"},{"P", "Q"},{},
+   "multiply": forall({"a", "b", "u", "v", "w", "z"},{"P", "Q"},{},
 				function(pair(matrix(unitVar("a"), 
   				  					 duo(entityVar("P"), unitVar("u")),
   				  					 duo(entityVar("Q"), unitVar("v"))),
@@ -647,14 +661,21 @@ public Environment env() {
 				         matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				duo(entityVar("P"), multiply(unitVar("u"), unitVar("w"))),
   				  				duo(entityVar("Q"), multiply(unitVar("v"), unitVar("z")))))),
-   "minus": forall({"a", "u", "v"},{"P", "Q"},{},
+   "negative": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))),
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))))),
-   "reci": forall({"a", "u", "v"},{"P", "Q"},{},
+   "closure": forall({"u"},{"P"},{},
+  				  function(matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("P"), unitVar("u"))),
+				           matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("P"), unitVar("u"))))),
+   "reciprocal": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))),
@@ -673,14 +694,93 @@ public void show (str exp) {
 public void showAll() {
 	show("lambda x join(x,x)");
 	show("lambda x join(bom,x)");
-	show("lambda x plus(plus(x,x),plus(x,x))");
-	show("lambda x mult(plus(x,x),plus(x,x))");
-	show("lambda x sum mult (x,x)");
-	show("lambda x sqrt sum mult (x,x)");
-	show("lambda x lambda y join (plus(x,minus(y)),plus(y,minus(x)))");
-	show("lambda x lambda y plus(join(x,y),minus(join(y,x)))");
-	show("(lambda bom2 join(bom2,output)) join(conv,join(bom,reci trans conv))");
-	show("mult(sales,reci trans amount)");
-	show("(lambda price mult(join(price, reci trans P2),join(price, reci trans P2))) mult(sales,reci trans amount)");
-	show("(lambda price join(price, reci trans P2)) mult(sales,reci trans amount)");
+	show("lambda x sum(sum(x,x),sum(x,x))");
+	show("lambda x multiply(sum(x,x),sum(x,x))");
+	show("lambda x total multiply (x,x)");
+	show("lambda x sqrt total multiply (x,x)");
+	show("lambda x lambda y join (sum(x,negative(y)),sum(y,negative(x)))");
+	show("lambda x lambda y sum(join(x,y),negative(join(y,x)))");
+	show("(lambda bom2 join(bom2,output)) join(conv,join(bom,reciprocal transpose conv))");
+	show("(lambda bom2 closure bom2) join(conv,join(bom,reciprocal transpose conv))");
+	show("multiply(sales,reciprocal transpose amount)");
+	show("(lambda price multiply(join(price, reciprocal transpose P2),join(price, reciprocal transpose P2))) multiply(sales,reciprocal transpose amount)");
+	show("(lambda price join(price, reciprocal transpose P2)) multiply(sales,reciprocal transpose amount)");
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Compilation
+
+alias Register = map[str var, str register];
+
+public str compilePacioli(Expression exp) {
+	prelude = "baseunit dollar \"$\";
+			  'baseunit euro \"€\";
+			  'unit litre \"l\" (deci metre)^3;
+			  'unit pound \"lb\" 0.45359237*kilo gram;
+			  'unit ounce \"oz\" pound/16;
+			  'unit barrel \"bbl\" 117.347765*litre;
+	          'entity Product \"/home/paul/data/code/mvm/case1/product.txt\";
+			  'index Product bom_unit \"/home/paul/data/code/mvm/case1/product.bom_unit\";
+			  'index Product trade_unit \"/home/paul/data/code/mvm/case1/product.trade_unit\";
+			  'conversion conv \"Product\" \"bom_unit\" \"trade_unit\";
+			  'load output \"/home/paul/data/code/mvm/case1/output.csv\" \"1\" \"Product.trade_unit\" \"empty\";
+			  'load purchase_price \"/home/paul/data/code/mvm/case1/purchase_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
+			  'load sales_price \"/home/paul/data/code/mvm/case1/sales_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
+			  'load bom \"/home/paul/data/code/mvm/case1/bom.csv\" \"1\" \"Product.bom_unit\" \"Product.bom_unit\";
+			  'entity Commodity \"case2/commodity.txt\";
+			  'entity Year \"case2/year.txt\";
+			  'entity Region \"case2/region.txt\";
+			  'index Commodity unit \"case2/commodity.unit\";
+			  'load sales \"case2/sales.csv\" \"dollar\" \"empty\" \"Commodity,Year,Region.1\";
+			  'load amount \"case2/amount.csv\" \"1\" \"Commodity,Year,Region.unit,1,1\" \"empty\";
+			  'projection P0 \"Commodity,Year,Region.1\" \"Commodity.1\";
+			  'projection P1 \"Commodity,Year,Region.1\" \"Commodity,Year.1\";
+			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\"";
+	<code,reg> = compileExpression(exp,());
+	prog = "<prelude>;
+		   '<code>; 
+	       'print <reg>";
+	return prog;
+}
+
+public tuple[str,str] compileExpression(Expression exp, Register reg) {
+	switch (exp) {
+		case variable(x): {
+			return <"skip", (x in reg) ? reg[x] : x>; 
+		}
+		case application(abstraction(var,body),arg): {
+			<c1,r1> = compileExpression(arg,reg);
+			<c2,r2> = compileExpression(body,reg+(var:r1));
+			return <"<c1>;\n<c2>", r2>;
+		}
+		case application(variable(fn),pair2(a,b)): {
+			<c1,r1> = compileExpression(a,reg);
+			<c2,r2> = compileExpression(b,reg);
+			r = fresh("r");
+			return <"<c1>;\n<c2>;\n<fn> <r> <r1> <r2>", r>;
+		}
+		case application(variable(fn),arg): {
+			<c1,r1> = compileExpression(arg,reg);
+			r = fresh("r");
+			return <"<c1>;\n<fn> <r> <r1>", r>;
+		}
+		default: throw("Functions and pairs as values not (yet) supported");
+	}
+}
+
+public void showGen (str exp) {
+	parsed = parseImplodePacioli(exp);
+	code = compilePacioli(parsed);
+	println(code);
+}
+
+// 1) huidige 1e. Moet unit als type noemen+Kennedy?.
+// 2)
+// BoM in tweede paragraph. Shows
+// (i) It needs units: obvious
+// (ii) It is a matrix: linear algebra  
+// (iii) Units are heterogeneous: no parametric polymorphism
+// (iv) Products are not known at compile time: no exhaustive record type
+// 3) matrix type
+// 4) contributions: 1) units in vectors spaces 2) type 3) prototype 
+

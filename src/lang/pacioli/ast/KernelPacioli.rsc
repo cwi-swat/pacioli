@@ -16,5 +16,6 @@ public str pprint(Expression exp) {
 		case abstraction(x,y): return "lambda <x> <pprint(y)>";	
 		case application(x,pair2(y,z)): return "<pprint(x)><pprint(pair2(y,z))>";	
 		case application(x,y): return "<pprint(x)> <pprint(y)>";
+		default: throw "no pprint for <exp>";
 	}
 }
