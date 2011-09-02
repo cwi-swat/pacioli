@@ -53,8 +53,8 @@ public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, Enti
 alias TypeBinding = map[str, Type];
 
 data Substitution = substitution(UnitBinding units, 
-								 EntityBinding entities, 
-								 TypeBinding types);
+				 EntityBinding entities, 
+				 TypeBinding types);
 
 public Substitution ident = substitution((),(),());
 
