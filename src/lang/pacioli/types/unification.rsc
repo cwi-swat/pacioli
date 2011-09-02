@@ -7,6 +7,7 @@ import IO;
 
 import units::units;
 import units::unification;
+
 import lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::types::Types;
@@ -51,7 +52,7 @@ public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, Enti
 
 alias TypeBinding = map[str, Type];
 
-data Substitution = substitution(UnitBinding units, 
+public data Substitution = substitution(UnitBinding units, 
 								 EntityBinding entities, 
 								 TypeBinding types);
 

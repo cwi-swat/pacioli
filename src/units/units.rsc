@@ -59,6 +59,8 @@ public default int power(Unit _, Unit _) = 0;
 
 public default real factor(Unit _) = 1.0;
 
+public set[str] unitVariables(u) = {x | /unitVar(x) <- u};
+
 public Unit powerProduct(powers, 1.0) {
   if (size(powers) == 1, u <- powers, powers[u] == 1) {
     return u;

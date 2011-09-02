@@ -22,8 +22,6 @@ public UnitBinding mergeUnits(UnitBinding bindingX, UnitBinding bindingY) {
 	return (x: unitSubs(bindingY, bindingX[x]) | x <- bindingX) + bindingY;
 }
 
-public set[str] unitVariables(u) = {x | /unitVar(x) <- u};
-
 public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding) {
  
 	tuple[bool, UnitBinding] unify(Unit uni, UnitBinding b) {
