@@ -3,11 +3,10 @@ module lang::pacioli::types::Types
 import Map;
 import Set;
 import List;
-//import IO;
 
 import units::units;
+
 import lang::pacioli::ast::KernelPacioli;
-//import lang::pacioli::utils::Implode;
 
 ////////////////////////////////////////////////////////////////////////////////
 // General Utilities
