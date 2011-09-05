@@ -1,6 +1,6 @@
 package mvm;
 
-import java.io.BufferedReader;
+//import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -347,16 +347,29 @@ public class Machine {
 	}
 	
 	public List<String> loadEntityFile(String fileName) throws IOException{
-		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+//		BufferedReader reader = new BufferedReader(new FileReader(fileName));
+//		List<String> names = new ArrayList<String>();
+//		String line = reader.readLine();
+//		while (line != null) {
+//			if (line.length() > 0) {
+//				names.add(line);
+//			}
+//			line = reader.readLine();
+//		}
+//		return names;
+		
 		List<String> names = new ArrayList<String>();
-		String line = reader.readLine();
-		while (line != null) {
-			if (line.length() > 0) {
-				names.add(line);
-			}
-			line = reader.readLine();
+		Tokenizer tokenizer = new Tokenizer(new FileReader(fileName), unitSystem);
+		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
+			tokenizer.pushBack();
+			//String name = tokenizer.readIdentifier();
+			String name = tokenizer.readString();
+			tokenizer.readSeparator();
+			names.add(name);
 		}
+		tokenizer.pushBack();
 		return names;
+		
 	}
 
 	public Map<String, Unit> loadUnitFile(String fileName) throws IOException {
@@ -364,7 +377,8 @@ public class Machine {
 		Map<String, Unit> map = new HashMap<String, Unit>();
 		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
 			tokenizer.pushBack();
-			String name = tokenizer.readIdentifier();
+			//String name = tokenizer.readIdentifier();
+			String name = tokenizer.readString();
 			Unit unit = tokenizer.readUnit("");
 			tokenizer.readSeparator();
 			map.put(name, unit);

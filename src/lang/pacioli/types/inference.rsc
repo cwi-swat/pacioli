@@ -121,7 +121,12 @@ public Environment env() {
 	SimpleEntity Region = simple("Region");
 	Unit commodityUnit = named("unit", self());
 
-
+	EntityType Ingredient = compound([simple("Ingredient")]);
+	EntityType Menu = compound([simple("Menu")]);
+	Unit ingredientUnit = named("unit", self());
+	
+	IndexType ingredientIndex = duo(Ingredient, ingredientUnit);
+	
   return (
    "gram": forall({},{},{}, matrix(gram, empty, empty)),
    "metre": forall({},{},{}, matrix(metre, empty, empty)),
@@ -140,6 +145,10 @@ public Environment env() {
                                         duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
    "P3": forall({},{},{}, matrix(uno(), duo(compound([Year]), uno()),
                                         duo(compound([Commodity, Year, Region]), compoundUnit([commodityUnit, uno(), uno()])))),
+   "semi_bom": forall({},{},{}, matrix(uno(), ingredientIndex, duo(Menu, uno()))),
+   "ingredient_price": forall({},{},{}, matrix(dollar, empty, ingredientIndex)),
+   "menu_sales": forall({},{},{}, matrix(uno(), duo(Menu, uno()), empty)),
+   "menu_price": forall({},{},{}, matrix(dollar, empty, duo(Menu, uno()))),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(pair(matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),

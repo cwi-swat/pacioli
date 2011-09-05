@@ -34,7 +34,8 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
       			return <true, b>;
       		} else {
       			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
-      			return <false, b>;
+      			throw glberror;
+      			//return <false, b>;
       		}
     	} else {
       		Unit minBase = minBase(vars);
@@ -47,7 +48,8 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	           		return <true, mergeUnits(b, (name: raise(nonVars, -1 / minp)))>;
 	       		} else {
 	       			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
-	         		return <false, b>;
+	       			throw glberror;
+	         		//return <false, b>;
 	       		}
 	      	} else {
 	      		Unit subst = uno();

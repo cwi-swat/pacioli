@@ -1,6 +1,6 @@
 package mvm;
 
-import java.io.BufferedReader;
+//import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,16 +97,21 @@ public class Matrix {
 	}
 	
 	public String pprint() {
-		String output = "--------------------------------------------------------------";
-		output += String.format("\n %20s %20s %10s", "row",  "column", "value");
-		output += "\n--------------------------------------------------------------";
+		String output = "----------------------------------------------------------------------------------";
+		output += String.format("\n %50s %20s", "index", "value");
+		output += "\n----------------------------------------------------------------------------------";
 		Number num;
 		for (int i=0; i<rowIndex.size(); i++){
 			for (int j=0; j<columnIndex.size(); j++){
 				num = numbers.get(i,j);
 				if (num.doubleValue() != 0) {
-					output += String.format("\n %20s %20s %15f %s",
-							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
+					List<String> idx = new ArrayList<String>();
+					idx.addAll(rowIndex.ElementAt(i));
+					idx.addAll(columnIndex.ElementAt(j));
+					output += String.format("\n %50s %20f %s",
+							idx, num, unitAt(i,j).pprint());
+//					output += String.format("\n %40s %40s %20f %s",
+//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
 				}
 			}
 		}
@@ -124,31 +129,52 @@ public class Matrix {
 		int rowWidth = rowIndex.width();
 		int columnWidth = columnIndex.width();
 		
-		BufferedReader reader = new BufferedReader(new FileReader(source));
-		String line = reader.readLine();
-		while (line != null) {
-			if (line.length() > 0) {
-				String[] split = line.split(",");
-				if (split.length == rowWidth + columnWidth + 1) {
-					
-					Double num = Double.parseDouble(split[rowWidth + columnWidth]);
-					
-					List<String> row = new ArrayList<String>();
-					List<String> column = new ArrayList<String>();
-					for (int i=0; i<rowWidth; i++) {
-						row.add(split[i].trim());
-					}
-					for (int i=0; i<columnWidth; i++) {
-						column.add(split[rowWidth+i].trim());
-					}
-					numbers.set(rowIndex.ElementPos(row), columnIndex.ElementPos(column), num);
-					
-				} else {
-					throw new IOException("Invalid data in " + source);
-				}
+//		BufferedReader reader = new BufferedReader(new FileReader(source));
+//		String line = reader.readLine();
+//		while (line != null) {
+//			if (line.length() > 0) {
+//				String[] split = line.split(",");
+//				if (split.length == rowWidth + columnWidth + 1) {
+//					
+//					Double num = Double.parseDouble(split[rowWidth + columnWidth]);
+//					
+//					List<String> row = new ArrayList<String>();
+//					List<String> column = new ArrayList<String>();
+//					for (int i=0; i<rowWidth; i++) {
+//						row.add(split[i].trim());
+//					}
+//					for (int i=0; i<columnWidth; i++) {
+//						column.add(split[rowWidth+i].trim());
+//					}
+//					numbers.set(rowIndex.ElementPos(row), columnIndex.ElementPos(column), num);
+//					
+//				} else {
+//					throw new IOException("Invalid data in " + source);
+//				}
+//			}
+//			line = reader.readLine();
+//		}
+		
+		Tokenizer tokenizer = new Tokenizer(new FileReader(source), null);
+		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
+			tokenizer.pushBack();
+			List<String> row = new ArrayList<String>();
+			List<String> column = new ArrayList<String>();
+			String name;
+			for (int i=0; i<rowWidth; i++) {
+				name = tokenizer.readString();
+				row.add(name);
 			}
-			line = reader.readLine();
+			for (int i=0; i<columnWidth; i++) {
+				name = tokenizer.readString();
+				column.add(name);
+			}
+			double num = tokenizer.readNumber().doubleValue();
+			numbers.set(rowIndex.ElementPos(row), columnIndex.ElementPos(column), num);
+			tokenizer.readSeparator();
 		}
+		tokenizer.pushBack();
+		
 	}
 	
 	public void loadProjection() throws IOException {

@@ -1,0 +1,7 @@
+"Butter" "Pastry" 360.00;
+"Flour" "Pastry" 550;
+"Pastry" "ApplePie" 0.40;
+"Apples" "ApplePie" 750;
+"Sugar" "ApplePie" 225.00;
+"Butter" "ApplePie" 115.00;
+"ApplePie" "PieceOfPie" 0.12
