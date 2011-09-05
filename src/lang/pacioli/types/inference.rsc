@@ -228,17 +228,52 @@ public void show (str exp) {
 	
 }
 	
-public void showAll() {
+public void demo1() {
+
+	println("\nBase units are pre-defined");
+	show("gram");
+	show("metre");
+	
+	println("\nUnits can always be multiplied");
+	show("multiply(gram,gram)");
+	show("multiply(gram,metre)");
+	
+	println("\nUnits can not always be summed");
+	show("sum(gram,gram)");
+	show("sum(gram,metre)");
+	
+	println("\nThe type is semantic, the order of multiplication is irrelevant");
+	show("sum(multiply(gram,metre),multiply(gram,metre))");
+	show("sum(multiply(gram,metre),multiply(metre,gram))");
+	
+	println("\nThe type system does inference.");
+	show("lambda x sum(multiply(x,metre),multiply(gram,metre))");
+	
+	println("\nThe type system derives a most general type."); 
+	show("lambda x lambda y sum(multiply(x,y),multiply(gram,metre))");
+}
+	
+public void demo2() {
+	
+	// General
 	show("lambda x join(x,x)");
-	show("lambda x join(bom,x)");
 	show("lambda x sum(sum(x,x),sum(x,x))");
 	show("lambda x multiply(sum(x,x),sum(x,x))");
+	show("lambda x lambda y join (sum(x,negative(y)),sum(y,negative(x)))");
+	
+	// Norm
 	show("lambda x total multiply (x,x)");
 	show("lambda x sqrt total multiply (x,x)");
-	show("lambda x lambda y join (sum(x,negative(y)),sum(y,negative(x)))");
+	
+	// Lie algebras
 	show("lambda x lambda y sum(join(x,y),negative(join(y,x)))");
+	
+	// Netting problem
+	show("lambda x join(bom,x)");
 	show("(lambda bom2 join(bom2,output)) join(conv,join(bom,reciprocal transpose conv))");
 	show("(lambda bom2 closure bom2) join(conv,join(bom,reciprocal transpose conv))");
+	
+	// Salesdata
 	show("multiply(sales,reciprocal transpose amount)");
 	show("(lambda price multiply(join(price, reciprocal transpose P2),join(price, reciprocal transpose P2))) multiply(sales,reciprocal transpose amount)");
 	show("(lambda price join(price, reciprocal transpose P2)) multiply(sales,reciprocal transpose amount)");

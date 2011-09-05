@@ -10,20 +10,21 @@ import IO;
 alias Register = map[str var, str register];
 
 public str compilePacioli(Expression exp) {
+	dir = 
 	prelude = "baseunit dollar \"$\";
 			  'baseunit euro \"€\";
 			  'unit litre \"l\" (deci metre)^3;
 			  'unit pound \"lb\" 0.45359237*kilo gram;
 			  'unit ounce \"oz\" pound/16;
 			  'unit barrel \"bbl\" 117.347765*litre;
-	          'entity Product \"/home/paul/data/code/mvm/case1/product.txt\";
-			  'index Product bom_unit \"/home/paul/data/code/mvm/case1/product.bom_unit\";
-			  'index Product trade_unit \"/home/paul/data/code/mvm/case1/product.trade_unit\";
+	          'entity Product \"case1/product.txt\";
+			  'index Product bom_unit \"case1/product.bom_unit\";
+			  'index Product trade_unit \"case1/product.trade_unit\";
 			  'conversion conv \"Product\" \"bom_unit\" \"trade_unit\";
-			  'load output \"/home/paul/data/code/mvm/case1/output.csv\" \"1\" \"Product.trade_unit\" \"empty\";
-			  'load purchase_price \"/home/paul/data/code/mvm/case1/purchase_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
-			  'load sales_price \"/home/paul/data/code/mvm/case1/sales_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
-			  'load bom \"/home/paul/data/code/mvm/case1/bom.csv\" \"1\" \"Product.bom_unit\" \"Product.bom_unit\";
+			  'load output \"case1/output.csv\" \"1\" \"Product.trade_unit\" \"empty\";
+			  'load purchase_price \"case1/purchase_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
+			  'load sales_price \"case1/sales_price.csv\" \"euro\" \"empty\" \"Product.trade_unit\";
+			  'load bom \"case1/bom.csv\" \"1\" \"Product.bom_unit\" \"Product.bom_unit\";
 			  'entity Commodity \"case2/commodity.txt\";
 			  'entity Year \"case2/year.txt\";
 			  'entity Region \"case2/region.txt\";
