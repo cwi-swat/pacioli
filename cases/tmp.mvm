@@ -40,6 +40,12 @@ load menu_sales "case3/menu_sales.csv" "1" "Menu.1" "empty";
 load menu_price "case3/menu_price.csv" "dollar" "empty" "Menu.1";
 skip;
 skip;
-transpose r1 menu_sales;
-multiply r2 menu_price r1; 
-print r2
+transpose r1 amount;
+reciprocal r2 r1;
+multiply r3 sales r2;
+skip;
+skip;
+transpose r4 P2;
+reciprocal r5 r4;
+join r6 r3 r5; 
+print r6

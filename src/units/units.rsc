@@ -123,8 +123,10 @@ public str pprint(Unit u) {
 			rear = ([] |
 					 it + ["<pprint(x)><(p[x] == -1) ? "" : "^<-p[x]>">"]	|
 					 x <- p,p[x]<0);
-			return ((front == []) ? "1" : (head(front) | it + "·" + x | x <- tail(front))) +
-				   ((rear == []) ? "" : ("/" + head(rear) | it + "·" + x | x <- tail(rear)));
+			//return ((front == []) ? "1" : (head(front) | it + "·" + x | x <- tail(front))) +
+				   //((rear == []) ? "" : ("/" + head(rear) | it + "·" + x | x <- tail(rear)));
+			return ((front == []) ? "1" : (head(front) | it + "*" + x | x <- tail(front))) +
+				   ((rear == []) ? "" : ("/" + head(rear) | it + "*" + x | x <- tail(rear)));
 		}
 		case compoundUnit([]): {
 			return "1";

@@ -286,5 +286,9 @@ public void demo2() {
 	show("multiply(sales,reciprocal transpose amount)");
 	show("(lambda price multiply(join(price, reciprocal transpose P2),join(price, reciprocal transpose P2))) multiply(sales,reciprocal transpose amount)");
 	show("(lambda price join(price, reciprocal transpose P2)) multiply(sales,reciprocal transpose amount)");
+	
+	// Restaurant
+	show("join(menu_price,menu_sales)");
+	show("multiply(menu_price,transpose menu_sales)");
 }
 
