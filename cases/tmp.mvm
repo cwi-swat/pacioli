@@ -41,12 +41,9 @@ load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
 skip;
 skip;
-reciprocal r67 conv;
-transpose r68 r67;
-join r69 bom r68;
-join r70 conv r69;
-skip;
-closure r71 r70;
-skip;
-join r72 r71 output; 
-print r72
+reciprocal r10 conv;
+transpose r11 r10;
+join r12 bom r11;
+join r13 conv r12;
+closure r14 r13; 
+print r14

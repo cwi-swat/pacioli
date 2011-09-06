@@ -24,6 +24,7 @@ data Scheme = forall(set[str] unitVars,
 
 data Type = typeVar(str name)
           | function(Type from, Type to)
+          | tupType(list[Type] items)
           | pair(Type first, Type second)
           | matrix(Unit factor, IndexType rowType, IndexType columnType);
 
@@ -59,6 +60,8 @@ public str pprint(Type t) {
 			return "<front><sep><rows><cols>";
 		}
 		case function(x,y): return "(<pprint(x)> -\> <pprint(y)>)";
+		case tupType([]): return "()";
+		case tupType(x): return "(<(pprint(head(x)) | it + pprint(y) | y <- tail(x))>)";
 		case pair(x,y): return "(<pprint(x)>,<pprint(y)>)";
 		default: return "<t>";
 	}

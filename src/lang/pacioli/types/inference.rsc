@@ -61,6 +61,21 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}
+		case tup([]): {
+			return <typType([]),ident>;
+		}
+		case tup(items): {
+			types = [];
+			subs = ident;
+			for (x <- items) {
+				<t, s> = inferType(x, envSubs(subs, assumptions));
+				subs = merge(subs,s);
+				types += [t];
+			}
+			typ = tupType(types);
+			pop("<pprint(typ)>");
+			return <typ, subs>;
+		}
 		case pair2(x,y): {
 			<t1, s1> = inferType(x, assumptions);
 			<t2, s2> = inferType(y, envSubs(s1, assumptions));
@@ -85,10 +100,13 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 				throw("\nType error: \n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
 			}
 		}
-		case abstraction(x,b): {
-			beta = fresh(x);
-			<t1, s1> = inferType(b, assumptions+(x: forall({},{},{},typeVar(beta))));
-			typ = typeSubs(s1,function(typeVar(beta), t1));
+		case abstraction(vars,body): {
+			betas = [<x,fresh(x)> | x <- vars];
+			//map = (b: forall({},{},{},typeVar(b)), b <- betas);
+			bound = (assumptions | it + (v: forall({},{},{},typeVar(b))) | <v,b> <- betas);			
+			//beta = fresh(x);
+			<t1, s1> = inferType(body, bound);
+			typ = typeSubs(s1,function(tupType([typeVar(b) | <_,b> <- betas]), t1));
 			pop("<pprint(typ)>");
 			return <typ, s1>;
 		}
@@ -98,12 +116,12 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 public void push(str log) {
 	glbstack = [log] + glbstack;
 	n = size(glbstack)-1; 
-	//println("<filler(n)><n>\> <head(glbstack)>");
+	println("<filler(n)><n>\> <head(glbstack)>");
 }
 
 public void pop(str log) {
 	n = size(glbstack)-1;
-	//println("<filler(n)><n>\< <log>");
+	println("<filler(n)><n>\< <log>");
 	glbstack = tail(glbstack); 
 }
 

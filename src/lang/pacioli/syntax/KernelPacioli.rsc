@@ -7,9 +7,11 @@ start syntax Expression = variable:Ident name
 	| const: Number number
 	| bracket "(" Expression nested ")"
 	| pair2: "(" Expression first "," Expression second ")"
-	| right application: Expression fn Expression arg
-	> abstraction: "lambda" Ident var Expression body;
+	| application: Expression fn Args args
+	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
+syntax Args = tup: "(" {Expression ","}* items ")";
+ 
 keyword Keywords="lambda";
 
  
