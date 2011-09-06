@@ -11,9 +11,9 @@ import lang::pacioli::ast::KernelPacioli;
 ////////////////////////////////////////////////////////////////////////////////
 // General Utilities
 
-public int glbcounter = 0;
-
-public str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
+//public int glbcounter = 0;
+//
+//public str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 
 
@@ -63,15 +63,30 @@ public str pprint(Type t) {
 		default: return "<t>";
 	}
 } 
-public str pprint(duo(EntityType entity, Unit unit)) {
 
-	private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
-		return [ <entities[i],nthUnit(unit,i)> | i <- [0..size(entities)-1]];
-	}
 	
-	private str pprintSimpleIndex(simple(name), Unit unit) {
-		return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
+private str pprintSimpleIndex(simple(name), Unit unit) {
+	return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
+}
+
+private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
+	return [ <entities[i],nthUnit(unit,i)> | i <- [0..size(entities)-1]];
+}
+
+public str serial (duo(EntityType entity, Unit unit)){
+	compound(x) = entity;
+	if (x == []) {
+		return "empty";
+	} else {
+		front = ("<pprint(head(x))>" | "<it>,<pprint(y)>" | y <- tail(x));
+		rear = (compoundUnit(units) := unit) 
+				? ("<pprint(head(units))>" | "<it>,<pprint(y)>" | y <- tail(units))
+				: pprint(unit);
+		return front + "." + rear;
 	}
+}
+
+public str pprint(duo(EntityType entity, Unit unit)) {
 
 	switch (entity) {
 		case entityVar(x): return "\'<x>.<pprint(unit)>";

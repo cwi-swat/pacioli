@@ -41,8 +41,8 @@ public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, Enti
 		case <EntityType a, entityVar(b)>: return unifyVar(b,a); 
 		case <entityVar(a), EntityType b>: return unifyVar(a,b); 
 		default: {
-			glberror = "entity failure: <pprint(x)> and <pprint(y)>";
-			throw glberror;
+			error = "entity failure: <pprint(x)> and <pprint(y)>";
+			throw error;
 			//return <false, ()>;
 		}
 	}
@@ -115,8 +115,8 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			
 		} else {
 			if (var in typeVariables(b)) {
-				glberror = "cycle";
-				throw glberror;
+				error = "cycle";
+				throw error;
 				//return <false, ident>;
 			}
 			return <true, merge(binding, bindTypeVar(var,b))>;

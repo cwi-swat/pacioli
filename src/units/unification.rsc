@@ -33,8 +33,8 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
     		if (size(bases(nonVars)) == 0) {
       			return <true, b>;
       		} else {
-      			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
-      			throw glberror;
+      			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
+      			throw error;
       			//return <false, b>;
       		}
     	} else {
@@ -47,8 +47,8 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	       		    	power(unit, x) % minp == 0)) {
 	           		return <true, mergeUnits(b, (name: raise(nonVars, -1 / minp)))>;
 	       		} else {
-	       			glberror = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
-	       			throw glberror;
+	       			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
+	       			throw error;
 	         		//return <false, b>;
 	       		}
 	      	} else {

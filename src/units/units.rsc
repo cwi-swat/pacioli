@@ -36,7 +36,7 @@ alias Powers = map[Unit units, int powers];
 data Unit
   = unitVar(str name)
   | self()
-  | named(str symbolic, Unit definition)
+  | named(str name, str symbolic, Unit definition)
   | scaled(Unit unit, Prefix prefix)
   | powerProduct(Powers powers, real factor)
   | compoundUnit(list[Unit])
@@ -114,7 +114,7 @@ public Unit filterUnit(bool(Unit) fn, Unit unit) =
 
 public str pprint(Unit u) {
 	switch (u) {
-		case named(x,_): return x;
+		case named(_,x,_): return x;
 		case unitVar(x): return "\'<x>";
 		case powerProduct(p, f): {
 			front = ((f == 1.0) ? [] : ["<f>"] |
@@ -135,5 +135,24 @@ public str pprint(Unit u) {
 			return (pprint(head(units)) | "<it>*<pprint(x)>" | x <- tail(units));
 		}
 		default: return "<u>";
+	}
+} 
+
+public str serial(Unit u) {
+	switch (u) {
+		case named(x,_,_): return x;
+		//case unitVar(x): return "\'<x>";
+		case powerProduct(p, f): {
+			front = ("<f>" |
+					 it + "*<serial(x)>^<p[x]>" |
+					 x <- p);
+			return "<front>";				  
+		}
+		case compoundUnit([]): {
+			return "1";
+		}
+		case compoundUnit(units): {
+			return (serial(head(units)) | "<it>,<serial(x)>" | x <- tail(units));
+		}
 	}
 } 
