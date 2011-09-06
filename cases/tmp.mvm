@@ -28,6 +28,8 @@ conversion conv "Product" "bom_unit" "trade_unit";
 projection P0 "Commodity,Year,Region.1" "Commodity.1";
 projection P1 "Commodity,Year,Region.1" "Commodity,Year.1";
 projection P2 "Year,Commodity.1,unit" "Commodity,Year,Region.unit,1,1";
+load stock2 "case3/stock2.csv" "1.0" "Ingredient.unit" "empty";
+load stock1 "case3/stock1.csv" "1.0" "Ingredient.unit" "empty";
 load ingredient_price "case3/ingredient_price.csv" "dollar" "empty" "Ingredient.unit";
 load amount "case2/amount.csv" "1.0" "Commodity,Year,Region.unit,1.0,1.0" "empty";
 load sales_price "case1/sales_price.csv" "dollar" "empty" "Product.trade_unit";
@@ -40,8 +42,8 @@ load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
 skip;
-join r14 ingredient_price semi_bom;
 skip;
-transpose r15 r14;
-transpose r16 r15; 
-print r16
+negative r19 stock1;
+sum r20 stock2 r19;
+join r21 ingredient_price r20; 
+print r21

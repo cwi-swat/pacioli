@@ -56,7 +56,9 @@ map[str,str] fileLoc =
 	 "semi_bom": "case3/semi_bom.csv",
 	 "ingredient_price": "case3/ingredient_price.csv",
 	 "menu_sales": "case3/menu_sales.csv",
-	 "menu_price": "case3/menu_price.csv");
+	 "menu_price": "case3/menu_price.csv",
+	 "stock1": "case3/stock1.csv",
+	 "stock2": "case3/stock2.csv");
 
 public Environment env() {
 
@@ -109,6 +111,8 @@ public Environment env() {
    "ingredient_price": forall({},{},{}, matrix(dollar, empty, ingredientIndex)),
    "menu_sales": forall({},{},{}, matrix(uno(), duo(Menu, uno()), empty)),
    "menu_price": forall({},{},{}, matrix(dollar, empty, duo(Menu, uno()))),
+   "stock1": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
+   "stock2": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
