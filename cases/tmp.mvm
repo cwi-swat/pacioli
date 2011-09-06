@@ -40,7 +40,8 @@ load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
 skip;
-join r8 ingredient_price semi_bom;
+join r14 ingredient_price semi_bom;
 skip;
-reciprocal r9 r8; 
-print r9
+transpose r15 r14;
+transpose r16 r15; 
+print r16

@@ -54,6 +54,6 @@ public tuple[str,str] compileExpression(Expression exp, Register reg) {
 				}
 			}
 		}
-		default: throw("Functions as values not (yet) supported <exp>");
+		default: throw("Functions as values not (yet) supported");
 	}
 }
