@@ -39,11 +39,5 @@ load menu_price "case3/menu_price.csv" "dollar" "empty" "Menu.1.0";
 load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
-skip;
-skip;
-reciprocal r10 conv;
-transpose r11 r10;
-join r12 bom r11;
-join r13 conv r12;
-closure r14 r13; 
-print r14
+transpose r3 bom; 
+print r3

@@ -103,7 +103,6 @@ public Type typeSubs(Substitution s, Type typ) {
 						  duo(entitySubs(be,q), unitSubs(bu,v)));
 		case function(x,y): return function(typeSubs(s, x), typeSubs(s, y));
 		case tupType(x): return tupType([typeSubs(s,y) | y <- x]);
-		case pair(x,y): return pair(typeSubs(s, x), typeSubs(s, y));
 		default: return typ;
 	}
 }
@@ -140,7 +139,7 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 		if (!success4) return <false, ident>;
 		return <true, substitution(mergeUnits(S0,S4),S2,bt)>;
 	}
-	println("unifying <<x,y>>");
+
 	switch (<x,y>) {
 		case <matrix(a,pu0,qv0), matrix(b,pu1,qv1)>:
 			return unifyMatrices(a,pu0,qv0, b,pu1,qv1, binding);
@@ -155,26 +154,17 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			return <true, binding>;
 		}
 		case <_,tupType([])>: {
-			throw "arguments do not match";
-			//return <false, binding>;
+			throw "Incorrect number of arguments";
 		}
 		case <tupType([]), _>: {
-			throw "arguments do not match";
-			//return <false, binding>;
+			throw "Incorrect number of arguments";
 		}
 		case <tupType(a), tupType(b)>: {
 			<success, s1> = unifyTypes(head(a),head(b), binding);
 			if (!success) return <false, ident>;
-			<success, s2> = unifyTypes(tupType(tail(a)),tupType(tail(b)), s1);
+			<success, s2> = unifyTypes(typeSubs(s1,tupType(tail(a))),typeSubs(s1,tupType(tail(b))), s1);
 			if (!success) return <false, ident>;
-			return <true, s2>;
-		}
-		case <pair(a,b), pair(c,d)>: {
-			<success, s1> = unifyTypes(a,c, binding);
-			if (!success) return <false, ident>;
-			<success, s2> = unifyTypes(b,d, s1);
-			if (!success) return <false, ident>;
-			return <true, s2>;
+			return <true, merge(s1,s2)>;
 		}
 		case <typeVar(a), typeVar(a)>: {
 			return <true, binding>;

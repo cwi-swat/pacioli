@@ -33,47 +33,27 @@ public tuple[str,str] compileExpression(Expression exp, Register reg) {
 		case variable(x): {
 			return <"skip", (x in reg) ? reg[x] : x>; 
 		}
-		case application(fn,tup(args)): {
-			argsRegs = [];
+		case application(fn, tup(args)): {
+			registers = [];
 			prog = "";
 			sep = "";
 			for (x <- args) {
 				<c,r> = compileExpression(x,reg);
-				argsRegs += [r];
+				registers += [r];
 				prog += sep + c;
 				sep = ";\n";
 			}
-			r = fresh("r");
 			switch (fn) {
 				case abstraction(vars,body): {
-					println(zip(vars,argsRegs));
-					<cc,rr> = compileExpression(body,reg+zip(vars,argsRegs));
-					return <prog + sep + cc,rr>;
+					<c,r> = compileExpression(body,reg+zip(vars,registers));
+					return <prog+sep+c,r>;
 				} 
 				case variable(f): {
-					return <"<prog><sep><f> <r><("" | it + " " + v | v <- argsRegs)>", r>;
+					r = fresh("r");
+					return <"<prog><sep><f> <r><("" | it + " " + v | v <- registers)>", r>;
 				}
 			}
-			//<c1,r1> = compileExpression(arg,reg);
-			//<c2,r2> = compileExpression(body,reg+(var:r1));
-			//return <"<c1>;\n<c2>", r2>;
 		}
-		case application(abstraction(var,body),arg): {
-			<c1,r1> = compileExpression(arg,reg);
-			<c2,r2> = compileExpression(body,reg+(var:r1));
-			return <"<c1>;\n<c2>", r2>;
-		}
-		case application(variable(fn),pair2(a,b)): {
-			<c1,r1> = compileExpression(a,reg);
-			<c2,r2> = compileExpression(b,reg);
-			r = fresh("r");
-			return <"<c1>;\n<c2>;\n<fn> <r> <r1> <r2>", r>;
-		}
-		case application(variable(fn),arg): {
-			<c1,r1> = compileExpression(arg,reg);
-			r = fresh("r");
-			return <"<c1>;\n<fn> <r> <r1>", r>;
-		}
-		default: throw("Functions and pairs as values not (yet) supported <exp>");
+		default: throw("Functions as values not (yet) supported <exp>");
 	}
 }

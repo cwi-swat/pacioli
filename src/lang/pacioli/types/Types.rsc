@@ -8,14 +8,6 @@ import units::units;
 
 import lang::pacioli::ast::KernelPacioli;
 
-////////////////////////////////////////////////////////////////////////////////
-// General Utilities
-
-//public int glbcounter = 0;
-//
-//public str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
-
-
 
 data Scheme = forall(set[str] unitVars,
 					 set[str] entityVars,
@@ -25,7 +17,6 @@ data Scheme = forall(set[str] unitVars,
 data Type = typeVar(str name)
           | function(Type from, Type to)
           | tupType(list[Type] items)
-          | pair(Type first, Type second)
           | matrix(Unit factor, IndexType rowType, IndexType columnType);
 
 data IndexType 
@@ -59,10 +50,9 @@ public str pprint(Type t) {
 			sep = (front != "" && rows != "") ? " * " : "";	
 			return "<front><sep><rows><cols>";
 		}
-		case function(x,y): return "(<pprint(x)> -\> <pprint(y)>)";
+		case function(x,y): return "<pprint(x)> -\> <pprint(y)>";
 		case tupType([]): return "()";
-		case tupType(x): return "(<(pprint(head(x)) | it + pprint(y) | y <- tail(x))>)";
-		case pair(x,y): return "(<pprint(x)>,<pprint(y)>)";
+		case tupType(x): return "(<(pprint(head(x)) | it + "," + pprint(y) | y <- tail(x))>)";
 		default: return "<t>";
 	}
 } 
