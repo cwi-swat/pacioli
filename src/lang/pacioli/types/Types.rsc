@@ -79,10 +79,7 @@ public str serial (duo(EntityType entity, Unit unit)){
 		return "empty";
 	} else {
 		front = ("<pprint(head(x))>" | "<it>,<pprint(y)>" | y <- tail(x));
-		rear = (compoundUnit(units) := unit) 
-				? ("<pprint(head(units))>" | "<it>,<pprint(y)>" | y <- tail(units))
-				: pprint(unit);
-		return front + "." + rear;
+		return front + "." + serial(unit);
 	}
 }
 

@@ -222,6 +222,7 @@ public void ep (str exp) {
 	}
 }
 
+// Dirty hack to fake definitions
 public void def(str name, str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
