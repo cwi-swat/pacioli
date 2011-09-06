@@ -39,5 +39,7 @@ load menu_price "case3/menu_price.csv" "dollar" "empty" "Menu.1.0";
 load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
-transpose r3 bom; 
-print r3
+skip;
+join r6 ingredient_price semi_bom;
+skip; 
+print r6

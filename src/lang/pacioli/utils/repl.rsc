@@ -199,7 +199,7 @@ public str extendPrelude(str prelude, Environment env) {
 Expression blend(Expression exp, map[str,Expression] repo) {
 	blended = exp;
 	for (b <- repo) {
-		blended = application(abstraction(b,blended),repo[b]);
+		blended = application(abstraction([b],blended),tup([repo[b]]));
 	}
 	return blended;
 }
