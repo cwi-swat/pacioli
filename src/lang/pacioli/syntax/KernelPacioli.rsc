@@ -11,6 +11,6 @@ start syntax Expression = variable:Ident name
 
 syntax Args = tup: "(" {Expression ","}* items ")";
  
-keyword Keywords="lambda";
+//keyword Keywords="lambda";
 
  
