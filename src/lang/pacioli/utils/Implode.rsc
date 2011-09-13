@@ -11,4 +11,4 @@ public lang::pacioli::ast::KernelPacioli::Expression implode(lang::pacioli::synt
 }
 
 
-public lang::pacioli::ast::KernelPacioli::Expression parseImplodePacioli(str code) = implode(parsePacioli(code));
+public lang::pacioli::ast::KernelPacioli::Expression parseImplodePacioli(str code) = normalize(implode(parsePacioli(code)));

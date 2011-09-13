@@ -42,14 +42,5 @@ load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
 skip;
 skip;
-negative r35 stock1;
-sum r36 stock2 r35;
-skip;
-skip;
-join r37 semi_bom menu_sales;
-skip;
-skip;
-negative r38 stock1;
-sum r39 stock2 r38;
-skip; 
-print semi_bom
+join r24 semi_bom menu_sales; 
+print r24
