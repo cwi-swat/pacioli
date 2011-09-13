@@ -221,7 +221,7 @@ public void ep (str exp) {
 		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(full, extendPrelude(prelude, env()));		
 		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
 	} catch err: {
 		println(err);
 	}
