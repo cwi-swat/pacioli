@@ -63,7 +63,8 @@ map[str,str] fileLoc =
 	 "menu_price": "case3/menu_price.csv",
 	 "stock1": "case3/stock1.csv",
 	 "stock2": "case3/stock2.csv",
-	 "forward": "case4/forward.csv");
+	 "forward": "case4/forward.csv",
+	 "backward": "case4/backward.csv");
 
 public Environment env() {
 
@@ -125,6 +126,7 @@ public Environment env() {
    "stock1": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "stock2": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
+   "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),

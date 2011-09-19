@@ -41,9 +41,13 @@ public class Application implements Expression {
 			} else if (name.equals("reciprocal")) {
 				Matrix matrix = (Matrix) params.get(0);
 				return matrix.reciprocal();
-				
+			} else if (name.equals("negative")) {
+				Matrix matrix = (Matrix) params.get(0);
+				return matrix.negative();
 			} else if (name.equals("sum")) {
-				throw new IOException("todo: sum");
+				Matrix x = (Matrix) params.get(0);
+				Matrix y = (Matrix) params.get(1);
+				return x.sum(y);
 			} else if (name.equals("columns")) {
 				Matrix matrix = (Matrix) params.get(0);
 				List<PacioliValue> columns = new ArrayList<PacioliValue>();

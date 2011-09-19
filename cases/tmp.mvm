@@ -34,6 +34,7 @@ index Place punit "case4/place.unit";
 load semi_bom "case3/semi_bom.csv" "1.0" "Ingredient.unit" "Menu.1.0";
 load menu_sales "case3/menu_sales.csv" "1.0" "Menu.1.0" "empty";
 load menu_price "case3/menu_price.csv" "dollar" "empty" "Menu.1.0";
+load backward "case4/backward.csv" "1.0" "Place.unit" "Transition.1.0";
 load stock2 "case3/stock2.csv" "1.0" "Ingredient.unit" "empty";
 load stock1 "case3/stock1.csv" "1.0" "Ingredient.unit" "empty";
 load ingredient_price "case3/ingredient_price.csv" "dollar" "empty" "Ingredient.unit";
@@ -41,8 +42,8 @@ load amount "case2/amount.csv" "1.0" "Commodity,Year,Region.unit,1.0,1.0" "empty
 load sales_price "case1/sales_price.csv" "dollar" "empty" "Product.trade_unit";
 load sales "case2/sales.csv" "dollar" "empty" "Commodity,Year,Region.1.0";
 load purchase_price "case1/purchase_price.csv" "dollar" "empty" "Product.trade_unit";
-load forward "case4/forward.csv" "1.0" "Place.punit" "Transition.1.0";
+load forward "case4/forward.csv" "1.0" "Place.unit" "Transition.1.0";
 load output "case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
-eval r4 apply(iter, lambda (x) apply(single, x), apply(columns, forward)); 
-print r4
+eval r6 apply(iter, lambda (x) apply(single, x), apply(columns, apply(sum, backward, apply(negative, forward)))); 
+print r6
