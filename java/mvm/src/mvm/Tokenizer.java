@@ -90,18 +90,7 @@ public class Tokenizer {
 	}
 	
 	public void readSeparator() throws IOException {
-		switch (tokenizer.nextToken()) {
-		case ';': 
-			return;
-		case StreamTokenizer.TT_EOF: 
-			return;
-		case StreamTokenizer.TT_NUMBER: 
-			throw new EOFException("expected ';' but found number");
-		case StreamTokenizer.TT_WORD: 
-			throw new EOFException("expected ';' but found identifier");
-		default:
-			throw new EOFException(String.format("expected ';' but found '%s'", (char) tokenizer.ttype));
-		}
+		readCharacter(';');
 	}
 		
 	public IndexType readIndexType() throws IOException{

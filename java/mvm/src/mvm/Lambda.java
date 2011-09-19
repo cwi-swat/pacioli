@@ -12,7 +12,6 @@ public class Lambda implements Expression {
 		expression = body;
 	}
 	
-	@Override
 	public PacioliValue eval(Environment env) {
 		return new Closure(arguments, expression, env);
 	}

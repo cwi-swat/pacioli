@@ -17,10 +17,6 @@ import lang::pacioli::utils::Implode;
 
 str prelude = "baseunit dollar \"$\";
 			  'baseunit euro \"�\";
-			  'unit litre \"l\" (deci metre)^3;
-			  'unit pound \"lb\" 0.45359237*kilo gram;
-			  'unit ounce \"oz\" pound/16;
-			  'unit barrel \"bbl\" 117.347765*litre;
 			  'baseunit each \"each\";
 			  'baseunit bag \"bag\";
 			  'baseunit case \"case\";
@@ -31,6 +27,10 @@ str prelude = "baseunit dollar \"$\";
 			  'baseunit sleeve \"sleeve\";
 			  'baseunit box \"box\";
 			  'baseunit bottle \"bottle\";
+			  'unit litre \"l\" (deci metre)^3;
+			  'unit pound \"lb\" 0.45359237*kilo gram;
+			  'unit ounce \"oz\" pound/16;
+			  'unit barrel \"bbl\" 117.347765*litre;
 	          'entity Product \"case1/product.entity\";
 			  'index Product bom_unit \"case1/product.bom_unit\";
 			  'index Product trade_unit \"case1/product.trade_unit\";
@@ -47,24 +47,24 @@ str prelude = "baseunit dollar \"$\";
 			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\";
 			  'entity Place \"case4/place.entity\";
 			  'entity Transition \"case4/transition.entity\";
-			  'index Place punit \"case4/place.unit\"";
+			  'index Place unit \"case4/place.unit\"";
 
 
 map[str,str] fileLoc = 
-	("output": "case1/output.csv",
-	 "sales": "case2/sales.csv",
-	 "sales_price": "case1/sales_price.csv",
-	 "amount": "case2/amount.csv",
-	 "purchase_price": "case1/purchase_price.csv",
-	 "bom": "case1/bom.csv",
-	 "semi_bom": "case3/semi_bom.csv",
-	 "ingredient_price": "case3/ingredient_price.csv",
-	 "menu_sales": "case3/menu_sales.csv",
-	 "menu_price": "case3/menu_price.csv",
-	 "stock1": "case3/stock1.csv",
-	 "stock2": "case3/stock2.csv",
-	 "forward": "case4/forward.csv",
-	 "backward": "case4/backward.csv");
+	("output":             "case1/output.csv",
+	 "sales_price":        "case1/sales_price.csv",
+	 "purchase_price":     "case1/purchase_price.csv",
+	 "bom":                "case1/bom.csv",
+	 "sales":              "case2/sales.csv",
+	 "amount":             "case2/amount.csv",
+	 "semi_bom":           "case3/semi_bom.csv",
+	 "ingredient_price":   "case3/ingredient_price.csv",
+	 "menu_sales":         "case3/menu_sales.csv",
+	 "menu_price":         "case3/menu_price.csv",
+	 "stock1":             "case3/stock1.csv",
+	 "stock2":             "case3/stock2.csv",
+	 "forward":            "case4/forward.csv",
+	 "backward":           "case4/backward.csv");
 
 public Environment env() {
 

@@ -65,7 +65,6 @@ public class Application implements Expression {
 				return new PacioliList(rows);
 				
 			} else if (name.equals("iter")) {
-				// netjes de cases doen!!!
 				Closure fun = (Closure) params.get(0);
 				PacioliList list = (PacioliList) params.get(1);
 				List<PacioliValue> tmp = new ArrayList<PacioliValue>();

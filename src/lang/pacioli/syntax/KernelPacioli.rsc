@@ -10,11 +10,8 @@ start syntax Expression = variable:Ident name
 	| right application: Expression fn Args args
 	> neg: "-" Expression
 	> trans:  Expression "^T"
-	> trans:  Expression "^"
 	> clos:  Expression "+"
 	> reci: "1/" Expression
-	> assoc joi: Expression "&" Expression
-	> assoc joi: Expression "o" Expression
 	> assoc joi: Expression "." Expression
 	> assoc mul: Expression "*" Expression
 	> left div: Expression "/" Expression

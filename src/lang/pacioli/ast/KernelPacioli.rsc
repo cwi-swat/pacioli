@@ -39,25 +39,15 @@ public Expression normalize(Expression exp) {
 
 public Expression translateComprehension(Expression header, list[Expression] parts) {
 	if (parts == []) {
-		return application(variable("single"), tup([translateExpression(header)]));
+		return application(variable("single"), tup([header]));
 	} else {
 		first = head(parts);
 		switch (first) {
 			case generator(var,exp): 
-				return application(variable("iter"),
-								   tup([abstraction([var], translateComprehension(header,tail(parts))),
-								        translateExpression(exp)]));
+				return application(variable("iter"), tup([abstraction([var], translateComprehension(header,tail(parts))), exp]));
 		}
 	}
 }
-
-public Expression translateExpression(Expression exp) {
-	switch (exp) {
-		default: return exp;
-	}
-}
-
-public Expression sum(Expression lhs, Expression rhs) = application(variable("sum"),tup([lhs,rhs]));
 
 public str pprint(Expression exp) {
 	switch(exp) {

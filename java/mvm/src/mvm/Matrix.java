@@ -1,6 +1,5 @@
 package mvm;
 
-//import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -170,32 +169,6 @@ public class Matrix implements PacioliValue {
 		int rowWidth = rowIndex.width();
 		int columnWidth = columnIndex.width();
 		
-//		BufferedReader reader = new BufferedReader(new FileReader(source));
-//		String line = reader.readLine();
-//		while (line != null) {
-//			if (line.length() > 0) {
-//				String[] split = line.split(",");
-//				if (split.length == rowWidth + columnWidth + 1) {
-//					
-//					Double num = Double.parseDouble(split[rowWidth + columnWidth]);
-//					
-//					List<String> row = new ArrayList<String>();
-//					List<String> column = new ArrayList<String>();
-//					for (int i=0; i<rowWidth; i++) {
-//						row.add(split[i].trim());
-//					}
-//					for (int i=0; i<columnWidth; i++) {
-//						column.add(split[rowWidth+i].trim());
-//					}
-//					numbers.set(rowIndex.ElementPos(row), columnIndex.ElementPos(column), num);
-//					
-//				} else {
-//					throw new IOException("Invalid data in " + source);
-//				}
-//			}
-//			line = reader.readLine();
-//		}
-		
 		Tokenizer tokenizer = new Tokenizer(new FileReader(source), null);
 		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
 			tokenizer.pushBack();
@@ -278,9 +251,4 @@ public class Matrix implements PacioliValue {
 			}
 		}
 	}
-
-	public String display() {
-		return pprint();
-	}
-
 }

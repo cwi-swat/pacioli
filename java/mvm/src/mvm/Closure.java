@@ -19,7 +19,7 @@ public class Closure implements PacioliValue {
 		return code.eval(environment.extend(new Environment(arguments, params)));
 	}
 
-	public String display() {
+	public String pprint() {
 		return "|closure|";
 	}
 }

@@ -1,6 +1,5 @@
 package mvm;
 
-//import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,7 +42,6 @@ public class Machine {
 		}
 		long before = System.currentTimeMillis();
 		runStream(tokenizer, out);
-		//interpretStream(tokenizer, out);
 		long after = System.currentTimeMillis();
 		if (verbose) {
 			out.format("-- Ready in %d ms\n", after - before);
@@ -76,7 +74,7 @@ public class Machine {
 	public void dumpState(PrintStream out) {
 		out.println("-- Store contents:");
 		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
-			out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().display()));
+			out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().pprint()));
 		}
 	}
 	
@@ -221,7 +219,7 @@ public class Machine {
 							}
 						}
 						
-						Base unit = new NamedUnit(name);
+						Base unit = new NamedUnit(symbol);
 						unitSystem.addUnit(symbol, unit);
 						indices.put(unit, unitArray);
 						
@@ -243,65 +241,6 @@ public class Machine {
 							env = env.extend(new Environment(name, store.get(name)));
 						}
 						store.put(destination, exp.eval(env));
-						
-					} else if (command.equals("transpose")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source).transpose());
-												
-					} else if (command.equals("sum")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source0 = tokenizer.readIdentifier();
-						String source1 = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source0).sum(fetch(source1)));
-						
-					} else if (command.equals("multiply")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source0 = tokenizer.readIdentifier();
-						String source1 = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source0).multiply(fetch(source1)));
-						
-					} else if (command.equals("negative")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source).negative());
-												
-					} else if (command.equals("reciprocal")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source).reciprocal());
-						
-					} else if (command.equals("join")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source0 = tokenizer.readIdentifier();
-						String source1 = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source0).join(fetch(source1)));
-						
-					} else if (command.equals("closure")) {
-						
-						String destination = tokenizer.readIdentifier();
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
-						
-						store.put(destination, fetch(source).closure());
 						
 					} else if (command.equals("conversion")) {
 						
@@ -362,7 +301,7 @@ public class Machine {
 							throw new IOException(String.format("name '%s' unknown", source));
 						}
 						
-						out.println(store.get(source).display());
+						out.println(store.get(source).pprint());
 						
 					} else if (command.equals("unit")) {
 
@@ -418,22 +357,10 @@ public class Machine {
 	}
 	
 	public List<String> loadEntityFile(String fileName) throws IOException{
-//		BufferedReader reader = new BufferedReader(new FileReader(fileName));
-//		List<String> names = new ArrayList<String>();
-//		String line = reader.readLine();
-//		while (line != null) {
-//			if (line.length() > 0) {
-//				names.add(line);
-//			}
-//			line = reader.readLine();
-//		}
-//		return names;
-		
 		List<String> names = new ArrayList<String>();
 		Tokenizer tokenizer = new Tokenizer(new FileReader(fileName), unitSystem);
 		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
 			tokenizer.pushBack();
-			//String name = tokenizer.readIdentifier();
 			String name = tokenizer.readString();
 			tokenizer.readSeparator();
 			names.add(name);
@@ -448,7 +375,6 @@ public class Machine {
 		Map<String, Unit> map = new HashMap<String, Unit>();
 		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
 			tokenizer.pushBack();
-			//String name = tokenizer.readIdentifier();
 			String name = tokenizer.readString();
 			Unit unit = tokenizer.readUnit("");
 			tokenizer.readSeparator();

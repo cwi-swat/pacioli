@@ -30,11 +30,11 @@ public class PacioliList implements PacioliValue {
 		}
 	}
 
-	public String display() {
+	public String pprint() {
 		String text = "[";
 		String sep = "";
 		for (PacioliValue value: items) {
-			text += sep + value.display();
+			text += sep + value.pprint();
 			sep = ", ";
 		}
 		return text + "]";
