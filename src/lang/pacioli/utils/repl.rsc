@@ -44,7 +44,10 @@ str prelude = "baseunit dollar \"$\";
 			  'conversion conv \"Product\" \"bom_unit\" \"trade_unit\";
 			  'projection P0 \"Commodity,Year,Region.1\" \"Commodity.1\";
 			  'projection P1 \"Commodity,Year,Region.1\" \"Commodity,Year.1\";
-			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\"";
+			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\";
+			  'entity Place \"case4/place.entity\";
+			  'entity Transition \"case4/transition.entity\";
+			  'index Place punit \"case4/place.unit\"";
 
 
 map[str,str] fileLoc = 
@@ -59,7 +62,8 @@ map[str,str] fileLoc =
 	 "menu_sales": "case3/menu_sales.csv",
 	 "menu_price": "case3/menu_price.csv",
 	 "stock1": "case3/stock1.csv",
-	 "stock2": "case3/stock2.csv");
+	 "stock2": "case3/stock2.csv",
+	 "forward": "case4/forward.csv");
 
 public Environment env() {
 
@@ -89,6 +93,12 @@ public Environment env() {
 	
 	IndexType ingredientIndex = duo(Ingredient, ingredientUnit);
 	
+	SimpleEntity Place = simple("Place");
+	SimpleEntity Transition = simple("Transition");
+	Unit placeUnit = named("unit", "unit", self());
+	
+	IndexType placeIndex = duo(compound([Place]), placeUnit);
+	
   return (
    "gram": forall({},{},{}, matrix(gram, empty, empty)),
    "metre": forall({},{},{}, matrix(metre, empty, empty)),
@@ -114,6 +124,7 @@ public Environment env() {
    "menu_price": forall({},{},{}, matrix(dollar, empty, duo(Menu, uno()))),
    "stock1": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "stock2": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
+   "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),

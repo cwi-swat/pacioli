@@ -177,7 +177,7 @@ public class Machine {
 						store.put(destination, matrix);
 						
 					} else if (command.equals("entity")) {
-						
+
 						String name = tokenizer.readIdentifier();
 						String source = tokenizer.readString();
 						tokenizer.readSeparator();
@@ -189,7 +189,7 @@ public class Machine {
 						entities.put(name, new Entity(loadEntityFile(source)));
 						
 					} else if (command.equals("index")) {
-
+						
 						String entityName = tokenizer.readIdentifier();
 						String name = tokenizer.readIdentifier();
 						String file = tokenizer.readString();

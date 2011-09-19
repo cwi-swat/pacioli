@@ -75,6 +75,9 @@ public class Index {
 			for (Base base: unit.bases()) {
 				if (callback.containsKey(base)) {
 					Unit[] local = callback.get(base);
+					if (local.length != array.length) {
+						throw new IOException("oeps" + base.pprint());
+					}
 					int power = unit.power(base);
 					for (int l=0; l<entity.size(); l++) {
 						array[l] = array[l].multiply(local[l].raise(power).multiply(unit.factor()));
