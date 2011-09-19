@@ -70,6 +70,24 @@ public class Tokenizer {
 			throw new EOFException(String.format("expected string but found '%s'", (char) tokenizer.ttype));
 		}
 	}
+
+	public void readCharacter(char character) throws IOException {
+		int token = tokenizer.nextToken();
+		if (token == character) {
+			return;
+		} else {
+			switch (token) {
+			case StreamTokenizer.TT_EOF: 
+				return;
+			case StreamTokenizer.TT_NUMBER: 
+				throw new EOFException(String.format("expected '%s' but found number", character));
+			case StreamTokenizer.TT_WORD: 
+				throw new EOFException(String.format("expected '%s' but found identifier", character));
+			default:
+				throw new EOFException(String.format("expected '%s' but found '%s'", character, (char) tokenizer.ttype));
+			}
+		}
+	}
 	
 	public void readSeparator() throws IOException {
 		switch (tokenizer.nextToken()) {
@@ -130,7 +148,7 @@ public class Tokenizer {
 		tokenizer.pushBack();
 		return identifiers;
 	}
-
+	
 	public List<Unit> readUnitList(List<String> entities) throws IOException{
 		List<Unit> units= new ArrayList<Unit>();
 		int size = entities.size();

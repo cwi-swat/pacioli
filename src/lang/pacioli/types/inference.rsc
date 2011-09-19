@@ -61,6 +61,11 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}
+		case const(x): {
+			typ = matrix(uno(),duo(compound([]),uno()),duo(compound([]),uno())); // todo
+			pop("<pprint(typ)>");
+			return <typ, ident>;
+		}
 		case tup([]): {
 			return <typType([]),ident>;
 		}
@@ -101,6 +106,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			pop("<pprint(typ)>");
 			return <typ, s1>;
 		}
+		default: throw "Unknown expression: <exp>";
 	}
 }
 

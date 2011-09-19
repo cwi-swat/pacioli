@@ -17,6 +17,8 @@ data Scheme = forall(set[str] unitVars,
 data Type = typeVar(str name)
           | function(Type from, Type to)
           | tupType(list[Type] items)
+          | listType(Type arg)
+          | boolean()
           | matrix(Unit factor, IndexType rowType, IndexType columnType);
 
 data IndexType 
@@ -47,12 +49,18 @@ public str pprint(Type t) {
 			rows = (row == "(empty).(1)") ? "" : "<row>";
 			cols = (col == "(empty).(1)") ? "" : " per <col>";
 			front = (fact == "1" && (rows != "" || cols != "")) ? "" : "<fact>";
-			sep = (front != "" && rows != "") ? " * " : "";	
-			return "<front><sep><rows><cols>";
+			sep = (front != "" && rows != "") ? " * " : "";
+			constr = "Mat";
+			if (rows == "") {constr = "Vec";}
+			if (cols == "") {constr = "Vec";}
+			if (rows == "" && cols == "") {constr = "Num";} 	
+			return "<constr>\<<front><sep><rows><cols>\>";
 		}
 		case function(x,y): return "<pprint(x)> -\> <pprint(y)>";
 		case tupType([]): return "()";
 		case tupType(x): return "(<(pprint(head(x)) | it + "," + pprint(y) | y <- tail(x))>)";
+		case listType(x): return "List\<<pprint(x)>\>";
+		case boolean(): return "Boole";
 		default: return "<t>";
 	}
 } 
@@ -105,3 +113,4 @@ public str pprint(EntityType t) {
 }
 
 public str pprint(simple(x)) = x;
+

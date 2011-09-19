@@ -7,6 +7,7 @@ import units::units;
 import lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::types::inference;
 import lang::pacioli::compile::pacioli2mvm;
+import lang::pacioli::compile::pacioli2java;
 import lang::pacioli::types::Types;
 import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
@@ -184,7 +185,35 @@ public Environment env() {
   				  				  duo(entityVar("Q"), unitVar("v")))]),
 				           matrix(reciprocal(unitVar("a")), 
   				  				  duo(entityVar("P"), reciprocal(unitVar("u"))),
-  				  				  duo(entityVar("Q"), reciprocal(unitVar("v")))))));
+  				  				  duo(entityVar("Q"), reciprocal(unitVar("v")))))),
+	"equal": forall({},{},{"a"},
+  				  function(tupType([typeVar("a"),typeVar("a")]), boolean())),
+	"head": forall({},{},{"a"},
+  				  function(tupType([listType(typeVar("a"))]), typeVar("a"))),
+  	"tail": forall({},{},{"a"},
+  				  function(tupType([listType(typeVar("a"))]), listType(typeVar("a")))),
+  	"single": forall({},{},{"a"},
+  				  function(tupType([typeVar("a")]), listType(typeVar("a")))),
+  	"append": forall({},{},{"a"},
+  				  function(tupType([listType(typeVar("a")),listType(typeVar("a"))]), listType(typeVar("a")))),
+  	"iter": forall({},{},{"a", "b"},
+  				  function(tupType([function(tupType([typeVar("a")]), listType(typeVar("b"))), 
+  				  		   			listType(typeVar("a"))]), 
+  				  		   listType(typeVar("b")))),
+	"columns": forall({"a", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				           duo(entityVar("P"), unitVar("v")),
+  				  				           duo(entityVar("Q"), uno()))]),
+				           listType(matrix(unitVar("a"), 
+  				  				   		   duo(entityVar("P"), unitVar("v")),
+  				  				   		   empty)))),
+	"rows": forall({"a", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				           duo(entityVar("P"), uno()),
+  				  				           duo(entityVar("Q"), unitVar("v")))]),
+				           listType(matrix(unitVar("a"), 
+				             			   empty,
+  				  				   		   duo(entityVar("Q"), unitVar("v")))))));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,8 +249,9 @@ public void ep (str exp) {
 		<typ, _> = inferTypeAPI(full, env());
 		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(full, extendPrelude(prelude, env()));		
-		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
+		writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
 	} catch err: {
 		println(err);
 	}
@@ -243,9 +273,25 @@ public void def(str name, str exp) {
 	}
 }
 
+public void ep2(str exp) {
+	try {
+		parsed = parseImplodePacioli(exp);
+		full = blend(parsed,glbReplRepo);
+		<typ, _> = inferTypeAPI(full, env());
+		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
+		code = compileToJava(full);
+		println(code);		
+		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.java|, [code]);
+		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
+	} catch err: {
+		println(err);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Demos
-
 public void demo1() {
 
 	println("\nBase units are pre-defined");
@@ -270,6 +316,36 @@ public void demo1() {
 	println("\nThe type system derives a most general type."); 
 	show("lambda (x,y) sum(multiply(x,y),multiply(gram,metre))");
 	show("(lambda (x) lambda (y) sum(multiply(x,y),multiply(gram,metre))) (gram)");
+}
+
+public void demo15() {
+
+	println("\nBase units are pre-defined");
+	show("gram");
+	show("metre");
+	
+	println("\nUnits can always be multiplied");
+	show("gram * gram");
+	show("gram * metre");
+	
+	println("\nUnits can not always be summed");
+	show("gram + gram");
+	show("gram + metre");
+	
+	println("\nThe type is semantic, the order of multiplication is irrelevant");
+	show("gram*metre + gram*metre");
+	show("gram*metre + metre*gram");
+	
+	println("\nThe type system does inference.");
+	show("lambda (x) x*metre + gram*metre");
+	
+	println("\nThe type system derives a most general type."); 
+	show("lambda (x,y) x*y + gram*metre");
+	show("(lambda (x) lambda (y) x*y + gram*metre) (gram)");
+	show("(lambda (x,y) x*y + gram*metre)(gram,metre)");
+	show("(lambda (x,y) x*y + gram*metre)(metre,gram)");
+	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram*second)");
+	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram/second)");
 }
 	
 public void demo2() {
@@ -302,12 +378,50 @@ public void demo2() {
 	show("multiply(menu_price,transpose(menu_sales))");
 }
 
+	
+public void demo25() {
+	
+	// General
+	show("lambda(x) x.x");
+	show("lambda(x) x+x+x+x");
+	show("lambda(x) (x+x)*(x+x)");
+	show("lambda(x,y) (x-y).(y-x)");
+	
+	// Norm
+	show("lambda(x) total(x*x)");
+	show("lambda(x) sqrt(total(x*x))");
+	
+	// Lie algebras
+	show("lambda(x,y) x.y-y.x");
+	
+	// Netting problem
+	show("lambda(x) bom o x");
+	show("lambda(x) bom.x");
+	show("(lambda(x) x o output) (conv o bom o 1/conv^T)");
+	show("(lambda(x) x . output) (conv . bom . 1/conv^T)");
+	show("(lambda(x) closure(x)) (conv.bom.1/conv^T)");
+	show("(lambda(x) closure(x) . output) (conv . bom . 1/conv^T)");
+	show("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . 1/conv^T)");
+	
+	// Salesdata
+	show("sales / amount^T");
+	show("(lambda(price) (price . 1/P2^T) * (price . 1/P2^T)) (sales / amount^T)");
+	show("(lambda(price) price.1/P2^T * price.1/P2^T) (sales / amount^T)");
+	show("(lambda(price) (price . 1/P2^T)) (sales / amount^T)");
+	show("(lambda(price) price.1/P2^T) (sales / amount^T)");
+	
+	// Restaurant
+	show("menu_price . menu_sales");
+	show("menu_price * menu_sales^T");
+}
+
 
 public void show (str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
+		println("parsed code = <pprint(parsed)>");
 		<typ, _> = inferTypeAPI(parsed, env());
-		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
+		println("<exp> :: <pprint(unfresh(typ))>");
 	} catch err: {
 		println(err);
 	}	

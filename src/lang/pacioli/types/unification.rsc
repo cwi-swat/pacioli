@@ -66,8 +66,14 @@ public Substitution bindEntityVar(str key, Type typ) = substitution((),(key: typ
 public Substitution bindTypeVar(str key, Type typ) = substitution((),(),(key: typ));
 
 public Type unfresh(Type t) {
-	s = substitution(unitUnfresh(unitVariables(t)),entityUnfresh(entityVariables(t)),());
+	s = substitution(unitUnfresh(unitVariables(t)),entityUnfresh(entityVariables(t)),typeUnfresh(typeVariables(t)));
 	return typeSubs(s,t);
+}
+
+public TypeBinding typeUnfresh(set[str] variables) {
+	int counter = 0;
+	private int f() {counter = counter + 1; return counter-1;};
+	return (name: typeVar("t<f()>") | name <- variables);
 }
 
 public UnitBinding unitUnfresh(set[str] variables) {
@@ -103,6 +109,7 @@ public Type typeSubs(Substitution s, Type typ) {
 						  duo(entitySubs(be,q), unitSubs(bu,v)));
 		case function(x,y): return function(typeSubs(s, x), typeSubs(s, y));
 		case tupType(x): return tupType([typeSubs(s,y) | y <- x]);
+		case listType(x): return listType(typeSubs(s,x));
 		default: return typ;
 	}
 }
@@ -166,6 +173,14 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			if (!success) return <false, ident>;
 			return <true, merge(s1,s2)>;
 		}
+		case <listType(a), listType(b)>: {
+			<success, s1> = unifyTypes(a,b, binding);
+			if (!success) return <false, ident>;
+			return <true, s1>;
+		}
+		case <boolean(), boolean()>: {
+			return <true, ident>;
+		}
 		case <typeVar(a), typeVar(a)>: {
 			return <true, binding>;
 		}
@@ -176,7 +191,7 @@ public tuple[bool, Substitution] unifyTypes(Type x, Type y, Substitution binding
 			return unifyVar(b,a);
 		}
 		default: {
-			throw "Cannot unify <pprint(x)> and <pprint(y)>  <x> <y>";
+			throw "Cannot unify <pprint(x)> and <pprint(y)>";
 		}
 	}
 }

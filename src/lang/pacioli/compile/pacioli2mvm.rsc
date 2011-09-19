@@ -17,12 +17,21 @@ str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 alias Register = map[str var, str register];
 
 public str compilePacioli(Expression exp, str prelude) {
-	<code,reg> = compileExpression(exp,());
+	code = compileExpression2(exp);
+	reg = fresh("r");
 	prog = "<prelude>;
-		   '<code>; 
+		   'eval <reg> <code>; 
 	       'print <reg>";
 	return prog;
 }
+
+//public str compilePacioli(Expression exp, str prelude) {
+//	<code,reg> = compileExpression(exp,());
+//	prog = "<prelude>;
+//		   '<code>; 
+//	       'print <reg>";
+//	return prog;
+//}
 
 public map[&T,&U] zip(list[&T] x, list[&U] y) =
 	(x == [] || y == []) ? () : (head(x):head(y)) + zip(tail(x),tail(y));
@@ -53,6 +62,31 @@ public tuple[str,str] compileExpression(Expression exp, Register reg) {
 					return <"<prog><sep><f> <r><("" | it + " " + v | v <- registers)>", r>;
 				}
 			}
+		}
+		default: throw("Functions as values not (yet) supported");
+	}
+}
+
+public str compileExpression2(Expression exp) {
+	switch (exp) {
+		case variable(x): {
+			return x; 
+		}
+		case abstraction(vars, body): {
+			args = "";
+			sep = "";
+			for (x <- vars) {
+				args += sep + x;
+				sep = ", ";
+			}
+			return "lambda (<args>) <compileExpression2(body)>";
+		}
+		case application(fn, tup(args)): {
+			params = compileExpression2(fn);
+			for (x <- args) { 
+				params += ", " + compileExpression2(x);
+			}
+			return "apply(<params>)";
 		}
 		default: throw("Functions as values not (yet) supported");
 	}

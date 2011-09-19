@@ -23,14 +23,14 @@ public class Machine {
 	
 	public boolean verbose;
 	
-	private HashMap<String, Matrix> store;
+	private HashMap<String, PacioliValue> store;
 	private UnitSystem unitSystem;
 	private HashMap<String, Entity> entities;
 	private HashMap<Base, Unit[]> indices;
 	
 	public Machine() {
 		verbose = false;
-		store = new HashMap<String, Matrix>();
+		store = new HashMap<String, PacioliValue>();
 		unitSystem = makeSI();
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
@@ -43,6 +43,7 @@ public class Machine {
 		}
 		long before = System.currentTimeMillis();
 		runStream(tokenizer, out);
+		//interpretStream(tokenizer, out);
 		long after = System.currentTimeMillis();
 		if (verbose) {
 			out.format("-- Ready in %d ms\n", after - before);
@@ -57,20 +58,75 @@ public class Machine {
 		if (!store.containsKey(name)) {
 			throw new IOException(String.format("name '%s' unknown", name));
 		}
-		return store.get(name);
+		return (Matrix) store.get(name);
 	}
 
 	public void dumpTypes(PrintStream out) {
 		out.println("-- Store signature:");
-		for (Map.Entry<String,Matrix> entry: store.entrySet()) {
-			out.println(String.format("%s :: %s", entry.getKey(), entry.getValue().typeString()));
+		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
+			if (entry.getValue() instanceof Matrix) {
+				out.println(String.format("%s :: %s", entry.getKey(), ((Matrix) entry.getValue()).typeString()));
+			} else {
+				out.println(String.format("%s :: %s", entry.getKey(), "List"));	
+			}
+			
 		}
 	}
 
 	public void dumpState(PrintStream out) {
 		out.println("-- Store contents:");
-		for (Map.Entry<String,Matrix> entry: store.entrySet()) {
-			out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().pprint()));
+		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
+			out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().display()));
+		}
+	}
+	
+	public List<Expression> readExpressionList(Tokenizer tokenizer) throws IOException{
+		List<Expression> list = new ArrayList<Expression>();
+		int token = tokenizer.nextToken();
+		while (token != ')') {
+			tokenizer.pushBack();
+			list.add(readExpression(tokenizer));
+			token = tokenizer.nextToken();
+			if (token == ',') {
+				token = tokenizer.nextToken();
+			}
+		}
+		tokenizer.pushBack();
+		return list;
+	}
+	
+	private Expression readExpression(Tokenizer tokenizer) throws IOException {
+		int token = tokenizer.nextToken(); 
+		switch (token) {
+		case Tokenizer.TT_WORD:
+			
+			String command = tokenizer.sval();
+								
+			if (command.equals("lambda")) {
+				
+				tokenizer.readCharacter('(');
+				List<String> vars = tokenizer.readIdentifierList();
+				tokenizer.readCharacter(')');
+				Expression body = readExpression(tokenizer);
+				
+				return new Lambda(vars,body);
+				
+			} else if (command.equals("apply")) {
+				tokenizer.readCharacter('(');
+				List<Expression> expressions = readExpressionList(tokenizer);
+				tokenizer.readCharacter(')');
+				Expression fun = expressions.remove(0); 
+				return new Application(fun,expressions);
+				
+			} else {
+				return new Variable(command);				
+			}			
+			
+		case Tokenizer.TT_NUMBER:
+				throw new IOException("expected expression but found number");
+				
+		default:
+			throw new IOException(String.format("expected expression but found '%s'", (char) token));
 		}
 	}
 	
@@ -176,6 +232,17 @@ public class Machine {
 						tokenizer.readSeparator();
 						
 						store.put(destination, fetch(source));
+						
+					} else if (command.equals("eval")) {
+						
+						String destination = tokenizer.readIdentifier();
+						Expression exp = readExpression(tokenizer);
+						tokenizer.readSeparator();
+						Environment env = new Environment();
+						for (String name: store.keySet()) {
+							env = env.extend(new Environment(name, store.get(name)));
+						}
+						store.put(destination, exp.eval(env));
 						
 					} else if (command.equals("transpose")) {
 						
@@ -291,7 +358,11 @@ public class Machine {
 						String source = tokenizer.readIdentifier();
 						tokenizer.readSeparator();
 						
-						out.println(fetch(source).pprint());
+						if (!store.containsKey(source)) {
+							throw new IOException(String.format("name '%s' unknown", source));
+						}
+						
+						out.println(store.get(source).display());
 						
 					} else if (command.equals("unit")) {
 

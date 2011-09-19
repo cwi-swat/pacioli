@@ -11,7 +11,7 @@ import org.ejml.simple.SimpleMatrix;
 import units.Unit;
 
 
-public class Matrix {
+public class Matrix implements PacioliValue {
 
 	private MatrixType type;
 	private Index rowIndex;
@@ -86,10 +86,46 @@ public class Matrix {
 			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
 			SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
 			matrix.numbers = ident.minus(numbers).invert().minus(ident);
-			return matrix;
+			return matrix; 
 		} else {
 			throw new IOException("type '" + type.pprint() + "' not square when taking closure");
 		}
+	}
+
+	public Matrix total() throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType totalType = new MatrixType(type.getFactor(),empty,empty);
+		Matrix matrix = new Matrix(totalType, index, index);
+		matrix.numbers = new SimpleMatrix(1,1);
+		matrix.numbers.set(0, 0, numbers.elementSum());
+		return matrix; 
+	}
+
+	
+	public List<Matrix> columns() throws IOException {
+		List<Matrix> columns = new ArrayList<Matrix>();
+		MatrixType extractedType = type.extractColumn();
+		Index index = new Index(new IndexType(),null,null);
+		for (int i=0; i < numbers.numCols(); i++) {
+			Matrix matrix = new Matrix(extractedType, rowIndex, index);
+			matrix.numbers = numbers.extractVector(false, i);
+			columns.add(matrix);
+		}
+		return columns;
+	}
+
+
+	public List<Matrix> rows() throws IOException {
+		List<Matrix> rows = new ArrayList<Matrix>();
+		MatrixType extractedType = type.extractRow();
+		Index index = new Index(new IndexType(),null,null);
+		for (int i=0; i < numbers.numRows(); i++) {
+			Matrix matrix = new Matrix(extractedType, index, columnIndex);
+			matrix.numbers = numbers.extractVector(true, i);
+			rows.add(matrix);
+		}
+		return rows;
 	}
 	
 	private Unit unitAt(int i, int j) {
@@ -97,25 +133,30 @@ public class Matrix {
 	}
 	
 	public String pprint() {
-		String output = "----------------------------------------------------------------------------------";
-		output += String.format("\n %50s %20s", "index", "value");
-		output += "\n----------------------------------------------------------------------------------";
-		Number num;
-		for (int i=0; i<rowIndex.size(); i++){
-			for (int j=0; j<columnIndex.size(); j++){
-				num = numbers.get(i,j);
-				if (num.doubleValue() != 0) {
-					List<String> idx = new ArrayList<String>();
-					idx.addAll(rowIndex.ElementAt(i));
-					idx.addAll(columnIndex.ElementAt(j));
-					output += String.format("\n %50s %20f %s",
-							idx, num, unitAt(i,j).pprint());
-//					output += String.format("\n %40s %40s %20f %s",
-//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
+		if (type.rowOrder() == 0 && type.columnOrder() == 0) {
+			return String.format("%f %s", numbers.get(0,0), unitAt(0,0).pprint());
+		} else {
+				
+			String output = "----------------------------------------------------------------------------------";
+			output += String.format("\n %50s %20s", "index", "value");
+			output += "\n----------------------------------------------------------------------------------";
+			Number num;
+			for (int i=0; i<rowIndex.size(); i++){
+				for (int j=0; j<columnIndex.size(); j++){
+					num = numbers.get(i,j);
+					if (num.doubleValue() != 0) {
+						List<String> idx = new ArrayList<String>();
+						idx.addAll(rowIndex.ElementAt(i));
+						idx.addAll(columnIndex.ElementAt(j));
+						output += String.format("\n %50s %20f %s",
+								idx, num, unitAt(i,j).pprint());
+	//					output += String.format("\n %40s %40s %20f %s",
+	//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
+					}
 				}
 			}
+			return output;
 		}
-		return output;
 	}
 
 	public String typeString() {
@@ -236,6 +277,10 @@ public class Matrix {
 				numbers.set(i,i, num);
 			}
 		}
+	}
+
+	public String display() {
+		return pprint();
 	}
 
 }

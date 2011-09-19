@@ -24,6 +24,14 @@ public class MatrixType {
 		return factor.hashCode();
 	}
 	
+	public int rowOrder() {
+		return rowType.width();
+	}
+	
+	public int columnOrder() {
+		return columnType.width();
+	}
+	
 	public boolean equals(Object other) {
 		if (other == this) {
 			return true;
@@ -96,5 +104,13 @@ public class MatrixType {
 		} else {
 			return factorString + " x " + tail;
 		}
+	}
+
+	public MatrixType extractColumn() {
+		return new MatrixType(factor, rowType, new IndexType());
+	}
+	
+	public MatrixType extractRow() {
+		return new MatrixType(factor, new IndexType(), columnType);
 	}
 }
