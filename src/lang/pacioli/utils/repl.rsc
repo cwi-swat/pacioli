@@ -15,6 +15,8 @@ import lang::pacioli::utils::Implode;
 ////////////////////////////////////////////////////////////////////////////////
 // Hardwired Data Schema 
 
+str glbCasesDirectory = "/home/paul/data/code/cwi/pacioli/cases/";
+
 str prelude = "baseunit dollar \"$\";
 			  'baseunit euro \"�\";
 			  'baseunit each \"each\";
@@ -31,23 +33,23 @@ str prelude = "baseunit dollar \"$\";
 			  'unit pound \"lb\" 0.45359237*kilo gram;
 			  'unit ounce \"oz\" pound/16;
 			  'unit barrel \"bbl\" 117.347765*litre;
-	          'entity Product \"case1/product.entity\";
-			  'index Product bom_unit \"case1/product.bom_unit\";
-			  'index Product trade_unit \"case1/product.trade_unit\";
-			  'entity Commodity \"case2/commodity.entity\";
-			  'entity Year \"case2/year.entity\";
-			  'entity Region \"case2/region.entity\";
-			  'index Commodity unit \"case2/commodity.unit\";
-			  'entity Ingredient \"case3/ingredient.entity\";
-			  'entity Menu \"case3/menu.entity\";
-			  'index Ingredient unit \"case3/ingredient.unit\";
+	          'entity Product \"<glbCasesDirectory>case1/product.entity\";
+			  'index Product bom_unit \"<glbCasesDirectory>case1/product.bom_unit\";
+			  'index Product trade_unit \"<glbCasesDirectory>case1/product.trade_unit\";
+			  'entity Commodity \"<glbCasesDirectory>case2/commodity.entity\";
+			  'entity Year \"<glbCasesDirectory>case2/year.entity\";
+			  'entity Region \"<glbCasesDirectory>case2/region.entity\";
+			  'index Commodity unit \"<glbCasesDirectory>case2/commodity.unit\";
+			  'entity Ingredient \"<glbCasesDirectory>case3/ingredient.entity\";
+			  'entity Menu \"<glbCasesDirectory>case3/menu.entity\";
+			  'index Ingredient unit \"<glbCasesDirectory>case3/ingredient.unit\";
 			  'conversion conv \"Product\" \"bom_unit\" \"trade_unit\";
 			  'projection P0 \"Commodity,Year,Region.1\" \"Commodity.1\";
 			  'projection P1 \"Commodity,Year,Region.1\" \"Commodity,Year.1\";
 			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\";
-			  'entity Place \"case4/place.entity\";
-			  'entity Transition \"case4/transition.entity\";
-			  'index Place unit \"case4/place.unit\"";
+			  'entity Place \"<glbCasesDirectory>case4/place.entity\";
+			  'entity Transition \"<glbCasesDirectory>case4/transition.entity\";
+			  'index Place unit \"<glbCasesDirectory>case4/place.unit\"";
 
 
 map[str,str] fileLoc = 
@@ -236,7 +238,7 @@ public str extendPrelude(str prelude, Environment env) {
 	text = prelude;
 	for (name <- env) {
 		if (forall({},{},{},matrix(f,r,c)) := env[name] && name in fileLoc) {
-			text += ";\nload <name> \"<fileLoc[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"";
+			text += ";\nload <name> \"<glbCasesDirectory><fileLoc[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"";
 		}
 	}
 	return text;
@@ -262,6 +264,7 @@ public void ep (str exp) {
 		<typ, _> = inferTypeAPI(full, env());
 		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(full, extendPrelude(prelude, env()));		
+		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [code]);
 		writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
 		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
 		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
