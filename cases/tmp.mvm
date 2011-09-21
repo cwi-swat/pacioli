@@ -32,7 +32,7 @@ projection P2 "Year,Commodity.1,unit" "Commodity,Year,Region.unit,1,1";
 entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
 entity Transition "/home/paul/data/code/cwi/pacioli/cases/case4/transition.entity";
 index Place unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
-entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";;
+entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";
 load semi_bom "/home/paul/data/code/cwi/pacioli/cases/case3/semi_bom.csv" "1.0" "Ingredient.unit" "Menu.1.0";
 load menu_sales "/home/paul/data/code/cwi/pacioli/cases/case3/menu_sales.csv" "1.0" "Menu.1.0" "empty";
 load menu_price "/home/paul/data/code/cwi/pacioli/cases/case3/menu_price.csv" "dollar" "empty" "Menu.1.0";
@@ -48,5 +48,5 @@ load forward "/home/paul/data/code/cwi/pacioli/cases/case4/forward.csv" "1.0" "P
 load output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load valuation "/home/paul/data/code/cwi/pacioli/cases/case4/valuation.csv" "dollar" "empty" "Place.unit";
 load bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
-eval result apply(reduce, empty, lambda (x) apply(single, apply(transpose, x)), append, apply(rows, apply(transpose, apply(sum, backward, apply(negative, forward))))); 
+eval result backward; 
 print result
