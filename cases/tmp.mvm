@@ -45,5 +45,5 @@ load purchase_price "/home/paul/data/code/cwi/pacioli/cases/case1/purchase_price
 load forward "/home/paul/data/code/cwi/pacioli/cases/case4/forward.csv" "1.0" "Place.unit" "Transition.1.0";
 load output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv" "1.0" "Product.trade_unit" "empty";
 load bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
-eval r11 apply(iter, lambda (x) apply(single, x), apply(columns, apply(sum, backward, apply(negative, forward)))); 
-print r11
+eval r45 apply(reduce, empty, lambda (x) apply(reduce, empty, lambda (y) if(apply(equal, x, y),apply(single, apply(single, apply(sum, x, apply(negative, y)))),empty), append, apply(columns, forward)), append, apply(columns, apply(sum, forward, apply(negative, backward)))); 
+print r45

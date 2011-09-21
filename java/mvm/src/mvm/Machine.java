@@ -9,6 +9,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mvm.expressions.And;
+import mvm.expressions.Const;
+import mvm.expressions.Or;
+import mvm.primitives.Append;
+import mvm.primitives.Columns;
+import mvm.primitives.Equal;
+import mvm.primitives.Head;
+import mvm.primitives.Identity;
+import mvm.primitives.Join;
+import mvm.primitives.Multiply;
+import mvm.primitives.Negative;
+import mvm.primitives.Not;
+import mvm.primitives.Reciprocal;
+import mvm.primitives.Reduce;
+import mvm.primitives.Single;
+import mvm.primitives.Sum;
+import mvm.primitives.Tail;
+import mvm.primitives.Transpose;
+
 import units.Base;
 import units.NamedUnit;
 import units.PowerProduct;
@@ -116,12 +135,51 @@ public class Machine {
 				Expression fun = expressions.remove(0); 
 				return new Application(fun,expressions);
 				
+			} else if (command.equals("if")) {
+				
+				tokenizer.readCharacter('(');
+				Expression test = readExpression(tokenizer);
+				tokenizer.readCharacter(',');
+				Expression pos = readExpression(tokenizer);
+				tokenizer.readCharacter(',');
+				Expression neg = readExpression(tokenizer);
+				tokenizer.readCharacter(')'); 
+				return new Branch(test,pos,neg);
+				
+			} else if (command.equals("and")) {
+				
+				tokenizer.readCharacter('(');
+				Expression lhs = readExpression(tokenizer);
+				tokenizer.readCharacter(',');
+				Expression rhs = readExpression(tokenizer);
+				tokenizer.readCharacter(')'); 
+				return new And(lhs,rhs);
+				
+			} else if (command.equals("or")) {
+				
+				tokenizer.readCharacter('(');
+				Expression lhs = readExpression(tokenizer);
+				tokenizer.readCharacter(',');
+				Expression rhs = readExpression(tokenizer);
+				tokenizer.readCharacter(')'); 
+				return new Or(lhs,rhs);
+				
 			} else {
 				return new Variable(command);				
 			}			
 			
 		case Tokenizer.TT_NUMBER:
-				throw new IOException("expected expression but found number");
+			// todo: read optional unit
+			Unit factor = parseUnit("", "1"); 
+			IndexType rowType = parseIndexType("empty");
+			IndexType columnType = parseIndexType("empty");
+			MatrixType type = new MatrixType(factor, rowType, columnType);
+			
+			Index rowIndex = new Index(rowType, entities, indices);
+			Index columnIndex = new Index(columnType, entities, indices);
+			
+			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+			return new Const(matrix.put(0,0,tokenizer.dval()));
 				
 		default:
 			throw new IOException(String.format("expected expression but found '%s'", (char) token));
@@ -240,6 +298,29 @@ public class Machine {
 						for (String name: store.keySet()) {
 							env = env.extend(new Environment(name, store.get(name)));
 						}
+						env = env.extend(new Environment("equal", new Equal()));
+						env = env.extend(new Environment("sum", new Sum()));
+						env = env.extend(new Environment("multiply", new Multiply()));
+						env = env.extend(new Environment("reduce", new Reduce()));
+						env = env.extend(new Environment("append", new Append()));
+						env = env.extend(new Environment("head", new Head()));
+						env = env.extend(new Environment("tail", new Tail()));
+						env = env.extend(new Environment("identity", new Identity()));
+						env = env.extend(new Environment("single", new Single()));
+						env = env.extend(new Environment("join", new Join()));
+						env = env.extend(new Environment("transpose", new Transpose()));
+						env = env.extend(new Environment("reciprocal", new Reciprocal()));
+						env = env.extend(new Environment("negative", new Negative()));
+						env = env.extend(new Environment("not", new Not()));
+						env = env.extend(new Environment("columns", new Columns()));
+						env = env.extend(new Environment("true", new Boole(true)));
+						env = env.extend(new Environment("false", new Boole(false)));
+						env = env.extend(new Environment("empty", new PacioliList(new ArrayList<PacioliValue>())));
+						
+						if (verbose) {
+							out.format("-- Evaluating %s\n", exp.pprint());
+						}
+						
 						store.put(destination, exp.eval(env));
 						
 					} else if (command.equals("conversion")) {

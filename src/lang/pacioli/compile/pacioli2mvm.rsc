@@ -26,6 +26,18 @@ public str compileExpression(Expression exp) {
 		case variable(x): {
 			return x; 
 		}
+		case const(x): {
+			return "<x>"; 
+		}
+		case branch(c,p,n): {
+			return "if(<compileExpression(c)>,<compileExpression(p)>,<compileExpression(n)>)";
+		}
+		case and(x,y): {
+			return "and(<compileExpression(x)>,<compileExpression(y)>)";
+		}
+		case or(x,y): {
+			return "or(<compileExpression(x)>,<compileExpression(y)>)";
+		}
 		case abstraction(vars, body): {
 			args = "";
 			sep = "";
@@ -43,7 +55,7 @@ public str compileExpression(Expression exp) {
 			return "apply(<params>)";
 		}
 		default: {
-			throw("Cannot compile <pprint(exp)>");
+			throw("Cannot compile <exp> <pprint(exp)>");
 		}
 	}
 }

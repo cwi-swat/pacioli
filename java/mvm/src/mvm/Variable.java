@@ -18,4 +18,8 @@ public class Variable implements Expression {
 		return env.lookup(name);
 	}
 
+	public String pprint() {
+		return name;
+	}
+
 }

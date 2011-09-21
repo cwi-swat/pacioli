@@ -30,7 +30,11 @@ public class Matrix implements PacioliValue {
 	}
 
 	public Matrix sum(Matrix other) throws IOException {
-		if (type.equals(other.type)) {
+		if (other.isZero()) {
+			return this;
+		} else if (this.isZero()) {
+			return other;
+		} else if (type.equals(other.type)) {
 			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
 			matrix.numbers = numbers.plus(other.numbers);
 			return matrix;
@@ -55,6 +59,18 @@ public class Matrix implements PacioliValue {
 		return matrix;
 	}
 
+	public boolean isZero() {
+		for (int i=0; i<numbers.numRows(); i++) {
+			for (int j=0; j<numbers.numCols(); j++) {
+				Double entry = numbers.get(i, j);
+				if (entry != 0) {
+					return false;	
+				}	
+			}
+		}
+		return true;
+	}
+	
 	public Matrix reciprocal() {
 		SimpleMatrix newNumbers = new SimpleMatrix(numbers.numRows(), numbers.numCols());
 		for (int i=0; i<numbers.numRows(); i++) {
@@ -250,5 +266,15 @@ public class Matrix implements PacioliValue {
 				numbers.set(i,i, num);
 			}
 		}
+	}
+
+	public boolean sameAs(Matrix y) {
+		return this.numbers.isIdentical(y.numbers, 0.0);
+	}
+
+	public Matrix put(int i, int j, Double value) {
+		numbers = new SimpleMatrix(rowIndex.size(),columnIndex.size());
+		numbers.set(i, j, value);
+		return this;
 	}
 }

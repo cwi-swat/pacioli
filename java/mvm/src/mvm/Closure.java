@@ -3,7 +3,7 @@ package mvm;
 import java.io.IOException;
 import java.util.List;
 
-public class Closure implements PacioliValue {
+public class Closure implements Callable {
 
 	private List<String> arguments;
 	private Expression code;

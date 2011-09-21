@@ -61,13 +61,18 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}
+		case const(0.0): {
+			typ = matrix(unitVar(fresh("u")),duo(entityVar(fresh("E")),unitVar(fresh("u"))),duo(entityVar(fresh("E")),unitVar(fresh("u")))); // todo
+			pop("<pprint(typ)>");
+			return <typ, ident>;
+		}
 		case const(x): {
 			typ = matrix(uno(),duo(compound([]),uno()),duo(compound([]),uno())); // todo
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}
 		case tup([]): {
-			return <typType([]),ident>;
+			return <tupType([]),ident>;
 		}
 		case tup(items): {
 			types = [];
@@ -80,6 +85,41 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			typ = tupType(types);
 			pop("<pprint(typ)>");
 			return <typ, subs>;
+		}
+		case branch(c,x,y): {
+			<condType, s0> = inferType(c, assumptions);
+			<succ, s1> = unifyTypes(condType, boolean(), s0);
+			s01 = merge(s0,s1);
+			<xType, s2> = inferType(x, envSubs(s01, assumptions));
+			s012 = merge(s01,s2);
+			<yType, s3> = inferType(y, envSubs(s012, assumptions));
+			s0123 = merge(s012,s3);
+			<succ, s4> = unifyTypes(typeSubs(s0123, xType), typeSubs(s0123, yType), s0123);
+			s01234 = merge(s0123,s4);
+			typ = typeSubs(s01234, yType);
+			return <typ,s01234>;
+		}
+		case and(x,y): {
+			<xType, s0> = inferType(x, assumptions);
+			<yType, s1> = inferType(y, envSubs(s0, assumptions));
+			s01 = merge(s0,s1);
+			<succ, s2> = unifyTypes(xType, boolean(), s01);
+			s012 = merge(s01,s2);
+			<succ, s3> = unifyTypes(yType, boolean(), s012);
+			s0123 = merge(s012,s3);
+			typ = boolean();
+			return <typ,s0123>;
+		}
+		case or(x,y): {
+			<xType, s0> = inferType(x, assumptions);
+			<yType, s1> = inferType(y, envSubs(s0, assumptions));
+			s01 = merge(s0,s1);
+			<succ, s2> = unifyTypes(xType, boolean(), s01);
+			s012 = merge(s01,s2);
+			<succ, s3> = unifyTypes(yType, boolean(), s012);
+			s0123 = merge(s012,s3);
+			typ = boolean();
+			return <typ,s0123>;
 		}
 		case application(x,y): {
 			<funType, s1> = inferType(x, assumptions);

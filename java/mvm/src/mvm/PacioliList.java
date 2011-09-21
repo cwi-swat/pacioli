@@ -43,4 +43,11 @@ public class PacioliList implements PacioliValue {
 	public List<PacioliValue> items() {
 		return items;
 	}
+
+	public PacioliValue append(PacioliList y) {
+		ArrayList<PacioliValue> accu = new ArrayList<PacioliValue>();
+		accu.addAll(items);
+		accu.addAll(y.items);
+		return new PacioliList(accu);
+	}
 }

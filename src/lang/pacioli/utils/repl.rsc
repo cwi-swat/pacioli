@@ -128,7 +128,8 @@ public Environment env() {
    "stock1": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "stock2": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
-   "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),   
+   "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
+   "empty": forall({},{},{"a"},listType(typeVar("a"))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -203,6 +204,22 @@ public Environment env() {
   				  				  duo(entityVar("Q"), reciprocal(unitVar("v")))))),
 	"equal": forall({},{},{"a"},
   				  function(tupType([typeVar("a"),typeVar("a")]), boolean())),
+	"identity": forall({},{},{"a"},
+  				  function(tupType([typeVar("a")]), typeVar("a"))),  				  
+  	"true": forall({},{},{}, boolean()),
+  	"false": forall({},{},{}, boolean()),
+  	//"and": forall({},{},{},
+  	//			  function(tupType([boolean(),boolean()]), boolean())),
+  	//"or": forall({},{},{},
+  	//			  function(tupType([boolean(),boolean()]), boolean())),
+  	"not": forall({},{},{},
+  				  function(tupType([boolean()]), boolean())),
+  	"reduce": forall({},{},{"a", "b"},
+  				  function(tupType([typeVar("b"),
+  				  					function(tupType([typeVar("a")]), typeVar("b")),
+  				  					function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
+  									listType(typeVar("a"))]), 
+  				  		   typeVar("b"))),
 	"head": forall({},{},{"a"},
   				  function(tupType([listType(typeVar("a"))]), typeVar("a"))),
   	"tail": forall({},{},{"a"},
@@ -265,7 +282,7 @@ public void ep (str exp) {
 		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(full, extendPrelude(prelude, env()));		
 		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [code]);
-		writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
+		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
 		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
 		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
 	} catch err: {

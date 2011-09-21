@@ -16,4 +16,14 @@ public class Lambda implements Expression {
 		return new Closure(arguments, expression, env);
 	}
 
+	public String pprint() {
+		String args = "";
+		String sep = "";
+		for (String arg: arguments) {
+			args += sep + arg;
+			sep = ",";
+		}
+		return String.format("lambda (%s) %s", args, expression.pprint());
+	}
+
 }

@@ -224,4 +224,8 @@ public class Tokenizer {
 	public void pushBack() {
 		tokenizer.pushBack();
 	}
+
+	public Double dval() {
+		return tokenizer.nval;
+	}
 }

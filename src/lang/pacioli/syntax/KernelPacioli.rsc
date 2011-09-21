@@ -6,6 +6,10 @@ extend lang::pacioli::syntax::Lexical;
 start syntax Expression = variable:Ident name
 	| const: Number number
 	| bracket "(" Expression nested ")"
+	> someComprehension: "some" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| allComprehension: "all" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| countComprehension: "count" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| sumComprehension: "sum" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| right application: Expression fn Args args
 	> neg: "-" Expression
@@ -20,11 +24,17 @@ start syntax Expression = variable:Ident name
 	  | left sub: Expression "-" Expression
 	)
 	> assoc equal: Expression "=" Expression
+	//> not: "!" Expression
+	> left (
+		assoc and: Expression "&&" Expression
+	  | assoc or: Expression "||" Expression
+	)
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
 syntax Args = tup: "(" {Expression ","}* items ")";
 
-syntax ComprehensionTerm = generator: Ident name "in" Expression exp;
+syntax ComprehensionTerm = generator: Ident name "in" Expression exp
+	| filt: Expression exp;
  
 //keyword Keywords="lambda";
 
