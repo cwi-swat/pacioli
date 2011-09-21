@@ -3,9 +3,9 @@ package mvm.primitives;
 import java.io.IOException;
 import java.util.List;
 
-import mvm.Boole;
-import mvm.Callable;
-import mvm.PacioliValue;
+import mvm.values.Boole;
+import mvm.values.Callable;
+import mvm.values.PacioliValue;
 
 public class Not implements Callable {
 

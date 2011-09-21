@@ -1,7 +1,8 @@
-package mvm;
+package mvm.values;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class PacioliList implements PacioliValue {
 

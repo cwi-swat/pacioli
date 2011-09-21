@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mvm.Callable;
-import mvm.Matrix;
-import mvm.PacioliList;
-import mvm.PacioliValue;
+import mvm.values.Callable;
+import mvm.values.PacioliList;
+import mvm.values.PacioliValue;
+import mvm.values.matrix.Matrix;
 
 public class Columns implements Callable {
 

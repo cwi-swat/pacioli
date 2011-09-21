@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import mvm.values.PacioliValue;
+
 public class Environment {
 	
 	private HashMap<String, PacioliValue> store;

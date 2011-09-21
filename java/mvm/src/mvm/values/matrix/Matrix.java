@@ -1,9 +1,12 @@
-package mvm;
+package mvm.values.matrix;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import mvm.Tokenizer;
+import mvm.values.PacioliValue;
 
 import org.ejml.simple.SimpleMatrix;
 

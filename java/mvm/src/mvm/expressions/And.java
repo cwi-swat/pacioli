@@ -2,9 +2,9 @@ package mvm.expressions;
 
 import java.io.IOException;
 
-import mvm.Boole;
 import mvm.Environment;
-import mvm.PacioliValue;
+import mvm.values.Boole;
+import mvm.values.PacioliValue;
 
 public class And implements Expression {
 

@@ -3,7 +3,7 @@ package mvm.expressions;
 import java.io.IOException;
 
 import mvm.Environment;
-import mvm.PacioliValue;
+import mvm.values.PacioliValue;
 
 public class Variable implements Expression {
 

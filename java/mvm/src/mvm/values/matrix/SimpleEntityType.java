@@ -1,4 +1,5 @@
-package mvm;
+package mvm.values.matrix;
+
 
 
 public class SimpleEntityType implements EntityType {

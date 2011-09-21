@@ -1,8 +1,9 @@
-package mvm;
+package mvm.values;
 
 import java.io.IOException;
 import java.util.List;
 
+import mvm.Environment;
 import mvm.expressions.Expression;
 
 public class Closure implements Callable {

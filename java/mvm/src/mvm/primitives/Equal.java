@@ -3,10 +3,10 @@ package mvm.primitives;
 import java.io.IOException;
 import java.util.List;
 
-import mvm.Boole;
-import mvm.Callable;
-import mvm.Matrix;
-import mvm.PacioliValue;
+import mvm.values.Boole;
+import mvm.values.Callable;
+import mvm.values.PacioliValue;
+import mvm.values.matrix.Matrix;
 
 public class Equal implements Callable {
 	

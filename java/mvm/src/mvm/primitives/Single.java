@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mvm.Callable;
-import mvm.PacioliList;
-import mvm.PacioliValue;
+import mvm.values.Callable;
+import mvm.values.PacioliList;
+import mvm.values.PacioliValue;
 
 public class Single implements Callable {
 

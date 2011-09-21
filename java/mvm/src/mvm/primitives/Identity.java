@@ -3,8 +3,8 @@ package mvm.primitives;
 import java.io.IOException;
 import java.util.List;
 
-import mvm.Callable;
-import mvm.PacioliValue;
+import mvm.values.Callable;
+import mvm.values.PacioliValue;
 
 public class Identity implements Callable {
 

@@ -1,4 +1,4 @@
-package mvm;
+package mvm.values.matrix;
 
 import units.PowerProduct;
 import units.Unit;

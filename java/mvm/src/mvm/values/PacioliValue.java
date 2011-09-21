@@ -1,4 +1,4 @@
-package mvm;
+package mvm.values;
 
 public interface PacioliValue {
 

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mvm.Callable;
 import mvm.Environment;
-import mvm.PacioliValue;
+import mvm.values.Callable;
+import mvm.values.PacioliValue;
 
 public class Application implements Expression {
 

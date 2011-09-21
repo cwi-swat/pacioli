@@ -3,8 +3,8 @@ package mvm.expressions;
 import java.io.IOException;
 
 import mvm.Environment;
-import mvm.Matrix;
-import mvm.PacioliValue;
+import mvm.values.PacioliValue;
+import mvm.values.matrix.Matrix;
 
 
 public class Const implements Expression {

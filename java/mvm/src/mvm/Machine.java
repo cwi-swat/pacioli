@@ -34,6 +34,14 @@ import mvm.primitives.Single;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
 import mvm.primitives.Transpose;
+import mvm.values.Boole;
+import mvm.values.PacioliList;
+import mvm.values.PacioliValue;
+import mvm.values.matrix.Entity;
+import mvm.values.matrix.Index;
+import mvm.values.matrix.IndexType;
+import mvm.values.matrix.Matrix;
+import mvm.values.matrix.MatrixType;
 
 import units.Base;
 import units.NamedUnit;

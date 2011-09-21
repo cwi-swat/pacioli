@@ -1,4 +1,5 @@
-package mvm;
+package mvm.values;
+
 
 public class Boole implements PacioliValue {
 

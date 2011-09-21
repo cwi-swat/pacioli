@@ -1,6 +1,7 @@
-package mvm;
+package mvm.values.matrix;
 
 import java.util.List;
+
 
 
 public class CompoundEntityType implements EntityType {

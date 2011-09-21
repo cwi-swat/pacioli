@@ -7,6 +7,10 @@ import java.io.StreamTokenizer;
 import java.util.ArrayList;
 import java.util.List;
 
+import mvm.values.matrix.EntityType;
+import mvm.values.matrix.IndexType;
+import mvm.values.matrix.SimpleEntityType;
+
 import units.NamedUnit;
 import units.PowerProduct;
 import units.Prefix;
