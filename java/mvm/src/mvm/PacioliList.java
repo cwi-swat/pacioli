@@ -35,7 +35,7 @@ public class PacioliList implements PacioliValue {
 		String sep = "";
 		for (PacioliValue value: items) {
 			text += sep + value.pprint();
-			sep = ", ";
+			sep = ",\n";
 		}
 		return text + "]";
 	}

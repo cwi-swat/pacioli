@@ -26,7 +26,11 @@ public class Equal implements Callable {
 		}
 		Matrix x = (Matrix) params.get(0);
 		Matrix y = (Matrix) params.get(1);
-		return new Boole(x.sameAs(y));
+		if (x.isZero() && y.isZero()) {
+			return new Boole(true);
+		} else {
+			return new Boole(x.sameAs(y));
+		}
 	}
 
 }

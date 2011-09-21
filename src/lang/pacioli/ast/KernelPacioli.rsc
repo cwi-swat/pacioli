@@ -5,6 +5,7 @@ import List;
 
 data Expression = variable(str name)
 				| const(real number)
+				| constInt(int integer)
 				| tup(list[Expression] items)
 				| abstraction(list[str] vars, Expression body)
  				| application(Expression fn, Expression arg)
@@ -32,6 +33,7 @@ data Expression = variable(str name)
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+		case constInt(x) => const(x*1.0)
 		case comprehension(x,y) => translateComprehension("list",x,y)
 		case someComprehension(x,y) => translateComprehension("some",x,y)
 		case allComprehension(x,y) => translateComprehension("all",x,y)

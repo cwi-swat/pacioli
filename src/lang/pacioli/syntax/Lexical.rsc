@@ -5,7 +5,11 @@ lexical Ident
 	;
 	
 lexical Number 
-	= [0-9]+"."[0-9]+  !>> [0-9]
+	= [0-9]+"."[0-9]+ !>> [0-9]
+	;
+
+lexical Integer 
+	= [0-9]+ !>> [0-9]
 	;
 
 lexical Layout 

@@ -25,6 +25,12 @@ public class Join implements Callable {
 		}
 		Matrix x = (Matrix) params.get(0);
 		Matrix y = (Matrix) params.get(1);
+		if (x.isZero()) {
+			return x;
+		}
+		if (y.isZero()) {
+			return y;
+		}
 		return x.join(y);
 	}
 

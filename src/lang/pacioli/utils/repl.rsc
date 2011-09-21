@@ -29,6 +29,7 @@ str prelude = "baseunit dollar \"$\";
 			  'baseunit sleeve \"sleeve\";
 			  'baseunit box \"box\";
 			  'baseunit bottle \"bottle\";
+			  'unit hour \"hr\" 3600*second;
 			  'unit litre \"l\" (deci metre)^3;
 			  'unit pound \"lb\" 0.45359237*kilo gram;
 			  'unit ounce \"oz\" pound/16;
@@ -49,7 +50,8 @@ str prelude = "baseunit dollar \"$\";
 			  'projection P2 \"Year,Commodity.1,unit\" \"Commodity,Year,Region.unit,1,1\";
 			  'entity Place \"<glbCasesDirectory>case4/place.entity\";
 			  'entity Transition \"<glbCasesDirectory>case4/transition.entity\";
-			  'index Place unit \"<glbCasesDirectory>case4/place.unit\"";
+			  'index Place unit \"<glbCasesDirectory>case4/place.unit\";
+			  'entity File \"<glbCasesDirectory>case5/file.entity\";";
 
 
 map[str,str] fileLoc = 
@@ -66,7 +68,8 @@ map[str,str] fileLoc =
 	 "stock1":             "case3/stock1.csv",
 	 "stock2":             "case3/stock2.csv",
 	 "forward":            "case4/forward.csv",
-	 "backward":           "case4/backward.csv");
+	 "backward":           "case4/backward.csv",
+	 "valuation":          "case4/valuation.csv");
 
 public Environment env() {
 
@@ -129,6 +132,7 @@ public Environment env() {
    "stock2": forall({},{},{}, matrix(uno(), ingredientIndex, empty)),
    "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
+   "valuation": forall({},{},{}, matrix(dollar,empty, placeIndex)),
    "empty": forall({},{},{"a"},listType(typeVar("a"))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
@@ -208,10 +212,6 @@ public Environment env() {
   				  function(tupType([typeVar("a")]), typeVar("a"))),  				  
   	"true": forall({},{},{}, boolean()),
   	"false": forall({},{},{}, boolean()),
-  	//"and": forall({},{},{},
-  	//			  function(tupType([boolean(),boolean()]), boolean())),
-  	//"or": forall({},{},{},
-  	//			  function(tupType([boolean(),boolean()]), boolean())),
   	"not": forall({},{},{},
   				  function(tupType([boolean()]), boolean())),
   	"reduce": forall({},{},{"a", "b"},
@@ -268,56 +268,59 @@ Expression blend(Expression exp, map[str,Expression] repo) {
 	}
 	return blended;
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 // The repl
 			  
 map[str,Expression] glbReplRepo = ();
+
+public void ls () {
+	Environment env = env();
+	for (name <- env) {
+		println("<name> :: <pprint(env[name])>");
+	}
+	for (name <- glbReplRepo) {
+		println("<name> :: <pprint(glbReplRepo[name])>");
+	}
+}
+
+public void parse (str exp) {
+	parsed = parseImplodePacioli(exp);
+	full = blend(parsed,glbReplRepo);
+	<typ, _> = inferTypeAPI(full, env());
+	println(pprint(parsed));
+}
 
 public void ep (str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
 		full = blend(parsed,glbReplRepo);
 		<typ, _> = inferTypeAPI(full, env());
-		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
-		code = compilePacioli(full, extendPrelude(prelude, env()));		
-		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [code]);
-		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
+		println("<exp> :: <pprint(unfresh(typ))>");
+		code = compilePacioli(parsed);
+		header = extendPrelude(prelude,env());
+		for (name <- glbReplRepo) {
+			header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
+		}
+		prog = "<header>;
+		   	   'eval result <code>; 
+	       	   'print result";		
+		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [prog]);
 	} catch err: {
 		println(err);
 	}
 }
 
-// Dirty hack to fake definitions
 public void def(str name, str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
 		full = blend(parsed,glbReplRepo);
 		<typ, _> = inferTypeAPI(full, env());
- 		// to make sure it is not a function and does not compile later on		
-		compilePacioli(full,extendPrelude(prelude, env()));
-		glbReplRepo += (name: full);
+ 		// to make sure it compiles later on		
+		compilePacioli(full);
+		glbReplRepo += (name: parsed);
 		println("<name> :: <pprint(unfresh(typ))>");
-		println("<name> = <pprint(parsed)>");
-	} catch err: {
-		println(err);
-	}
-}
-
-public void ep2(str exp) {
-	try {
-		parsed = parseImplodePacioli(exp);
-		full = blend(parsed,glbReplRepo);
-		<typ, _> = inferTypeAPI(full, env());
-		println("<pprint(parsed)> :: <pprint(unfresh(typ))>");
-		code = compileToJava(full);
-		println(code);		
-		//writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		writeFile(|file:///home/paul/data/code/cwi/pacioli/cases/tmp.java|, [code]);
-		//writeFile(|file:///D:/code/cwi/pacioli/cases/tmp.mvm|, [code]);
-		//writeFile(|project://Pacioli/cases/tmp.mvm|, [code]);
+		println("<name> = <exp>");
 	} catch err: {
 		println(err);
 	}
@@ -325,33 +328,8 @@ public void ep2(str exp) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Demos
+
 public void demo1() {
-
-	println("\nBase units are pre-defined");
-	show("gram");
-	show("metre");
-	
-	println("\nUnits can always be multiplied");
-	show("multiply(gram,gram)");
-	show("multiply(gram,metre)");
-	
-	println("\nUnits can not always be summed");
-	show("sum(gram,gram)");
-	show("sum(gram,metre)");
-	
-	println("\nThe type is semantic, the order of multiplication is irrelevant");
-	show("sum(multiply(gram,metre),multiply(gram,metre))");
-	show("sum(multiply(gram,metre),multiply(metre,gram))");
-	
-	println("\nThe type system does inference.");
-	show("lambda (x) sum(multiply(x,metre),multiply(gram,metre))");
-	
-	println("\nThe type system derives a most general type."); 
-	show("lambda (x,y) sum(multiply(x,y),multiply(gram,metre))");
-	show("(lambda (x) lambda (y) sum(multiply(x,y),multiply(gram,metre))) (gram)");
-}
-
-public void demo15() {
 
 	println("\nBase units are pre-defined");
 	show("gram");
@@ -377,42 +355,13 @@ public void demo15() {
 	show("(lambda (x) lambda (y) x*y + gram*metre) (gram)");
 	show("(lambda (x,y) x*y + gram*metre)(gram,metre)");
 	show("(lambda (x,y) x*y + gram*metre)(metre,gram)");
+	
+	println("\nMultiplying left and right is not allowed. A multiplication and division cancel"); 
 	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram*second)");
 	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram/second)");
 }
 	
 public void demo2() {
-	
-	// General
-	show("lambda (x) join(x,x)");
-	show("lambda (x) sum(sum(x,x),sum(x,x))");
-	show("lambda (x) multiply(sum(x,x),sum(x,x))");
-	show("lambda (x,y) join(sum(x,negative(y)),sum(y,negative(x)))");
-	
-	// Norm
-	show("lambda (x) total(multiply(x,x))");
-	show("lambda (x) sqrt(total(multiply(x,x)))");
-	
-	// Lie algebras
-	show("lambda (x,y) sum(join(x,y),negative(join(y,x)))");
-	
-	// Netting problem
-	show("lambda (x) join(bom,x)");
-	show("(lambda (bom2) join(bom2,output)) (join(conv,join(bom,reciprocal(transpose(conv)))))");
-	show("(lambda (bom2) closure(bom2)) (join(conv,join(bom,reciprocal(transpose(conv)))))");
-	
-	// Salesdata
-	show("multiply(sales,reciprocal(transpose(amount)))");
-	show("(lambda (price) multiply(join(price, reciprocal(transpose(P2))),join(price, reciprocal(transpose(P2))))) (multiply(sales,reciprocal(transpose(amount))))");
-	show("(lambda (price) join(price, reciprocal(transpose(P2)))) (multiply(sales,reciprocal(transpose(amount))))");
-	
-	// Restaurant
-	show("join(menu_price,menu_sales)");
-	show("multiply(menu_price,transpose(menu_sales))");
-}
-
-	
-public void demo25() {
 	
 	// General
 	show("lambda(x) x.x");
@@ -428,31 +377,54 @@ public void demo25() {
 	show("lambda(x,y) x.y-y.x");
 	
 	// Netting problem
-	show("lambda(x) bom o x");
 	show("lambda(x) bom.x");
-	show("(lambda(x) x o output) (conv o bom o 1/conv^T)");
-	show("(lambda(x) x . output) (conv . bom . 1/conv^T)");
-	show("(lambda(x) closure(x)) (conv.bom.1/conv^T)");
-	show("(lambda(x) closure(x) . output) (conv . bom . 1/conv^T)");
-	show("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . 1/conv^T)");
+	show("(lambda(x) x . output) (conv . bom . conv^R^T)");
+	show("(lambda(x) closure(x)) (conv.bom.conv^R^T)");
+	show("(lambda(x) closure(x) . output) (conv . bom . conv^R^T)");
+	show("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . conv^R^T)");
 	
 	// Salesdata
 	show("sales / amount^T");
-	show("(lambda(price) (price . 1/P2^T) * (price . 1/P2^T)) (sales / amount^T)");
-	show("(lambda(price) price.1/P2^T * price.1/P2^T) (sales / amount^T)");
-	show("(lambda(price) (price . 1/P2^T)) (sales / amount^T)");
-	show("(lambda(price) price.1/P2^T) (sales / amount^T)");
+	show("(lambda(price) (price . P2^R^T) * (price . P2^R^T)) (sales / amount^T)");
+	show("(lambda(price) price.P2^R^T * price.P2^R^T) (sales / amount^T)");
+	show("(lambda(price) (price . P2^R^T)) (sales / amount^T)");
+	show("(lambda(price) price.P2^R^T) (sales / amount^T)");
 	
 	// Restaurant
 	show("menu_price . menu_sales");
 	show("menu_price * menu_sales^T");
 }
 
+public void demo3() {
+
+	println("\nThe quantities involved");
+	show("backward");
+	show("forward");
+	show("backward-forward");
+	show("valuation");
+	show("valuation.(backward-forward)");
+		
+	println("\nSome comprehensions");
+	show("columns(backward-forward)");
+	show("[x | x in columns(backward-forward)]");
+	show("[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("count[x | x in columns(backward-forward)]");
+	show("count[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("[valuation.x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("valuation . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	
+	println("\nSome abstractions");
+	show("lambda (a) a . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)]");
+	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(backward)");
+	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(forward)");
+		
+}
 
 public void show (str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
-		println("parsed code = <pprint(parsed)>");
 		<typ, _> = inferTypeAPI(parsed, env());
 		println("<exp> :: <pprint(unfresh(typ))>");
 	} catch err: {

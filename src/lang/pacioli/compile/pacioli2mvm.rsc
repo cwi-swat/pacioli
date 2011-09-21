@@ -11,13 +11,9 @@ int glbcounter = 0;
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 
-public str compilePacioli(Expression exp, str prelude) {
+public str compilePacioli(Expression exp) {
 	code = compileExpression(exp);
-	reg = fresh("r");
-	prog = "<prelude>;
-		   'eval <reg> <code>; 
-	       'print <reg>";
-	return prog;
+	return code;
 }
 
 

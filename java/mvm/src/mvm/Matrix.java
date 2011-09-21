@@ -152,7 +152,8 @@ public class Matrix implements PacioliValue {
 			return String.format("%f %s", numbers.get(0,0), unitAt(0,0).pprint());
 		} else {
 				
-			String output = "----------------------------------------------------------------------------------";
+			//String output = "----------------------------------------------------------------------------------";
+			String output = "";
 			output += String.format("\n %50s %20s", "index", "value");
 			output += "\n----------------------------------------------------------------------------------";
 			Number num;

@@ -5,6 +5,7 @@ extend lang::pacioli::syntax::Lexical;
 
 start syntax Expression = variable:Ident name
 	| const: Number number
+	| constInt: Integer integer
 	| bracket "(" Expression nested ")"
 	> someComprehension: "some" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| allComprehension: "all" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
@@ -13,9 +14,9 @@ start syntax Expression = variable:Ident name
 	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| right application: Expression fn Args args
 	> neg: "-" Expression
+	> reci: Expression "^R"
 	> trans:  Expression "^T"
 	> clos:  Expression "+"
-	> reci: "1/" Expression
 	> assoc joi: Expression "." Expression
 	> assoc mul: Expression "*" Expression
 	> left div: Expression "/" Expression

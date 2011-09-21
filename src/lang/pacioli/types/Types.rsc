@@ -14,6 +14,10 @@ data Scheme = forall(set[str] unitVars,
 					 set[str] typeVars,
 					 Type t);
 
+public str pprint(forall(unitVars, entityVars, typeVars, typ)) {
+	return pprint(typ);
+}
+
 data Type = typeVar(str name)
           | function(Type from, Type to)
           | tupType(list[Type] items)
