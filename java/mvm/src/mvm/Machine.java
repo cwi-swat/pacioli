@@ -10,8 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 import mvm.expressions.And;
+import mvm.expressions.Application;
+import mvm.expressions.Branch;
 import mvm.expressions.Const;
+import mvm.expressions.Expression;
+import mvm.expressions.Lambda;
 import mvm.expressions.Or;
+import mvm.expressions.Variable;
 import mvm.primitives.Append;
 import mvm.primitives.Columns;
 import mvm.primitives.Equal;

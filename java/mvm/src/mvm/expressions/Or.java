@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import mvm.Boole;
 import mvm.Environment;
-import mvm.Expression;
 import mvm.PacioliValue;
 
 public class Or implements Expression {

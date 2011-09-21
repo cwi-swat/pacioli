@@ -3,6 +3,8 @@ package mvm;
 import java.io.IOException;
 import java.util.List;
 
+import mvm.expressions.Expression;
+
 public class Closure implements Callable {
 
 	private List<String> arguments;

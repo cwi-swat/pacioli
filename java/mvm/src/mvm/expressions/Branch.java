@@ -1,6 +1,10 @@
-package mvm;
+package mvm.expressions;
 
 import java.io.IOException;
+
+import mvm.Boole;
+import mvm.Environment;
+import mvm.PacioliValue;
 
 public class Branch implements Expression {
 

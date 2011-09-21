@@ -3,7 +3,6 @@ package mvm.expressions;
 import java.io.IOException;
 
 import mvm.Environment;
-import mvm.Expression;
 import mvm.Matrix;
 import mvm.PacioliValue;
 

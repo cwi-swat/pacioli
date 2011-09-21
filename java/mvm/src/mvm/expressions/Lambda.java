@@ -1,6 +1,10 @@
-package mvm;
+package mvm.expressions;
 
 import java.util.List;
+
+import mvm.Closure;
+import mvm.Environment;
+import mvm.PacioliValue;
 
 public class Lambda implements Expression {
 
