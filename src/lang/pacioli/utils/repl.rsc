@@ -462,6 +462,10 @@ public void demo4() {
 	show("size.owner.parent");
 	show("size.owner.parent*");
 	
+	println("\nComprehensions");
+	show("[x | x in columns(owner), not(x=0)]");
+	show("[lines.x | x in columns(owner), not(x=0)]");
+	show("[size.x/lines.x | x in columns(owner), not(x=0)]");
 	
 	println("\nAggregation functions. The Let construct generalizes function definitions!");
 	show("lambda (x) x.owner.parent*");
