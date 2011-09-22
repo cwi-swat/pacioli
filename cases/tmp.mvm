@@ -38,8 +38,8 @@ index Place unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
 entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";
 entity Module "/home/paul/data/code/cwi/pacioli/cases/case5/module.entity";
 load lines "/home/paul/data/code/cwi/pacioli/cases/case5/lines.csv" "loc" "empty" "File.1.0";
+load owner "/home/paul/data/code/cwi/pacioli/cases/case5/owner.csv" "1.0" "File.1.0" "Module.1.0";
 load semi_bom "/home/paul/data/code/cwi/pacioli/cases/case3/semi_bom.csv" "1.0" "Ingredient.unit" "Menu.1.0";
-load owns "/home/paul/data/code/cwi/pacioli/cases/case5/owns.csv" "1.0" "File.1.0" "Module.1.0";
 load menu_sales "/home/paul/data/code/cwi/pacioli/cases/case3/menu_sales.csv" "1.0" "Menu.1.0" "empty";
 load parent "/home/paul/data/code/cwi/pacioli/cases/case5/parent.csv" "1.0" "Module.1.0" "Module.1.0";
 load menu_price "/home/paul/data/code/cwi/pacioli/cases/case3/menu_price.csv" "dollar" "empty" "Menu.1.0";
@@ -57,5 +57,5 @@ load output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv" "1.0" "Pro
 load size "/home/paul/data/code/cwi/pacioli/cases/case5/size.csv" "byte" "empty" "File.1.0";
 load valuation "/home/paul/data/code/cwi/pacioli/cases/case4/valuation.csv" "dollar" "empty" "Place.unit";
 load bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
-eval result apply(lambda (agg) apply(multiply, apply(agg, size), apply(reciprocal, apply(agg, lines))), lambda (x) apply(join, apply(join, x, owns), apply(kleene, parent))); 
+eval result apply(lambda (agg) apply(multiply, apply(agg, size), apply(reciprocal, apply(agg, lines))), lambda (x) apply(join, apply(join, x, owner), apply(kleene, parent))); 
 print result

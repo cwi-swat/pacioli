@@ -74,7 +74,7 @@ map[str,str] fileLoc =
 	 "forward":            "case4/forward.csv",
 	 "backward":           "case4/backward.csv",
 	 "valuation":          "case4/valuation.csv",
-	 "owns":               "case5/owns.csv",
+	 "owner":              "case5/owner.csv",
 	 "parent":             "case5/parent.csv",
 	 "size":               "case5/size.csv",
 	 "lines":              "case5/lines.csv",
@@ -147,7 +147,7 @@ public Environment env() {
    "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "valuation": forall({},{},{}, matrix(dollar,empty, placeIndex)),
-   "owns": forall({},{},{}, matrix(uno(),duo(compound([File]), uno()), duo(compound([Module]), uno()))),
+   "owner": forall({},{},{}, matrix(uno(),duo(compound([File]), uno()), duo(compound([Module]), uno()))),
    "parent": forall({},{},{}, matrix(uno(),duo(compound([Module]), uno()), duo(compound([Module]), uno()))),
    "lines": forall({},{},{}, matrix(linesOfCode,empty, duo(compound([File]), uno()))),
    "size": forall({},{},{}, matrix(byte,empty, duo(compound([File]), uno()))),
@@ -454,21 +454,21 @@ public void demo4() {
 	println("\nQuantities");
 	show("lines");
 	show("size");
-	show("owns");
+	show("owner");
 	show("parent");
 
 	println("\nAggregations");
-	show("size.owns");
-	show("size.owns.parent");
-	show("size.owns.parent*");
+	show("size.owner");
+	show("size.owner.parent");
+	show("size.owner.parent*");
 	
 	
 	println("\nAggregation functions. The Let construct generalizes function definitions!");
-	show("lambda (x) x.owns.parent*");
-	show("let agg = lambda(x) x.owns.parent* in agg(lines)");
-	println("\n(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owns.parent*) gives an error:");
-	show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owns.parent*)");
-	show("let agg = lambda(x) x.owns.parent* in agg(size)/agg(lines)");
+	show("lambda (x) x.owner.parent*");
+	show("let agg = lambda(x) x.owner.parent* in agg(lines)");
+	println("\n(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*) gives an error:");
+	show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*)");
+	show("let agg = lambda(x) x.owner.parent* in agg(size)/agg(lines)");
 	
 }
 
