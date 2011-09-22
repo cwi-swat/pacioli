@@ -290,7 +290,7 @@ public str extendPrelude(str prelude, Environment env) {
 Expression blend(Expression exp, map[str,Expression] repo) {
 	blended = exp;
 	for (b <- repo) {
-		blended = application(abstraction([b],blended),tup([repo[b]]));
+		blended = let(b,repo[b],blended);
 	}
 	return blended;
 }
@@ -312,8 +312,6 @@ public void ls () {
 
 public void parse (str exp) {
 	parsed = parseImplodePacioli(exp);
-	//full = blend(parsed,glbReplRepo);
-	//<typ, _> = inferTypeAPI(full, env());
 	println(pprint(parsed));
 }
 
