@@ -16,9 +16,11 @@ data Expression = variable(str name)
  				| countComprehension(Expression head, list[Expression] rest)
  				| sumComprehension(Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
+ 				| bind(str variable, Expression exp)
  				| filt(Expression exp)
  				| equal(Expression lhs, Expression rhs)
  				| clos(Expression arg)
+ 				| kleene(Expression arg)
  				| mul(Expression lhs, Expression rhs)
  				| div(Expression lhs, Expression rhs)
  				| reci(Expression arg)
@@ -41,6 +43,7 @@ public Expression normalize(Expression exp) {
 		case sumComprehension(x,y) => translateComprehension("sum",x,y)
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
 		case clos(x) => application(variable("closure"),tup([x]))
+		case kleene(x) => application(variable("kleene"),tup([x]))
 		case not(x) => application(variable("not"),tup([x]))
 		case sum(x, y) => application(variable("sum"),tup([x,y]))
 		case mul(x, y) => application(variable("multiply"),tup([x,y]))
@@ -66,6 +69,10 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 						 abstraction([var], translateComprehension(kind, header,tail(parts))),
 						 merge, 
 					     exp]));
+			case bind(var,exp): {
+				alt = [generator(var,application(unit,tup([exp])))] + tail(parts);
+				return translateComprehension(kind,header,alt);
+			}
 			case filt(exp): 
 				return branch(exp, translateComprehension(kind,header,tail(parts)), 
 					zero);

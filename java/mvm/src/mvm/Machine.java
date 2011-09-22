@@ -23,6 +23,7 @@ import mvm.primitives.Equal;
 import mvm.primitives.Head;
 import mvm.primitives.Identity;
 import mvm.primitives.Join;
+import mvm.primitives.Kleene;
 import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
 import mvm.primitives.Not;
@@ -327,6 +328,7 @@ public class Machine {
 						env = env.extend(new Environment("reciprocal", new Reciprocal()));
 						env = env.extend(new Environment("negative", new Negative()));
 						env = env.extend(new Environment("closure", new PosSeries()));
+						env = env.extend(new Environment("kleene", new Kleene()));
 						env = env.extend(new Environment("not", new Not()));
 						env = env.extend(new Environment("columns", new Columns()));
 						env = env.extend(new Environment("rows", new Rows()));

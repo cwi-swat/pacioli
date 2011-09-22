@@ -110,6 +110,17 @@ public class Matrix implements PacioliValue {
 		}
 	}
 
+	public Matrix kleene() throws IOException {
+		if (type.unitSquare()) {
+			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+			SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
+			matrix.numbers = ident.minus(numbers).invert();
+			return matrix; 
+		} else {
+			throw new IOException("type '" + type.pprint() + "' not square when taking kleene closure");
+		}
+	}
+
 	public Matrix total() throws IOException {
 		IndexType empty = new IndexType();
 		Index index = new Index(empty ,null,null);

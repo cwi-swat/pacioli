@@ -29,6 +29,9 @@ str prelude = "baseunit dollar \"$\";
 			  'baseunit sleeve \"sleeve\";
 			  'baseunit box \"box\";
 			  'baseunit bottle \"bottle\";
+			  'baseunit loc \"loc\";
+			  'baseunit bit \"bit\";
+			  'unit byte \"byte\" 8*bit;
 			  'unit hour \"hr\" 3600*second;
 			  'unit litre \"l\" (deci metre)^3;
 			  'unit pound \"lb\" 0.45359237*kilo gram;
@@ -51,7 +54,8 @@ str prelude = "baseunit dollar \"$\";
 			  'entity Place \"<glbCasesDirectory>case4/place.entity\";
 			  'entity Transition \"<glbCasesDirectory>case4/transition.entity\";
 			  'index Place unit \"<glbCasesDirectory>case4/place.unit\";
-			  'entity File \"<glbCasesDirectory>case5/file.entity\"";
+			  'entity File \"<glbCasesDirectory>case5/file.entity\";
+			  'entity Module \"<glbCasesDirectory>case5/module.entity\"";
 
 
 map[str,str] fileLoc = 
@@ -69,7 +73,12 @@ map[str,str] fileLoc =
 	 "stock2":             "case3/stock2.csv",
 	 "forward":            "case4/forward.csv",
 	 "backward":           "case4/backward.csv",
-	 "valuation":          "case4/valuation.csv");
+	 "valuation":          "case4/valuation.csv",
+	 "owns":               "case5/owns.csv",
+	 "parent":             "case5/parent.csv",
+	 "size":               "case5/size.csv",
+	 "lines":              "case5/lines.csv",
+	 "root":               "case5/root.csv");
 
 public Environment env() {
 
@@ -78,6 +87,8 @@ public Environment env() {
 	Unit second = named("second", "s", self());
 	Unit dollar = named("dollar", "$", self());
 	Unit euro = named("euro", "�", self());
+	Unit linesOfCode = named("loc", "loc", self());
+	Unit byte = named("byte", "byte", self());
 
 	IndexType empty = duo(compound([]), uno());
 	
@@ -104,6 +115,9 @@ public Environment env() {
 	Unit placeUnit = named("unit", "unit", self());
 	
 	IndexType placeIndex = duo(compound([Place]), placeUnit);
+	
+	SimpleEntity File = simple("File");
+	SimpleEntity Module = simple("Module");
 	
   return (
    "gram": forall({},{},{}, matrix(gram, empty, empty)),
@@ -133,6 +147,11 @@ public Environment env() {
    "forward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "backward": forall({},{},{}, matrix(uno(), placeIndex, duo(compound([Transition]), uno()))),
    "valuation": forall({},{},{}, matrix(dollar,empty, placeIndex)),
+   "owns": forall({},{},{}, matrix(uno(),duo(compound([File]), uno()), duo(compound([Module]), uno()))),
+   "parent": forall({},{},{}, matrix(uno(),duo(compound([Module]), uno()), duo(compound([Module]), uno()))),
+   "lines": forall({},{},{}, matrix(linesOfCode,empty, duo(compound([File]), uno()))),
+   "size": forall({},{},{}, matrix(byte,empty, duo(compound([File]), uno()))),
+   "root": forall({},{},{}, matrix(uno(), duo(compound([Module]), uno()),empty)),
    "empty": forall({},{},{"a"},listType(typeVar("a"))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
@@ -193,6 +212,13 @@ public Environment env() {
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v"))))),
    "closure": forall({"u"},{"P"},{},
+  				  function(tupType([matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("P"), unitVar("u")))]),
+				           matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("P"), unitVar("u"))))),
+	"kleene": forall({"u"},{"P"},{},
   				  function(tupType([matrix(uno(), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("P"), unitVar("u")))]),
@@ -410,7 +436,7 @@ public void demo3() {
 	show("[x | x in columns(backward-forward), not(valuation.x = 0)]");
 	show("count[x | x in columns(backward-forward)]");
 	show("count[x | x in columns(backward-forward), not(valuation.x = 0)]");
-	show("[valuation.x | x in columns(backward-forward), not(valuation.x = 0)]");
+	show("[val | x in columns(backward-forward), val := valuation.x, not(val = 0)]");
 	show("sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
 	show("valuation . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
 	
@@ -419,7 +445,30 @@ public void demo3() {
 	show("lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)]");
 	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(backward)");
 	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(forward)");
-		
+}
+
+public void demo4() {
+
+	println("\nQuantities");
+	show("lines");
+	show("size");
+	show("owns");
+	show("parent");
+
+	println("\nAggregations");
+	show("size.owns");
+	show("size.owns.parent");
+	show("size.owns.parent*");
+	
+	
+	println("\nAggregation functions");
+	show("agg","lambda (x) x.owns.parent*");
+	show("(lambda (agg) agg(lines)) (lambda (x) x.owns.parent*)");
+	// Dit gaat fout. Er moet een scheme inst gebeuren. De def constructie op order maken.
+	// Een type moet naar een scheme getoverd worden. Gebruik functie typeVars, etc.
+	show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owns.parent*)");
+				
+	
 }
 
 public void show (str exp) {

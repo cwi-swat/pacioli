@@ -17,6 +17,7 @@ start syntax Expression = variable:Ident name
 	> reci: Expression "^R"
 	> trans:  Expression "^T"
 	> clos:  Expression "+"
+	> kleene:  Expression "*"
 	> assoc joi: Expression "." Expression
 	> assoc mul: Expression "*" Expression
 	> left div: Expression "/" Expression
@@ -35,6 +36,7 @@ start syntax Expression = variable:Ident name
 syntax Args = tup: "(" {Expression ","}* items ")";
 
 syntax ComprehensionTerm = generator: Ident name "in" Expression exp
+	| bind: Ident name ":=" Expression exp 
 	| filt: Expression exp;
  
 //keyword Keywords="lambda";
