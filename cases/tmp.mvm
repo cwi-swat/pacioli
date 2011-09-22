@@ -57,6 +57,5 @@ load output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv" "1.0" "Pro
 load size "/home/paul/data/code/cwi/pacioli/cases/case5/size.csv" "byte" "empty" "File.1.0";
 load valuation "/home/paul/data/code/cwi/pacioli/cases/case4/valuation.csv" "dollar" "empty" "Place.unit";
 load bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv" "1.0" "Product.bom_unit" "Product.bom_unit";
-eval agg apply(join, owns, apply(kleene, parent));
-eval result apply(multiply, apply(join, apply(join, size, owns), apply(kleene, parent)), apply(reciprocal, apply(join, apply(join, lines, owns), apply(kleene, parent)))); 
+eval result apply(lambda (agg) apply(multiply, apply(agg, size), apply(reciprocal, apply(agg, lines))), lambda (x) apply(join, apply(join, x, owns), apply(kleene, parent))); 
 print result

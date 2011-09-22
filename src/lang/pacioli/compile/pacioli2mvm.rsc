@@ -34,6 +34,9 @@ public str compileExpression(Expression exp) {
 		case or(x,y): {
 			return "or(<compileExpression(x)>,<compileExpression(y)>)";
 		}
+		case let(var, val, body): {
+			return compileExpression(application(abstraction([var], body), tup([val])));
+		}
 		case abstraction(vars, body): {
 			args = "";
 			sep = "";

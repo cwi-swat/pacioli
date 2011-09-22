@@ -138,6 +138,24 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 				throw("\nType error: \n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
 			}
 		}
+		case let(var,val,body): {
+			<t1, s1> = inferType(val, assumptions);
+			as = envSubs(s1,assumptions);
+			assumedUnitVars = {y | x <- as, y <- unitVariables(as[x])};
+			assumedEntityVars = {y | x <- as, y <- entityVariables(as[x])};
+			assumedTypeVars = {y | x <- as, y <- typeVariables(as[x])};						
+			scheme = forall(unitVariables(t1) - assumedUnitVars,
+							entityVariables(t1) - assumedEntityVars,
+							typeVariables(t1) - assumedTypeVars,
+							t1);
+			//println("<pprint(exp)>\n scheme=<scheme>");
+			bound = as + (var: scheme);			
+			<t2, s2> = inferType(body, envSubs(s1,bound));
+			s12 = merge(s1,s2);
+			typ = t2;
+			pop("<pprint(typ)>");
+			return <typ, s12>;
+		}
 		case abstraction(vars,body): {
 			betas = [<x,fresh(x)> | x <- vars];
 			bound = (assumptions | it + (v: forall({},{},{},typeVar(b))) | <v,b> <- betas);			

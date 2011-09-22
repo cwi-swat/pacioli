@@ -9,6 +9,7 @@ data Expression = variable(str name)
 				| tup(list[Expression] items)
 				| abstraction(list[str] vars, Expression body)
  				| application(Expression fn, Expression arg)
+ 				| let(str var, Expression val, Expression body)
  				| branch(Expression cond, Expression pos, Expression neg)
  				| comprehension(Expression head, list[Expression] rest)
  				| someComprehension(Expression head, list[Expression] rest)
@@ -98,6 +99,7 @@ public str pprint(Expression exp) {
 		case tup(items): return "(<(pprint(head(items)) | it + "," + pprint(x) | x <- tail(items))>)";
 		case abstraction(x,y): return "(lambda <pprint(tup([variable(v) | v <- x]))> <pprint(y)>)";	
 		case application(x,y): return "<pprint(x)><pprint(y)>";
+		case let(v,x,y): return "(let <v> = <pprint(x)> in <pprint(y)>)";
 		case branch(c,x,y): return "if <pprint(c)> then <pprint(x)> else <pprint(y)> fi";
 		case and(x,y): return "(<pprint(x)> && <pprint(y)>)";
 		case or(x,y): return "(<pprint(x)> || <pprint(y)>)";

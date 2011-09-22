@@ -367,6 +367,7 @@ public void demo1() {
 	
 	println("\nUnits can not always be summed");
 	show("gram + gram");
+	println("\ngram + metre gives an error:");
 	show("gram + metre");
 	
 	println("\nThe type is semantic, the order of multiplication is irrelevant");
@@ -382,7 +383,8 @@ public void demo1() {
 	show("(lambda (x,y) x*y + gram*metre)(gram,metre)");
 	show("(lambda (x,y) x*y + gram*metre)(metre,gram)");
 	
-	println("\nMultiplying left and right is not allowed. A multiplication and division cancel"); 
+	println("\nMultiplying left and right is not allowed. A multiplication and division cancel");
+	println("\n(lambda (x,y) x*y + gram*metre)(metre*second,gram*second) gives an error:"); 
 	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram*second)");
 	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram/second)");
 }
@@ -461,13 +463,12 @@ public void demo4() {
 	show("size.owns.parent*");
 	
 	
-	println("\nAggregation functions");
-	show("agg","lambda (x) x.owns.parent*");
-	show("(lambda (agg) agg(lines)) (lambda (x) x.owns.parent*)");
-	// Dit gaat fout. Er moet een scheme inst gebeuren. De def constructie op order maken.
-	// Een type moet naar een scheme getoverd worden. Gebruik functie typeVars, etc.
+	println("\nAggregation functions. The Let construct generalizes function definitions!");
+	show("lambda (x) x.owns.parent*");
+	show("let agg = lambda(x) x.owns.parent* in agg(lines)");
+	println("\n(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owns.parent*) gives an error:");
 	show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owns.parent*)");
-				
+	show("let agg = lambda(x) x.owns.parent* in agg(size)/agg(lines)");
 	
 }
 

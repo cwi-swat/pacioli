@@ -31,6 +31,7 @@ start syntax Expression = variable:Ident name
 		assoc and: Expression "&&" Expression
 	  | assoc or: Expression "||" Expression
 	)
+	> let: "let" Ident var "=" Expression val "in" Expression body
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
 syntax Args = tup: "(" {Expression ","}* items ")";
