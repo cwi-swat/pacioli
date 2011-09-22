@@ -34,6 +34,7 @@ import mvm.primitives.Rows;
 import mvm.primitives.Single;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
+import mvm.primitives.Total;
 import mvm.primitives.Transpose;
 import mvm.values.Boole;
 import mvm.values.PacioliList;
@@ -324,6 +325,7 @@ public class Machine {
 						env = env.extend(new Environment("identity", new Identity()));
 						env = env.extend(new Environment("single", new Single()));
 						env = env.extend(new Environment("join", new Join()));
+						env = env.extend(new Environment("total", new Total()));
 						env = env.extend(new Environment("transpose", new Transpose()));
 						env = env.extend(new Environment("reciprocal", new Reciprocal()));
 						env = env.extend(new Environment("negative", new Negative()));

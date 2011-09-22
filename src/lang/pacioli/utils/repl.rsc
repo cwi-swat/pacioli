@@ -312,8 +312,8 @@ public void ls () {
 
 public void parse (str exp) {
 	parsed = parseImplodePacioli(exp);
-	full = blend(parsed,glbReplRepo);
-	<typ, _> = inferTypeAPI(full, env());
+	//full = blend(parsed,glbReplRepo);
+	//<typ, _> = inferTypeAPI(full, env());
 	println(pprint(parsed));
 }
 
@@ -466,6 +466,9 @@ public void demo4() {
 	show("[x | x in columns(owner), not(x=0)]");
 	show("[lines.x | x in columns(owner), not(x=0)]");
 	show("[size.x/lines.x | x in columns(owner), not(x=0)]");
+	show("[total(x) | x in columns(owner), x=0]");
+	show("[t | x in columns(owner), t := total(x), t=0]");
+	show("count[t | x in columns(owner), t := total(x), t=0]");
 	
 	println("\nAggregation functions. The Let construct generalizes function definitions!");
 	show("lambda (x) x.owner.parent*");

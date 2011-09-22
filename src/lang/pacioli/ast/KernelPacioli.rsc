@@ -71,7 +71,7 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 						 merge, 
 					     exp]));
 			case bind(var,exp): {
-				alt = [generator(var,application(unit,tup([exp])))] + tail(parts);
+				alt = [generator(var,application(variable("single"),tup([exp])))] + tail(parts);
 				return translateComprehension(kind,header,alt);
 			}
 			case filt(exp): 
