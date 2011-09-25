@@ -23,6 +23,6 @@ public class Closure implements Callable {
 	}
 
 	public String pprint() {
-		return "|closure|";
+		return "|some closure|";
 	}
 }

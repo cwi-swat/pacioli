@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Scale implements Callable {
 
 	public String pprint() {
-		return "scale";
+		return "|scale|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

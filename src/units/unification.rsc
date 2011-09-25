@@ -6,20 +6,33 @@ import Map;
 import Set;
 import List;
 
+import IO;
 
 alias UnitBinding = map[str, Unit];
   
 public Unit unitSubs(UnitBinding b, Unit un) {
 	return mapUnit(Unit(Unit u) {
 		switch (u) {
-			case unitVar(x): return (x in b ? unitSubs(b, b[x]): u);
+			//case unitVar(x): return (x in b ? b[x]: u);
+			case unitVar(x): return (x in b ? unitSubs(b,b[x]): u);
 			default: return u;
 		}		  
 	}, un);
 } 
 
 public UnitBinding mergeUnits(UnitBinding bindingX, UnitBinding bindingY) {
-	return (x: unitSubs(bindingY, bindingX[x]) | x <- bindingX) + bindingY;
+	return (x: subs |
+	        x <- bindingX,
+	        subs := unitSubs(bindingY, bindingX[x]),
+	        notIsVar(subs,x)) + bindingY;
+}
+
+
+public bool notIsVar(t,v) {
+	switch (t) {
+	case unitVar(x): return x != v;
+	default: return true; 
+	}
 }
 
 //public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding) {

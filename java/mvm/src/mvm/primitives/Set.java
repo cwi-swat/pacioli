@@ -11,7 +11,7 @@ import mvm.values.matrix.Matrix;
 public class Set implements Callable {
 
 	public String pprint() {
-		return "set";
+		return "|set|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

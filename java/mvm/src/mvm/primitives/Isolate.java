@@ -11,7 +11,7 @@ import mvm.values.matrix.Matrix;
 public class Isolate implements Callable {
 
 	public String pprint() {
-		return "isolate";
+		return "|isolate|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

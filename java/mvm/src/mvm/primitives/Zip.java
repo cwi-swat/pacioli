@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Zip implements Callable {
 
 	public String pprint() {
-		return "zip";
+		return "|zip|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

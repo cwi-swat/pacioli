@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Head implements Callable {
 
 	public String pprint() {
-		return "head";
+		return "|head|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

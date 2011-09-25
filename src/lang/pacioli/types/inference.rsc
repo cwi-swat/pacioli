@@ -13,7 +13,7 @@ import lang::pacioli::utils::Implode;
 import lang::pacioli::types::Types;
 import lang::pacioli::types::unification;
 
-int glbcounter = 0;
+int glbcounter = 100;
 
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
@@ -47,7 +47,7 @@ public list[str] glbstack = [];
 
 public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
 	try {
-		glbcounter = 0;
+		glbcounter = 100;
 		glbstack = [];
 		return inferType(exp,lib,());
 	} catch err: {

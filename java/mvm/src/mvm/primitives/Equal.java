@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Equal implements Callable {
 	
 	public String pprint() {
-		return "equal";
+		return "|equal|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Not implements Callable {
 
 	public String pprint() {
-		return "not";
+		return "|not|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class PosSeries implements Callable {
 
 	public String pprint() {
-		return "closure";
+		return "|closure|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Total implements Callable {
 
 	public String pprint() {
-		return "total";
+		return "|total|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

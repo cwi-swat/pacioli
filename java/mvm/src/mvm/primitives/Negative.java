@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Negative implements Callable {
 
 	public String pprint() {
-		return "negative";
+		return "|negative|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

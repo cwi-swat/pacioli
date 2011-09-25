@@ -12,7 +12,7 @@ import mvm.values.matrix.Matrix;
 public class Columns implements Callable {
 
 	public String pprint() {
-		return "columns";
+		return "|columns|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

@@ -12,7 +12,7 @@ import mvm.values.matrix.Matrix;
 public class ReduceMatrix implements Callable {
 
 	public String pprint() {
-		return "reduceMatrix";
+		return "|reduceMatrix|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

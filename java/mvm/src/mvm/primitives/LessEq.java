@@ -11,7 +11,7 @@ import mvm.values.matrix.Matrix;
 public class LessEq implements Callable {
 
 	public String pprint() {
-		return "less";
+		return "|less|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

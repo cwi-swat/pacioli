@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class SingletonSet implements Callable {
 
 	public String pprint() {
-		return "singletonSet";
+		return "|singletonSet|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

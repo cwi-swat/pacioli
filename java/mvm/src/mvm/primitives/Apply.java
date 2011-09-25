@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Apply implements Callable {
 
 	public String pprint() {
-		return "apply";
+		return "|apply|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

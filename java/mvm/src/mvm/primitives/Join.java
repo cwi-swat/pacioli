@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Join implements Callable {
 
 	public String pprint() {
-		return "join";
+		return "|join|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

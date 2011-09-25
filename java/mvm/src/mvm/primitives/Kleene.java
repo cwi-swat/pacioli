@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Kleene implements Callable {
 
 	public String pprint() {
-		return "kleene";
+		return "|kleene|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

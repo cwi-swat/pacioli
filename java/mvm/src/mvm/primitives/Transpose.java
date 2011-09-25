@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Transpose implements Callable {
 
 	public String pprint() {
-		return "transpose";
+		return "|transpose|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

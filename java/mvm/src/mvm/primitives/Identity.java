@@ -9,7 +9,7 @@ import mvm.values.PacioliValue;
 public class Identity implements Callable {
 
 	public String pprint() {
-		return "identity";
+		return "|identity|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

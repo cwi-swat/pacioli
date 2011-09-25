@@ -11,7 +11,7 @@ import mvm.values.PacioliValue;
 public class ReduceSet implements Callable {
 
 	public String pprint() {
-		return "reduceSet";
+		return "|reduceSet|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

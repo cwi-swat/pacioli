@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class RightIdentity implements Callable {
 
 	public String pprint() {
-		return "rightIdentity";
+		return "|rightIdentity|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

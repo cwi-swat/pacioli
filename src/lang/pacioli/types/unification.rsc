@@ -19,9 +19,13 @@ import lang::pacioli::types::Types;
 alias EntityBinding = map[str, EntityType];
 
 public EntityType entitySubs(EntityBinding b, EntityType typ) {
+	//println("entitySubs <pprint(typ)>");
 	switch (typ) {
-		//case entityVar(x): return (x in b) ? entitySubs(b, b[x]) : typ;
-		case entityVar(x): return (x in b) ? b[x] : typ;
+		case entityVar(x): return (x in b) ? entitySubs(b, b[x]) : typ;
+		//case entityVar(x): return (x in b) ? b[x] : typ;
+				//	if (x in bt) {
+				//println("<x> --\> <bt[x]>");
+			//}
 		default: return typ;
 	}
 }
@@ -36,13 +40,16 @@ public EntityType entitySubs(EntityBinding b, EntityType typ) {
 
 //public tuple[bool, EntityBinding] unifyEntities(EntityType x, EntityType y, EntityBinding binding) {
 public EntityBinding unifyEntities(EntityType x, EntityType y) {
-
+	//println("unify entities <pprint(x)> <pprint(y)>");
 	private EntityBinding unifyVar(str var, EntityType b) {
 		//if (var in binding) {
 		//	return unifyEntities(binding[var], b, binding);
 		//} else {
 		//	return <true, mergeEntities(binding, (var: b))>;
-		//}	
+		//}
+		if (var in entityVariables(b)) {
+			throw "Conflict: <pprint(x)> = <pprint(y)>";
+		}	
 		return (var: b);
 	}
 	
@@ -101,19 +108,37 @@ public EntityBinding entityUnfresh(set[str] variables) {
 public Substitution merge(substitution(ub0,eb0,tb0), substitution(ub1,eb1,tb1)) {
 	return substitution(mergeUnits(ub0,ub1),
 						mergeEntities(eb0,eb1),
-				 		(x: typeSubs(substitution((),(),tb1), tb0[x]) | x <- tb0) + tb1);
+//				 		(x: typeSubs(substitution((),(),tb1), tb0[x]) | x <- tb0) + tb1);
+				 		(x: t | x <- tb0, t := typeSubs(substitution((),(),tb1), tb0[x]), notIsVar(t,x)) + tb1);
 }
 
+public bool notIsVar(t,v) {
+	switch (t) {
+	case typeVar(x): return x != v;
+	default: return true; 
+	}
+}
+
+public bool notIsEntityVar(t,v) {
+	switch (t) {
+	case entityVar(x): return x != v;
+	default: return true; 
+	}
+}
 
 public EntityBinding mergeEntities(EntityBinding bindingX, EntityBinding bindingY) {
-	return (x: entitySubs(bindingY, bindingX[x]) | x <- bindingX) + bindingY;
+	return (x: t | x <- bindingX, t := entitySubs(bindingY, bindingX[x]), notIsEntityVar(t,x)) + bindingY;
+	//return (x: entitySubs(bindingY, bindingX[x]) | x <- bindingX) + bindingY;
 }
 
 public Type typeSubs(Substitution s, Type typ) {
 	//println("typeSubs <s> <typ>");
 	substitution(bu,be,bt) = s;
 	switch (typ) {
-		case typeVar(x): return (x in bt) ? typeSubs(s, bt[x]) : typ;
+		case typeVar(x): {
+			return (x in bt) ? typeSubs(s, bt[x]) : typ;
+			//return (x in bt) ? bt[x] : typ;
+		}
 		case matrix(a,duo(p,u),duo(q,v)): 
 			return matrix(unitSubs(bu,a),
 						  duo(entitySubs(be,p), unitSubs(bu,u)),

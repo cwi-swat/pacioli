@@ -10,7 +10,7 @@ import mvm.values.matrix.Matrix;
 public class Multiply implements Callable {
 
 	public String pprint() {
-		return "multiply";
+		return "|multiply|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

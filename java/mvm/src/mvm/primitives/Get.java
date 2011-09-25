@@ -11,7 +11,7 @@ import mvm.values.matrix.Matrix;
 public class Get implements Callable {
 
 	public String pprint() {
-		return "get";
+		return "|get|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

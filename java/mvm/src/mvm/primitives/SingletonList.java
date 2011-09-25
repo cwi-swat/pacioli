@@ -11,7 +11,7 @@ import mvm.values.PacioliValue;
 public class SingletonList implements Callable {
 
 	public String pprint() {
-		return "singletonList";
+		return "|singletonList|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

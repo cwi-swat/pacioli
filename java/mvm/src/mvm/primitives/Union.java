@@ -10,7 +10,7 @@ import mvm.values.PacioliValue;
 public class Union implements Callable {
 
 	public String pprint() {
-		return "union";
+		return "|union|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {

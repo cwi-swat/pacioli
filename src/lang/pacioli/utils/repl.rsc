@@ -602,12 +602,63 @@ public void demo5() {
 "let dice = [1,2,3,4,5,6] in
    let sums = [x+y | x in dice, y in dice] in
      let total = count[s | s in sums] in
-	   let cnt = lambda (n) count[s | s in sums, s=n] in
+	   let cnt(n) = count[s | s in sums, s=n] in
 	     [tuple[i,cnt(i)/total] | i elt {x+y | x in dice, y in dice}]
 	   end
 	 end
    end
  end");
+}
+
+public void demo6() {
+	
+	println("Some fun with lattices I");
+	show("[negative]");
+	show("[transpose]");
+	show("[reciprocal]");
+	show("[negative, transpose]");
+	show("[negative, reciprocal]");
+	show("[transpose, reciprocal]");
+	show("[negative, transpose, reciprocal]");
+	
+	println("Some fun with lattices II");
+	show("[identity, negative]");
+	show("[identity, transpose]");
+	show("[identity, reciprocal]");
+	show("[identity, negative, transpose]");
+	show("[identity, negative, reciprocal]");
+	show("[identity, transpose, reciprocal]");
+	show("[identity, negative, transpose, reciprocal]");
+	
+	println("Some fun with lattices of binary functions I");
+	show("[join]");
+	show("[sum]");
+	show("[multiply]");
+	show("[join, sum]");
+	show("[join, multiply]");
+	show("[sum, multiply]");
+	show("[join, sum, multiply]");
+	
+	println("Some fun with lattices of binary functions II");
+	show("[lambda (x,y) if (x=y) then x else y end, join]");
+	show("[lambda (x,y) if (x=y) then x else y end, sum]");
+	show("[lambda (x,y) if (x=y) then x else y end, multiply]");
+	show("[lambda (x,y) if (x=y) then x else y end, join, sum]");
+	show("[lambda (x,y) if (x=y) then x else y end, join, multiply]");
+	show("[lambda (x,y) if (x=y) then x else y end, sum, multiply]");
+	show("[lambda (x,y) if (x=y) then x else y end, join, sum, multiply]");
+	
+}
+
+public void demo7() {
+  ep(
+"let powers(list) = reduceList([[]],
+							  lambda(x) [x],
+	 						  lambda(powers,x)
+	 						    append([append(a,x) | a in powers], powers),
+	 						  list) in
+  powers([1,2,3])
+end");
 }
 
 public void fm () {
@@ -651,6 +702,7 @@ public void show (str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
 		<typ, _> = inferTypeAPI(parsed, env());
+		//println("<exp> :: <pprint(typ)>");
 		println("<exp> :: <pprint(unfresh(typ))>");
 	} catch err: {
 		println(err);

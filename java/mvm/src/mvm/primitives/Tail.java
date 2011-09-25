@@ -11,7 +11,7 @@ import mvm.values.PacioliValue;
 public class Tail implements Callable {
 
 	public String pprint() {
-		return "tail";
+		return "|tail|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
