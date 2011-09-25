@@ -34,6 +34,13 @@ public str compileExpression(Expression exp) {
 		case or(x,y): {
 			return "or(<compileExpression(x)>,<compileExpression(y)>)";
 		}
+		case tup([]): {
+			return "application(tuple,empty)";
+		}
+		case tup(xs): {
+			return "application(tuple,<(compileExpression(head(xs)) | it + "," + compileExpression(x) | x <- tail(xs))>)";
+		}
+		
 		case let(var, val, body): {
 			return compileExpression(application(abstraction([var], body), tup([val])));
 		}
@@ -51,7 +58,7 @@ public str compileExpression(Expression exp) {
 			for (x <- args) { 
 				params += ", " + compileExpression(x);
 			}
-			return "apply(<params>)";
+			return "application(<params>)";
 		}
 		default: {
 			throw("Cannot compile <exp> <pprint(exp)>");

@@ -152,7 +152,7 @@ public Environment env() {
    "lines": forall({},{},{}, matrix(linesOfCode,empty, duo(compound([File]), uno()))),
    "size": forall({},{},{}, matrix(byte,empty, duo(compound([File]), uno()))),
    "root": forall({},{},{}, matrix(uno(), duo(compound([Module]), uno()),empty)),
-   "empty": forall({},{},{"a"},listType(typeVar("a"))),   
+   "emptyList": forall({},{},{"a"},listType(typeVar("a"))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -163,6 +163,63 @@ public Environment env() {
 				           matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("R"), unitVar("w"))))),
+   "scale": forall({"a", "b", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), empty, empty),
+  				  				matrix(unitVar("b"), 
+  				  					   duo(entityVar("P"), unitVar("u")),
+  				  					   duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(multiply(unitVar("a"), unitVar("b")), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
+	"magnitude": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					       duo(entityVar("P"), unitVar("u")),
+  				  					       duo(entityVar("Q"), unitVar("v"))),
+  				  				    entity(entityVar("P")),
+  				  					entity(entityVar("Q"))]),
+				           matrix(uno(), 
+  				  				  empty,
+  				  				  empty))),  				  				  
+	"isolate": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					       duo(entityVar("P"), unitVar("u")),
+  				  					       duo(entityVar("Q"), unitVar("v"))),
+  				  				    entity(entityVar("P")),
+  				  					entity(entityVar("Q"))]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
+	"get": forall({"a"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					       duo(entityVar("P"), uno()),
+  				  					       duo(entityVar("Q"), uno())),
+  				  				    entity(entityVar("P")),
+  				  					entity(entityVar("Q"))]),
+				           matrix(unitVar("a"), 
+  				  				  empty,
+  				  				  empty))),
+	"put": forall({"a"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					       duo(entityVar("P"), uno()),
+  				  					       duo(entityVar("Q"), uno())),
+  				  				    entity(entityVar("P")),
+  				  					entity(entityVar("Q")),
+  				  					matrix(unitVar("a"), empty, empty)]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), uno()),
+  				  				  duo(entityVar("Q"), uno())))),
+	"set": forall({"a"},{"P", "Q"},{},
+  				  function(tupType([entity(entityVar("P")),
+  				  					entity(entityVar("Q")),
+  				  					matrix(unitVar("a"), empty, empty)]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), uno()),
+  				  				  duo(entityVar("Q"), uno())))),
+	"rowDomain": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					       duo(entityVar("P"), unitVar("u")),
+  				  					       duo(entityVar("Q"), unitVar("v")))]),
+				           listType(entity(entityVar("P"))))),
 	"transpose": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -170,6 +227,20 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("Q"), reciprocal(unitVar("v"))),
   				  				  duo(entityVar("P"), reciprocal(unitVar("u")))))),
+	"leftIdentity": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("P"), unitVar("u"))))),
+	"rightIdentity": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(uno(), 
+  				  				  duo(entityVar("Q"), unitVar("v")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
 	"total": forall({"a"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), uno()),
@@ -204,6 +275,14 @@ public Environment env() {
 				         matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				duo(entityVar("P"), multiply(unitVar("u"), unitVar("w"))),
   				  				duo(entityVar("Q"), multiply(unitVar("v"), unitVar("z")))))),
+	"lessEq": forall({"a", "u", "v"},{"P", "Q"},{},
+				function(tupType([matrix(unitVar("a"), 
+  				  					 duo(entityVar("P"), unitVar("u")),
+  				  					 duo(entityVar("Q"), unitVar("v"))),
+  				  			  matrix(unitVar("a"), 
+  				  					 duo(entityVar("P"), unitVar("u")),
+  				  					 duo(entityVar("Q"), unitVar("v")))]),
+				         boolean())),
    "negative": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -232,6 +311,13 @@ public Environment env() {
 				           matrix(reciprocal(unitVar("a")), 
   				  				  duo(entityVar("P"), reciprocal(unitVar("u"))),
   				  				  duo(entityVar("Q"), reciprocal(unitVar("v")))))),
+	"abs": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+   				  				           duo(entityVar("P"), unitVar("u")),
+  				  				           duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),  				  				  
 	"equal": forall({},{},{"a"},
   				  function(tupType([typeVar("a"),typeVar("a")]), boolean())),
 	"identity": forall({},{},{"a"},
@@ -240,17 +326,51 @@ public Environment env() {
   	"false": forall({},{},{}, boolean()),
   	"not": forall({},{},{},
   				  function(tupType([boolean()]), boolean())),
+  	"apply": forall({},{},{"a", "b"},
+  				  function(tupType([function(typeVar("a"), typeVar("b")),
+  				  					typeVar("a")]), 
+  				  		   typeVar("b"))),
+	"zip": forall({},{},{"a", "b"},
+  				  function(tupType([listType(typeVar("a")),
+  									listType(typeVar("b"))]), 
+  				  		   listType(tupType([typeVar("a"),typeVar("b")])))),
   	"reduce": forall({},{},{"a", "b"},
   				  function(tupType([typeVar("b"),
   				  					function(tupType([typeVar("a")]), typeVar("b")),
   				  					function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
   									listType(typeVar("a"))]), 
   				  		   typeVar("b"))),
-	"head": forall({},{},{"a"},
+  	"reduceList": forall({},{},{"a", "b", "c"},
+  				  function(tupType([typeVar("b"),
+  				  					function(tupType([typeVar("a")]), typeVar("c")),
+  				  					function(tupType([typeVar("b"), typeVar("c")]), typeVar("b")),
+  									listType(typeVar("a"))]), 
+  				  		   typeVar("b"))),
+	"reduceSet": forall({},{},{"a", "b"},
+  				  function(tupType([typeVar("b"),
+  				  					function(tupType([typeVar("a")]), typeVar("b")),
+  				  					function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
+  									setType(typeVar("a"))]), 
+  				  		   typeVar("b"))),  				  		   
+  	"reduceMatrix": forall({"a", "u", "v"},{"P", "Q"},{"b"},
+		function(tupType([typeVar("b"),
+  					      function(tupType([entity(entityVar("P")), entity(entityVar("Q"))]),
+  				  			 	   typeVar("b")),
+  						  function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
+						  matrix(unitVar("a"), 
+  				  				 duo(entityVar("P"), unitVar("u")),
+  				  				 duo(entityVar("Q"), unitVar("v")))]), 
+  		   		 typeVar("b"))),
+	"emptySet": forall({},{},{"a"},setType(typeVar("a"))),
+  	"singletonSet": forall({},{},{"a"},
+		function(tupType([typeVar("a")]), setType(typeVar("a")))),
+  	"union": forall({},{},{"a"},
+  				  function(tupType([setType(typeVar("a")),setType(typeVar("a"))]), setType(typeVar("a")))),
+  	"head": forall({},{},{"a"},
   				  function(tupType([listType(typeVar("a"))]), typeVar("a"))),
   	"tail": forall({},{},{"a"},
   				  function(tupType([listType(typeVar("a"))]), listType(typeVar("a")))),
-  	"single": forall({},{},{"a"},
+  	"singletonList": forall({},{},{"a"},
   				  function(tupType([typeVar("a")]), listType(typeVar("a")))),
   	"append": forall({},{},{"a"},
   				  function(tupType([listType(typeVar("a")),listType(typeVar("a"))]), listType(typeVar("a")))),
@@ -312,7 +432,8 @@ public void ls () {
 
 public void parse (str exp) {
 	parsed = parseImplodePacioli(exp);
-	println(pprint(parsed));
+	//println(pprint(parsed));
+	println(parsed);
 }
 
 public void ep (str exp) {
@@ -468,14 +589,63 @@ public void demo4() {
 	show("[t | x in columns(owner), t := total(x), t=0]");
 	show("count[t | x in columns(owner), t := total(x), t=0]");
 	
-	println("\nAggregation functions. The Let construct generalizes function definitions!");
+	println("\nAggregation functions.");
 	show("lambda (x) x.owner.parent*");
-	show("let agg = lambda(x) x.owner.parent* in agg(lines)");
-	println("\n(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*) gives an error:");
-	show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*)");
-	show("let agg = lambda(x) x.owner.parent* in agg(size)/agg(lines)");
+	show("let agg = lambda(x) x.owner.parent* in agg(lines) end");
+	//show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*)");
+	show("let agg = lambda(x) x.owner.parent* in agg(size)/agg(lines) end");
 	
 }
+
+public void demo5() {
+	ep(
+"let dice = [1,2,3,4,5,6] in
+   let sums = [x+y | x in dice, y in dice] in
+     let total = count[s | s in sums] in
+	   let cnt = lambda (n) count[s | s in sums, s=n] in
+	     [tuple[i,cnt(i)/total] | i elt {x+y | x in dice, y in dice}]
+	   end
+	 end
+   end
+ end");
+}
+
+public void fm () {
+	ep(
+"let flow = backward-forward in
+   let first (x,y) = x in
+     let second (x,y) = y in
+       let empty = head([j| i,j from head(columns(flow))]) in
+         let rows = {i | i,j from flow} in
+           let abs(x) = sum[if v leq 0 then -v else v end | i,j from x, v := isolate(x,i,j)] in
+             let cols = columns(flow) in
+	           let idents = columns(rightIdentity(flow)) in
+	             let pairs = zip(cols,idents) in
+                   let eliminate(row, pairs) =
+                     [scale(abs(alpha),ww) |
+                     (*[scale(abs(beta),vv) + scale(abs(alpha),ww) |*)
+  					  x in pairs, y in pairs,
+  					  v := apply(first,x), w := apply(first,y),
+  					  vv := apply(second,x), ww := apply(second,y),
+  					  alpha := magnitude(v,row,empty), 
+  					  beta := magnitude(w,row,empty),
+  					  alpha*beta leq 0 (*,
+  					  not (alpha*beta = 0)*)]
+  				   in
+                     head([eliminate(r, pairs) | r elt rows])
+                   end
+		         end
+		       end
+		     end
+		   end
+		 end
+	   end
+     end
+   end
+ end");
+}
+
+//[apply(second, x) | x in zip(cols,idents)]
 
 public void show (str exp) {
 	try {

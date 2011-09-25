@@ -8,24 +8,24 @@ import mvm.values.Callable;
 import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 
-public class Reduce implements Callable {
+public class ReduceList implements Callable {
 
 	public String pprint() {
-		return "reduce";
+		return "reduceList";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
 		if (params.size() != 4) {
-			throw new IOException("function 'reduce' expects four arguments");
+			throw new IOException("function 'reduceList' expects four arguments");
 		}
 		if (!(params.get(1) instanceof Callable)) {
-			throw new IOException("second argument to function 'reduce' is not a function");
+			throw new IOException("second argument to function 'reduceList' is not a function");
 		}
 		if (!(params.get(2) instanceof Callable)) {
-			throw new IOException("third argument to function 'reduce' is not a function");
+			throw new IOException("third argument to function 'reduceList' is not a function");
 		}
 		if (!(params.get(3) instanceof PacioliList)) {
-			throw new IOException("fourth argument to function 'reduce' is not a list");
+			throw new IOException("fourth argument to function 'reduceList' is not a list");
 		}
 		PacioliValue zero = params.get(0);
 		Callable fun = (Callable) params.get(1);

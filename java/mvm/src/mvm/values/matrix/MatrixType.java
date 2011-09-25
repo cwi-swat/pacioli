@@ -79,6 +79,14 @@ public class MatrixType {
 	public MatrixType join(MatrixType other){
 		return new MatrixType(factor.multiply(other.factor), rowType, other.columnType);
 	}
+
+	public boolean singleton() {
+		return rowOrder() == 0 && columnOrder() == 0;
+	}
+
+	public MatrixType scale(MatrixType other) {
+		return new MatrixType(factor.multiply(other.factor), other.rowType, other.columnType);
+	}
 	
 	public String pprint(){
 		
@@ -112,5 +120,13 @@ public class MatrixType {
 	
 	public MatrixType extractRow() {
 		return new MatrixType(factor, new IndexType(), columnType);
+	}
+
+	public MatrixType leftIdentity() {
+		return new MatrixType(new PowerProduct(), rowType, rowType);
+	}
+
+	public MatrixType rightIdentity() {
+		return new MatrixType(new PowerProduct(), columnType, columnType);
 	}
 }

@@ -20,7 +20,9 @@ str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 alias Environment = map[str, Scheme];
 
 public Environment envSubs(Substitution s, Environment e) {
+//	just checking
 	return (key: schemeSubs(s, e[key]) | key <- e);
+	//return e;
 }
 
 public Scheme schemeSubs(substitution(ub, eb, tb),
@@ -43,21 +45,21 @@ public Type instScheme(forall(unitVars, entityVars, typeVars, typ)) {
 
 public list[str] glbstack = [];
 
-public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment assumptions) {
+public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
 	try {
 		glbcounter = 0;
 		glbstack = [];
-		return inferType(exp,assumptions);
+		return inferType(exp,lib,());
 	} catch err: {
 		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
 	}
 }
 
-public tuple[Type, Substitution] inferType(Expression exp, Environment assumptions) {
+public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Environment assumptions) {
 	push("<pprint(exp)>");
 	switch (exp) {
 		case variable(x): {
-			typ = instScheme(assumptions[x]);
+			typ = instScheme(assumptions[x] ? lib[x]);
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}
@@ -78,7 +80,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			types = [];
 			subs = ident;
 			for (x <- items) {
-				<t, s> = inferType(x, envSubs(subs, assumptions));
+				<t, s> = inferType(x, lib, envSubs(subs, assumptions));
 				subs = merge(subs,s);
 				types += [t];
 			}
@@ -87,60 +89,55 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 			return <typ, subs>;
 		}
 		case branch(c,x,y): {
-			<condType, s0> = inferType(c, assumptions);
-			<succ, s1> = unifyTypes(condType, boolean(), s0);
-			s01 = merge(s0,s1);
-			<xType, s2> = inferType(x, envSubs(s01, assumptions));
-			s012 = merge(s01,s2);
-			<yType, s3> = inferType(y, envSubs(s012, assumptions));
-			s0123 = merge(s012,s3);
-			<succ, s4> = unifyTypes(typeSubs(s0123, xType), typeSubs(s0123, yType), s0123);
-			s01234 = merge(s0123,s4);
-			typ = typeSubs(s01234, yType);
-			return <typ,s01234>;
+			<condType, S0> = inferType(c, lib, assumptions);
+			//<succ, s1> = unifyTypes(condType, boolean(), s0);
+			S1 = merge(S0, unifyTypes(condType, boolean()));
+			//s01 = merge(s0,s1);
+			//<xType, s2> = inferType(x, envSubs(s01, assumptions));
+			<xType, T0> = inferType(x, lib, envSubs(S1, assumptions));
+			S2 = merge(S1,T0);
+			<yType, T1> = inferType(y, lib, envSubs(S2, assumptions));
+			S3 = merge(S2,T1);
+			S4 = merge(S3,unifyTypes(typeSubs(S3, xType), typeSubs(S3, yType)));
+			typ = typeSubs(S4, yType);
+			return <typ,S4>;
 		}
 		case and(x,y): {
-			<xType, s0> = inferType(x, assumptions);
-			<yType, s1> = inferType(y, envSubs(s0, assumptions));
-			s01 = merge(s0,s1);
-			<succ, s2> = unifyTypes(xType, boolean(), s01);
-			s012 = merge(s01,s2);
-			<succ, s3> = unifyTypes(yType, boolean(), s012);
-			s0123 = merge(s012,s3);
+			<xType, S0> = inferType(x, lib, assumptions);
+			<yType, T0> = inferType(y, lib, envSubs(S0, assumptions));
+			S1 = merge(S0,T0);
+			S2 = merge(S1,unifyTypes(typeSubs(S1,xType), boolean()));
+			S3 = merge(S2,unifyTypes(typeSubs(S2,yType), boolean()));
 			typ = boolean();
-			return <typ,s0123>;
+			return <typ,S3>;
 		}
 		case or(x,y): {
-			<xType, s0> = inferType(x, assumptions);
-			<yType, s1> = inferType(y, envSubs(s0, assumptions));
-			s01 = merge(s0,s1);
-			<succ, s2> = unifyTypes(xType, boolean(), s01);
-			s012 = merge(s01,s2);
-			<succ, s3> = unifyTypes(yType, boolean(), s012);
-			s0123 = merge(s012,s3);
+			<xType, S0> = inferType(x, lib, assumptions);
+			<yType, T0> = inferType(y, lib, envSubs(S0, assumptions));
+			S1 = merge(S0,T0);
+			S2 = merge(S1,unifyTypes(typeSubs(S1,xType), boolean()));
+			S3 = merge(S2,unifyTypes(typeSubs(S2,yType), boolean()));
 			typ = boolean();
-			return <typ,s0123>;
+			return <typ,S3>;
 		}
 		case application(x,y): {
-			<funType, s1> = inferType(x, assumptions);
-			<argType, s2> = inferType(y, envSubs(s1, assumptions));
-			s12 = merge(s1,s2);
+			<funType, S0> = inferType(x, lib, assumptions);
+			<argType, T0> = inferType(y, lib, envSubs(S0, assumptions));
+			S1 = merge(S0,T0);
 			beta = fresh("identifier");
 			template = function(argType, typeVar(beta));
-			<succ, s3> = unifyTypes(typeSubs(s2, funType), template, s12);
-			if (succ) {
-				s123 = merge(s12,s3);
-				typ = typeSubs(s123, typeVar(beta));
-				pop("<pprint(typ)>");
-				return <typ, s123>;
-			} else {
-				// never reached because an exception is thrown instead of a false return value
-				throw("\nType error: \n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
-			}
+			T1 = unifyTypes(typeSubs(T0, funType), template);
+			S2 = merge(S1, T1);
+			typ = typeSubs(T1, typeVar(beta));
+			pop("<pprint(typ)>");
+			return <typ, S2>;
 		}
 		case let(var,val,body): {
-			<t1, s1> = inferType(val, assumptions);
+			<t1, s1> = inferType(val, lib, assumptions);
+			
+			// is deze nodig???
 			as = envSubs(s1,assumptions);
+			as = assumptions;
 			assumedUnitVars = {y | x <- as, y <- unitVariables(as[x])};
 			assumedEntityVars = {y | x <- as, y <- entityVariables(as[x])};
 			assumedTypeVars = {y | x <- as, y <- typeVariables(as[x])};						
@@ -150,7 +147,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 							t1);
 			//println("<pprint(exp)>\n scheme=<scheme>");
 			bound = as + (var: scheme);			
-			<t2, s2> = inferType(body, envSubs(s1,bound));
+			<t2, s2> = inferType(body, lib, envSubs(s1,bound));
 			s12 = merge(s1,s2);
 			typ = t2;
 			pop("<pprint(typ)>");
@@ -159,7 +156,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment assumptio
 		case abstraction(vars,body): {
 			betas = [<x,fresh(x)> | x <- vars];
 			bound = (assumptions | it + (v: forall({},{},{},typeVar(b))) | <v,b> <- betas);			
-			<t1, s1> = inferType(body, bound);
+			<t1, s1> = inferType(body, lib, bound);
 			typ = typeSubs(s1,function(tupType([typeVar(b) | <_,b> <- betas]), t1));
 			pop("<pprint(typ)>");
 			return <typ, s1>;

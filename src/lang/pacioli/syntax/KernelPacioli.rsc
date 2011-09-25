@@ -7,10 +7,15 @@ start syntax Expression = variable:Ident name
 	| const: Number number
 	| constInt: Integer integer
 	| bracket "(" Expression nested ")"
+	| lis: "[" {Expression ","}* items "]"
+	| setConstr: "{" {Expression ","}* items "}"
+	| tup: "tuple[" {Expression ","}* items "]"
 	> someComprehension: "some" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| allComprehension: "all" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| countComprehension: "count" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| sumComprehension: "sum" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| vecComprehension: "vec" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
 	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| right application: Expression fn Args args
 	> neg: "-" Expression
@@ -25,18 +30,25 @@ start syntax Expression = variable:Ident name
 	    assoc sum: Expression "+" Expression
 	  | left sub: Expression "-" Expression
 	)
-	> assoc equal: Expression "=" Expression
+	> equal: Expression "=" Expression
+	> lesseq: Expression "leq" Expression
 	//> not: "!" Expression
 	> left (
 		assoc and: Expression "&&" Expression
 	  | assoc or: Expression "||" Expression
 	)
-	> let: "let" Ident var "=" Expression val "in" Expression body
+	> letLuxe: "let" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
+	> let: "let" Ident var "=" Expression val "in" Expression body "end"
+	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
 syntax Args = tup: "(" {Expression ","}* items ")";
 
-syntax ComprehensionTerm = generator: Ident name "in" Expression exp
+syntax ComprehensionTerm 
+	= generator: Ident name "in" Expression exp
+	//| matrixGenerator: Ident entry "from" Expression exp
+	| setGenerator: Ident name "elt" Expression exp
+	| matrixGenerator: Ident row "," Ident col "from" Expression exp
 	| bind: Ident name ":=" Expression exp 
 	| filt: Expression exp;
  

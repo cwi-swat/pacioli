@@ -20,4 +20,20 @@ public class Boole implements PacioliValue {
 			return "false";
 		}
 	}
+	
+	public int hashCode() {
+		return value ? 0 : 1;
+	}
+	
+	public boolean equals(Object other) {
+		if (other == this) {
+			return true;
+		}
+		if (! (other instanceof Boole)) {
+			return false;
+		}
+		Boole otherBoole = (Boole) other;
+		return this.value == otherBoole.value;
+	}
+
 }

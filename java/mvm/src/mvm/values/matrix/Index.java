@@ -31,7 +31,11 @@ public class Index {
 		positions = positionsMap();
 		units = unitArrayList(unitCallback);
 	}
-
+	
+	public IndexType homogeneousIndexType() {
+		return new IndexType(type.entity, new PowerProduct());
+	}
+	
 	private List<Entity> entityList(Map<String, Entity> callback) throws IOException {
 		ArrayList<Entity> entities = new ArrayList<Entity>();
 		for (int i=0; i<type.width(); i++) {

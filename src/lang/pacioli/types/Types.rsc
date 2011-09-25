@@ -22,7 +22,9 @@ data Type = typeVar(str name)
           | function(Type from, Type to)
           | tupType(list[Type] items)
           | listType(Type arg)
+          | setType(Type arg)
           | boolean()
+          | entity(EntityType entity)
           | matrix(Unit factor, IndexType rowType, IndexType columnType);
 
 data IndexType 
@@ -64,8 +66,9 @@ public str pprint(Type t) {
 		case tupType([]): return "()";
 		case tupType(x): return "(<(pprint(head(x)) | it + "," + pprint(y) | y <- tail(x))>)";
 		case listType(x): return "List\<<pprint(x)>\>";
+		case setType(x): return "Set\<<pprint(x)>\>";
 		case boolean(): return "Boole";
-		default: return "<t>";
+		case entity(x): return "<pprint(x)>";
 	}
 } 
 

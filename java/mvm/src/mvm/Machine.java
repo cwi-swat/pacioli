@@ -18,26 +18,44 @@ import mvm.expressions.Lambda;
 import mvm.expressions.Or;
 import mvm.expressions.Variable;
 import mvm.primitives.Append;
+import mvm.primitives.Apply;
 import mvm.primitives.Columns;
 import mvm.primitives.Equal;
+import mvm.primitives.Get;
 import mvm.primitives.Head;
 import mvm.primitives.Identity;
+import mvm.primitives.Isolate;
 import mvm.primitives.Join;
 import mvm.primitives.Kleene;
+import mvm.primitives.LeftIdentity;
+import mvm.primitives.LessEq;
+import mvm.primitives.Magnitude;
 import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
 import mvm.primitives.Not;
 import mvm.primitives.PosSeries;
+import mvm.primitives.Put;
 import mvm.primitives.Reciprocal;
 import mvm.primitives.Reduce;
+import mvm.primitives.ReduceList;
+import mvm.primitives.ReduceMatrix;
+import mvm.primitives.ReduceSet;
+import mvm.primitives.RightIdentity;
 import mvm.primitives.Rows;
-import mvm.primitives.Single;
+import mvm.primitives.Scale;
+import mvm.primitives.Set;
+import mvm.primitives.SingletonList;
+import mvm.primitives.SingletonSet;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
 import mvm.primitives.Transpose;
+import mvm.primitives.Tuple;
+import mvm.primitives.Union;
+import mvm.primitives.Zip;
 import mvm.values.Boole;
 import mvm.values.PacioliList;
+import mvm.values.PacioliSet;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Entity;
 import mvm.values.matrix.Index;
@@ -145,7 +163,7 @@ public class Machine {
 				
 				return new Lambda(vars,body);
 				
-			} else if (command.equals("apply")) {
+			} else if (command.equals("application")) {
 				tokenizer.readCharacter('(');
 				List<Expression> expressions = readExpressionList(tokenizer);
 				tokenizer.readCharacter(')');
@@ -196,7 +214,7 @@ public class Machine {
 			Index columnIndex = new Index(columnType, entities, indices);
 			
 			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-			return new Const(matrix.put(0,0,tokenizer.dval()));
+			return new Const(matrix.putDouble(0,0,tokenizer.dval()));
 				
 		default:
 			throw new IOException(String.format("expected expression but found '%s'", (char) token));
@@ -315,28 +333,46 @@ public class Machine {
 						for (String name: store.keySet()) {
 							env = env.extend(new Environment(name, store.get(name)));
 						}
+						env = env.extend(new Environment("tuple", new Tuple()));
+						env = env.extend(new Environment("apply", new Apply()));
 						env = env.extend(new Environment("equal", new Equal()));
 						env = env.extend(new Environment("sum", new Sum()));
+						env = env.extend(new Environment("magnitude", new Magnitude()));
+						env = env.extend(new Environment("get", new Get()));
+						env = env.extend(new Environment("put", new Put()));
+						env = env.extend(new Environment("set", new Set()));
+						env = env.extend(new Environment("isolate", new Isolate()));
 						env = env.extend(new Environment("multiply", new Multiply()));
+						env = env.extend(new Environment("reduceMatrix", new ReduceMatrix()));
 						env = env.extend(new Environment("reduce", new Reduce()));
+						env = env.extend(new Environment("reduceList", new ReduceList()));
+						env = env.extend(new Environment("reduceSet", new ReduceSet()));
 						env = env.extend(new Environment("append", new Append()));
 						env = env.extend(new Environment("head", new Head()));
 						env = env.extend(new Environment("tail", new Tail()));
 						env = env.extend(new Environment("identity", new Identity()));
-						env = env.extend(new Environment("single", new Single()));
+						env = env.extend(new Environment("singletonList", new SingletonList()));
 						env = env.extend(new Environment("join", new Join()));
+						env = env.extend(new Environment("scale", new Scale()));
 						env = env.extend(new Environment("total", new Total()));
 						env = env.extend(new Environment("transpose", new Transpose()));
 						env = env.extend(new Environment("reciprocal", new Reciprocal()));
 						env = env.extend(new Environment("negative", new Negative()));
 						env = env.extend(new Environment("closure", new PosSeries()));
 						env = env.extend(new Environment("kleene", new Kleene()));
+						env = env.extend(new Environment("leftIdentity", new LeftIdentity()));
+						env = env.extend(new Environment("rightIdentity", new RightIdentity()));
+						env = env.extend(new Environment("singletonSet", new SingletonSet()));
+						env = env.extend(new Environment("emptySet", new PacioliSet()));
+						env = env.extend(new Environment("union", new Union()));						
 						env = env.extend(new Environment("not", new Not()));
 						env = env.extend(new Environment("columns", new Columns()));
 						env = env.extend(new Environment("rows", new Rows()));
 						env = env.extend(new Environment("true", new Boole(true)));
 						env = env.extend(new Environment("false", new Boole(false)));
-						env = env.extend(new Environment("empty", new PacioliList(new ArrayList<PacioliValue>())));
+						env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
+						env = env.extend(new Environment("zip", new Zip()));
+						env = env.extend(new Environment("lessEq", new LessEq()));						
 						
 						if (verbose) {
 							out.format("-- Evaluating %s\n", exp.pprint());

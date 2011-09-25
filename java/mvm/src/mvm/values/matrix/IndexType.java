@@ -11,7 +11,7 @@ import units.Unit;
 
 public class IndexType {
 	
-	private CompoundEntityType entity;
+	public CompoundEntityType entity;
 	private Unit unit;
 	
 	public IndexType() { 
@@ -19,7 +19,7 @@ public class IndexType {
 		unit = new PowerProduct();
 	}
 	
-	private IndexType(CompoundEntityType entity, Unit unit){
+	public IndexType(CompoundEntityType entity, Unit unit){
 		this.entity = entity;
 		this.unit = unit;
 	}

@@ -22,20 +22,21 @@ public UnitBinding mergeUnits(UnitBinding bindingX, UnitBinding bindingY) {
 	return (x: unitSubs(bindingY, bindingX[x]) | x <- bindingX) + bindingY;
 }
 
-public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding) {
+//public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding) {
+public UnitBinding unifyUnits(Unit u1, Unit u2) {
  
-	tuple[bool, UnitBinding] unify(Unit uni, UnitBinding b) {
-		unit = unitSubs(b, uni);
+	//tuple[bool, UnitBinding] unify(Unit unit) {
+	UnitBinding unify(Unit unit) {
+		//unit = unitSubs(b, uni);
 		vars = filterUnit(bool (Unit u) {return u is unitVar;}, unit);
     	nonVars = filterUnit(bool (Unit u) {return !(u is unitVar);}, unit);
      	nrVars = size(bases(vars));
     	if (nrVars == 0) {
     		if (size(bases(nonVars)) == 0) {
-      			return <true, b>;
+      			return ();
       		} else {
-      			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
+      			error = "unit failure: <pprint(u1)> vs <pprint(u2)>";
       			throw error;
-      			//return <false, b>;
       		}
     	} else {
       		Unit minBase = minBase(vars);
@@ -45,11 +46,10 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	       		if (bases(nonVars) == {} || 
 	       			all(Unit x <- bases(nonVars),
 	       		    	power(unit, x) % minp == 0)) {
-	           		return <true, mergeUnits(b, (name: raise(nonVars, -1 / minp)))>;
+	           		return (name: raise(nonVars, -1 / minp));
 	       		} else {
 	       			error = "unit failure: <pprint(unitSubs(b,u1))> vs <pprint(unitSubs(b,u2))>";
 	       			throw error;
-	         		//return <false, b>;
 	       		}
 	      	} else {
 	      		Unit subst = uno();
@@ -59,11 +59,12 @@ public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding
 	      				subst = multiply(subst, raise(base, -p));
 	      			}
 	      		}
-	      		return unify(unit, mergeUnits(b, (name: subst)));
+	      		b = (name: subst);
+	      		return mergeUnits(unify(unitSubs(b, unit)), b);
 	      	}
     	}
 	}
-	return unify(multiply(u1, reciprocal(u2)), binding);
+	return unify(multiply(u1, reciprocal(u2)));
 }
 
 private Unit minBase(Unit metas) {

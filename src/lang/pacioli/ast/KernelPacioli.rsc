@@ -6,20 +6,30 @@ import List;
 data Expression = variable(str name)
 				| const(real number)
 				| constInt(int integer)
+				| setConstr(list[Expression] items)
+				| lis(list[Expression] items)
 				| tup(list[Expression] items)
 				| abstraction(list[str] vars, Expression body)
  				| application(Expression fn, Expression arg)
  				| let(str var, Expression val, Expression body)
+ 				| letLuxe(str var, list[str] vars, Expression val, Expression body)
  				| branch(Expression cond, Expression pos, Expression neg)
  				| comprehension(Expression head, list[Expression] rest)
  				| someComprehension(Expression head, list[Expression] rest)
  				| allComprehension(Expression head, list[Expression] rest)
  				| countComprehension(Expression head, list[Expression] rest)
  				| sumComprehension(Expression head, list[Expression] rest)
+ 				| setComprehension(Expression head, list[Expression] rest)
+ 				// todo: interesting vec comprehension
+ 				//| vecComprehension(Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
+ 				//| matrixGenerator(str variable, Expression collection)
+				| matrixGenerator(str row, str column, Expression collection)
+				| setGenerator(str variable, Expression collection)
  				| bind(str variable, Expression exp)
  				| filt(Expression exp)
  				| equal(Expression lhs, Expression rhs)
+ 				| lesseq(Expression lhs, Expression rhs)
  				| clos(Expression arg)
  				| kleene(Expression arg)
  				| mul(Expression lhs, Expression rhs)
@@ -36,13 +46,26 @@ data Expression = variable(str name)
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+		case letLuxe(var,vars,val,body) => let(var,abstraction(vars,val),body)
+		case lis([]) => variable("emptyList")
+		case lis(xs) => (application(variable("singletonList"), tup([head(xs)])) |
+						 application(variable("append"), 
+						 			 tup([it, application(variable("singletonList"), tup([x]))])) | 
+						 x <- tail(xs))
+		case setConstr(xs) => (application(variable("singletonSet"), tup([head(xs)])) |
+						 application(variable("union"), 
+						 			 tup([it, application(variable("singletonSet"), tup([x]))])) | 
+						 x <- tail(xs))
 		case constInt(x) => const(x*1.0)
 		case comprehension(x,y) => translateComprehension("list",x,y)
 		case someComprehension(x,y) => translateComprehension("some",x,y)
 		case allComprehension(x,y) => translateComprehension("all",x,y)
 		case countComprehension(x,y) => translateComprehension("count",x,y)
 		case sumComprehension(x,y) => translateComprehension("sum",x,y)
+		case vecComprehension(x,y) => translateComprehension("vec",x,y)
+		case setComprehension(x,y) => translateComprehension("set",x,y)
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
+		case lesseq(x,y) => application(variable("lessEq"),tup([x,y]))
 		case clos(x) => application(variable("closure"),tup([x]))
 		case kleene(x) => application(variable("kleene"),tup([x]))
 		case not(x) => application(variable("not"),tup([x]))
@@ -70,8 +93,26 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 						 abstraction([var], translateComprehension(kind, header,tail(parts))),
 						 merge, 
 					     exp]));
+			//case matrixGenerator(var,exp):  
+			//	return application(variable("reduceMatrix"), 
+			//		tup([zero,
+			//			 abstraction([var], translateComprehension(kind, header,tail(parts))),
+			//			 merge, 
+			//		     exp]));
+			case matrixGenerator(row,col,exp):  
+				return application(variable("reduceMatrix"), 
+					tup([zero,
+						 abstraction([row,col], translateComprehension(kind, header,tail(parts))),
+						 merge, 
+					     exp]));
+			case setGenerator(var,exp):  
+				return application(variable("reduceSet"), 
+					tup([zero,
+						 abstraction([var], translateComprehension(kind, header,tail(parts))),
+						 merge, 
+					     exp]));
 			case bind(var,exp): {
-				alt = [generator(var,application(variable("single"),tup([exp])))] + tail(parts);
+				alt = [generator(var,application(variable("singletonList"),tup([exp])))] + tail(parts);
 				return translateComprehension(kind,header,alt);
 			}
 			case filt(exp): 
@@ -83,11 +124,13 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 
 tuple[Expression,Expression,Expression] comprehensionTriple(str kind) {
 	switch (kind) {
-		case "list": return <variable("empty"),variable("single"),variable("append")>;
+		case "list": return <variable("emptyList"),variable("singletonList"),variable("append")>;
 		case "some": return <variable("false"),variable("identity"),abstraction(["x","y"],or(variable("x"),variable("y")))>;
 		case "all": return <variable("true"),variable("identity"),abstraction(["x","y"],and(variable("x"),variable("y")))>;
 		case "count": return <const(0.0),abstraction(["x"],const(1.0)),variable("sum")>;		
 		case "sum": return <const(0.0),variable("identity"),variable("sum")>;
+		case "vec": return <const(0.0),variable("identity"),variable("sum")>;
+		case "set": return <variable("emptySet"),variable("singletonSet"),variable("union")>;
 	}
 }
 
