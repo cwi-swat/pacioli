@@ -13,7 +13,6 @@ alias UnitBinding = map[str, Unit];
 public Unit unitSubs(UnitBinding b, Unit un) {
 	return mapUnit(Unit(Unit u) {
 		switch (u) {
-			//case unitVar(x): return (x in b ? b[x]: u);
 			case unitVar(x): return (x in b ? unitSubs(b,b[x]): u);
 			default: return u;
 		}		  
@@ -35,12 +34,9 @@ public bool notIsVar(t,v) {
 	}
 }
 
-//public tuple[bool, UnitBinding] unifyUnits(Unit u1, Unit u2, UnitBinding binding) {
 public UnitBinding unifyUnits(Unit u1, Unit u2) {
  
-	//tuple[bool, UnitBinding] unify(Unit unit) {
 	UnitBinding unify(Unit unit) {
-		//unit = unitSubs(b, uni);
 		vars = filterUnit(bool (Unit u) {return u is unitVar;}, unit);
     	nonVars = filterUnit(bool (Unit u) {return !(u is unitVar);}, unit);
      	nrVars = size(bases(vars));

@@ -13,16 +13,43 @@ import lang::pacioli::utils::Implode;
 import lang::pacioli::types::Types;
 import lang::pacioli::types::unification;
 
+
+public list[str] glbstack = [];
+
 int glbcounter = 100;
 
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
+public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
+	try {
+		glbcounter = 100;
+		glbstack = [];
+		return inferType(exp,lib,());
+	} catch err: {
+		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
+	}
+}
+
+public void push(str log) {
+	glbstack = [log] + glbstack;
+	n = size(glbstack)-1; 
+	//println("<filler(n)><n>\> <head(glbstack)>");
+}
+
+public void pop(str log) {
+	n = size(glbstack)-1;
+	//println("<filler(n)><n>\< <log>");
+	glbstack = tail(glbstack); 
+}
+
+public str filler(int n) = (n==0) ? "" : ("" | it + " " | _ <- [1..n]); 
+
+////////////////////////////////////////////////////////////////////////////////
+// 
 
 alias Environment = map[str, Scheme];
 
 public Environment envSubs(Substitution s, Environment e) {
-//	just checking
 	return (key: schemeSubs(s, e[key]) | key <- e);
-	//return e;
 }
 
 public Scheme schemeSubs(substitution(ub, eb, tb),
@@ -42,18 +69,6 @@ public Type instScheme(forall(unitVars, entityVars, typeVars, typ)) {
 	return typeSubs(substitution(ub,eb,tb), typ);
 }
 
-
-public list[str] glbstack = [];
-
-public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
-	try {
-		glbcounter = 100;
-		glbstack = [];
-		return inferType(exp,lib,());
-	} catch err: {
-		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
-	}
-}
 
 public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Environment assumptions) {
 	push("<pprint(exp)>");
@@ -90,10 +105,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 		}
 		case branch(c,x,y): {
 			<condType, S0> = inferType(c, lib, assumptions);
-			//<succ, s1> = unifyTypes(condType, boolean(), s0);
 			S1 = merge(S0, unifyTypes(condType, boolean()));
-			//s01 = merge(s0,s1);
-			//<xType, s2> = inferType(x, envSubs(s01, assumptions));
 			<xType, T0> = inferType(x, lib, envSubs(S1, assumptions));
 			S2 = merge(S1,T0);
 			<yType, T1> = inferType(y, lib, envSubs(S2, assumptions));
@@ -134,9 +146,8 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 		}
 		case let(var,val,body): {
 			<t1, s1> = inferType(val, lib, assumptions);
-			
 			// is deze nodig???
-			as = envSubs(s1,assumptions);
+			// as = envSubs(s1,assumptions);
 			as = assumptions;
 			assumedUnitVars = {y | x <- as, y <- unitVariables(as[x])};
 			assumedEntityVars = {y | x <- as, y <- entityVariables(as[x])};
@@ -145,7 +156,6 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 							entityVariables(t1) - assumedEntityVars,
 							typeVariables(t1) - assumedTypeVars,
 							t1);
-			//println("<pprint(exp)>\n scheme=<scheme>");
 			bound = as + (var: scheme);			
 			<t2, s2> = inferType(body, lib, envSubs(s1,bound));
 			s12 = merge(s1,s2);
@@ -164,18 +174,4 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 		default: throw "Unknown expression: <exp>";
 	}
 }
-
-public void push(str log) {
-	glbstack = [log] + glbstack;
-	n = size(glbstack)-1; 
-	//println("<filler(n)><n>\> <head(glbstack)>");
-}
-
-public void pop(str log) {
-	n = size(glbstack)-1;
-	//println("<filler(n)><n>\< <log>");
-	glbstack = tail(glbstack); 
-}
-
-public str filler(int n) = (n==0) ? "" : ("" | it + " " | _ <- [1..n]); 
 
