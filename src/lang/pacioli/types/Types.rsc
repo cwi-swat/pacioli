@@ -15,7 +15,15 @@ data Scheme = forall(set[str] unitVars,
 					 Type t);
 
 public str pprint(forall(unitVars, entityVars, typeVars, typ)) {
-	return pprint(typ);
+	return "forall <commaSeparated([x | x <- typeVars + entityVars + unitVars])> : <pprint(typ)>";
+}
+
+str commaSeparated(list[str] xs) {
+	if (xs == []) {
+		return "";
+	} else {
+		return (head(xs) | it + ", " + x | x <- tail(xs));
+	}
 }
 
 data Type = typeVar(str name)

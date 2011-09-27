@@ -17,13 +17,16 @@ import mvm.expressions.Expression;
 import mvm.expressions.Lambda;
 import mvm.expressions.Or;
 import mvm.expressions.Variable;
+import mvm.primitives.Abs;
 import mvm.primitives.Append;
 import mvm.primitives.Apply;
 import mvm.primitives.Columns;
 import mvm.primitives.Equal;
+import mvm.primitives.Gcd;
 import mvm.primitives.Get;
 import mvm.primitives.Head;
 import mvm.primitives.Identity;
+import mvm.primitives.IndexLess;
 import mvm.primitives.Isolate;
 import mvm.primitives.Join;
 import mvm.primitives.Kleene;
@@ -34,6 +37,7 @@ import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
 import mvm.primitives.Not;
 import mvm.primitives.PosSeries;
+import mvm.primitives.Print;
 import mvm.primitives.Put;
 import mvm.primitives.Reciprocal;
 import mvm.primitives.Reduce;
@@ -333,11 +337,13 @@ public class Machine {
 						for (String name: store.keySet()) {
 							env = env.extend(new Environment(name, store.get(name)));
 						}
+						env = env.extend(new Environment("print", new Print()));
 						env = env.extend(new Environment("tuple", new Tuple()));
 						env = env.extend(new Environment("apply", new Apply()));
 						env = env.extend(new Environment("equal", new Equal()));
 						env = env.extend(new Environment("sum", new Sum()));
 						env = env.extend(new Environment("magnitude", new Magnitude()));
+						env = env.extend(new Environment("gcd", new Gcd()));
 						env = env.extend(new Environment("get", new Get()));
 						env = env.extend(new Environment("put", new Put()));
 						env = env.extend(new Environment("set", new Set()));
@@ -358,6 +364,8 @@ public class Machine {
 						env = env.extend(new Environment("transpose", new Transpose()));
 						env = env.extend(new Environment("reciprocal", new Reciprocal()));
 						env = env.extend(new Environment("negative", new Negative()));
+						env = env.extend(new Environment("abs", new Abs()));
+						env = env.extend(new Environment("indexLess", new IndexLess()));
 						env = env.extend(new Environment("closure", new PosSeries()));
 						env = env.extend(new Environment("kleene", new Kleene()));
 						env = env.extend(new Environment("leftIdentity", new LeftIdentity()));

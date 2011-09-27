@@ -9,6 +9,7 @@ import List;
 import IO;
 
 alias UnitBinding = map[str, Unit];
+
   
 public Unit unitSubs(UnitBinding b, Unit un) {
 	return mapUnit(Unit(Unit u) {
@@ -21,7 +22,7 @@ public Unit unitSubs(UnitBinding b, Unit un) {
 
 public UnitBinding mergeUnits(UnitBinding bindingX, UnitBinding bindingY) {
 	return (x: subs |
-	        x <- bindingX,
+	        x <- domain(bindingX),
 	        subs := unitSubs(bindingY, bindingX[x]),
 	        notIsVar(subs,x)) + bindingY;
 }

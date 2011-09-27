@@ -6,12 +6,11 @@
 "Journal of 'Purchase other maintenance resources'";
 "Journal of 'Labor & salary payment'";
 "Journal of 'Direct debit / collect debtors'";
-"Cash / bank";
 "Yearly contracts";
 "Maintenance supplies";
-"Creditors";
 "Durable maintenance resources";
 "Other maintenance resources";
 "Maintenance man-hours";
 "Debtors";
-
+"Cash / bank";
+"Creditors";

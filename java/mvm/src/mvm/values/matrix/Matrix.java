@@ -216,7 +216,7 @@ public class Matrix implements PacioliValue {
 						if (unit.equals(uno)) {
 							output += String.format("\n %50s %20f", idx, num);
 						} else {
-							output += String.format("\n %50s %20f %s", idx, num, unit);
+							output += String.format("\n %50s %20f %s", idx, num, unit.pprint());
 						}
 	//					output += String.format("\n %40s %40s %20f %s",
 	//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
@@ -383,7 +383,11 @@ public class Matrix implements PacioliValue {
 		Index index = new Index(empty ,null,null);
 		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
 		Matrix matrix = new Matrix(entryType, index, index);
-		matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		if (isZero()) {
+			matrix.numbers.set(0, 0, 0);
+		} else {
+			matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		}
 		return matrix;
 	}
 
@@ -447,6 +451,48 @@ public class Matrix implements PacioliValue {
 			}
 		}
 		return true;
+	}
+
+	public PacioliValue gcd(Matrix other) throws IOException {
+		int a = (int) numbers.get(0,0);
+		int b = (int) other.numbers.get(0,0);
+		if (a < 0) {
+			a = -a;
+		}
+		if (b < 0) {
+			b = -b;
+		}
+		while (b != 0 && a != 0) {
+			if (a > b) {
+				a = a % b;
+			} else {
+		        b = b % a;
+			}
+		}
+		if (a == 0) {
+			a = b;
+		}
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
+		Matrix matrix = new Matrix(entryType, index, index);
+		matrix.numbers.set(0, 0, a);
+		return matrix;		
+	}
+
+	public PacioliValue abs() {
+		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+		for (int i=0; i<numbers.numRows(); i++) {
+			for (int j=0; j<numbers.numCols(); j++) {
+				Double value = numbers.get(i, j);
+				if (value < 0) {
+					matrix.putDouble(i,j,-value);	
+				} else {
+					matrix.putDouble(i,j,value);
+				}
+			}
+		}
+		return matrix;
 	}
 
 }

@@ -18,6 +18,7 @@ import lang::pacioli::types::Types;
 
 alias EntityBinding = map[str, EntityType];
 
+
 public EntityType entitySubs(EntityBinding b, EntityType typ) {
 	switch (typ) {
 		case entityVar(x): return (x in b) ? entitySubs(b, b[x]) : typ;
@@ -110,6 +111,7 @@ public EntityBinding mergeEntities(EntityBinding bindingX, EntityBinding binding
 }
 
 public Type typeSubs(Substitution s, Type typ) {
+	//println("typeSubs  <pprint(typ)>  <s>");
 	substitution(bu,be,bt) = s;
 	switch (typ) {
 		case typeVar(x): {

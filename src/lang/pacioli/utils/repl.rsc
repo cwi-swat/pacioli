@@ -1,5 +1,6 @@
 module lang::pacioli::utils::repl
 
+import List;
 import IO;
 
 import units::units;
@@ -248,6 +249,9 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  empty,
   				  				  empty))),
+	"gcd": forall({},{},{},
+  				  function(tupType([matrix(uno(), empty, empty),matrix(uno(), empty, empty)]),
+				           matrix(uno(), empty, empty))),  				  				  
 	"sqrt": forall({"a"},{},{},
   				  function(tupType([matrix(multiply(unitVar("a"),unitVar("a")), 
   				  				  duo(compound([]), uno()),
@@ -283,6 +287,9 @@ public Environment env() {
   				  					 duo(entityVar("P"), unitVar("u")),
   				  					 duo(entityVar("Q"), unitVar("v")))]),
 				         boolean())),
+	"indexLess": forall({},{"P"},{},
+				function(tupType([entity(entityVar("P")), entity(entityVar("P"))]),
+				         boolean())),				         
    "negative": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -321,6 +328,8 @@ public Environment env() {
 	"equal": forall({},{},{"a"},
   				  function(tupType([typeVar("a"),typeVar("a")]), boolean())),
 	"identity": forall({},{},{"a"},
+  				  function(tupType([typeVar("a")]), typeVar("a"))),  				  
+	"print": forall({},{},{"a"},
   				  function(tupType([typeVar("a")]), typeVar("a"))),  				  
   	"true": forall({},{},{}, boolean()),
   	"false": forall({},{},{}, boolean()),
@@ -418,7 +427,7 @@ Expression blend(Expression exp, map[str,Expression] repo) {
 ////////////////////////////////////////////////////////////////////////////////
 // The repl
 			  
-map[str,Expression] glbReplRepo = ();
+map[str,tuple[Expression,Scheme]] glbReplRepo = ();
 
 public void ls () {
 	Environment env = env();
@@ -437,35 +446,70 @@ public void parse (str exp) {
 }
 
 public void ep (str exp) {
-	try {
+	//try {
+		for (name <- glbReplRepo) {
+			//header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
+			<code,sch> = glbReplRepo[name];
+			println("<pprint(code)><pprint(sch)>");
+		}
+		fullEnv = env();
+		header = extendPrelude(prelude,fullEnv);
+		for (name <- glbReplRepo) {
+			<code,sch> = glbReplRepo[name];
+			//println("<pprint(code)><pprint(sch)>");
+			fullEnv += (name:sch);
+			header += ";\neval <name> <compilePacioli(code)>";
+		}
 		parsed = parseImplodePacioli(exp);
-		full = blend(parsed,glbReplRepo);
-		<typ, _> = inferTypeAPI(full, env());
+		//full = blend(parsed,glbReplRepo);
+		full = parsed;
+		<typ, _> = inferTypeAPI(full, fullEnv);
 		println("<exp> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(parsed);
-		header = extendPrelude(prelude,env());
-		for (name <- glbReplRepo) {
-			header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
-		}
+		//header = extendPrelude(prelude,fullEnv);
+		//for (name <- glbReplRepo) {
+		//	header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
+		//}
 		prog = "<header>;
 		   	   'eval result <code>; 
 	       	   'print result";		
 		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [prog]);
-	} catch err: {
-		println(err);
-	}
+	//} catch err: {
+	//	println(err);
+	//}
 }
+
+public void epFile (str name) {
+	//ep(head(readFile(name)));
+	lines = readFile(name);
+	if (lines == []) return;
+	exp = (head(lines) | it + x | x <- tail(lines));
+	return ep(exp);
+}
+
 
 public void def(str name, str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
-		full = blend(parsed,glbReplRepo);
-		<typ, _> = inferTypeAPI(full, env());
+		full = parsed;
+		fullEnv = env();
+		for (n <- glbReplRepo) {
+			<code,sch> = glbReplRepo[n];
+			fullEnv += (n:sch);
+		}
+		//full = blend(parsed,glbReplRepo);
+		<typ, _> = inferTypeAPI(full, fullEnv);
+		typ = unfresh(typ);
  		// to make sure it compiles later on		
 		compilePacioli(full);
-		glbReplRepo += (name: parsed);
-		println("<name> :: <pprint(unfresh(typ))>");
-		println("<name> = <exp>");
+		scheme = forall(unitVariables(typ),
+				entityVariables(typ),
+				typeVariables(typ),
+				typ);
+
+		glbReplRepo += (name: <parsed,scheme>);
+		println("<name> :: <pprint(typ)>");
+		//println("<name> = <exp>");
 	} catch err: {
 		println(err);
 	}
@@ -473,6 +517,10 @@ public void def(str name, str exp) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Demos
+public void demo0() {
+	def("f", "lambda (x) x*x");
+	ep("f(2)");
+}
 
 public void demo1() {
 
@@ -591,9 +639,9 @@ public void demo4() {
 	
 	println("\nAggregation functions.");
 	show("lambda (x) x.owner.parent*");
-	show("let agg = lambda(x) x.owner.parent* in agg(lines) end");
+	show("let agg(x) = x.owner.parent* in agg(lines) end");
 	//show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*)");
-	show("let agg = lambda(x) x.owner.parent* in agg(size)/agg(lines) end");
+	show("let agg(x) = x.owner.parent* in agg(size)/agg(lines) end");
 	
 }
 
@@ -657,52 +705,274 @@ public void demo7() {
 	 						  lambda(powers,x)
 	 						    append([append(a,x) | a in powers], powers),
 	 						  list) in
-  powers([1,2,3])
+  let combis(list) = apply(lambda (x,y) x,
+                           reduceList(tuple[[],list],
+							  lambda(x) x,
+	 						  lambda(accu,x)
+	 						    apply(lambda (a,b) tuple[append([tuple[x,y] | y in tail(b)],a),tail(b)],accu),
+	 						  list)) in
+  combis([1,2,3])
+  end
 end");
 }
 
-public void fm () {
+public void demo8(){
 	ep(
-"let flow = backward-forward in
-   let first (x,y) = x in
-     let second (x,y) = y in
-       let empty = head([j| i,j from head(columns(flow))]) in
-         let rows = {i | i,j from flow} in
-           let abs(x) = sum[if v leq 0 then -v else v end | i,j from x, v := isolate(x,i,j)] in
-             let cols = columns(flow) in
-	           let idents = columns(rightIdentity(flow)) in
-	             let pairs = zip(cols,idents) in
-                   let eliminate(row, pairs) =
-                     [scale(abs(alpha),ww) |
-                     (*[scale(abs(beta),vv) + scale(abs(alpha),ww) |*)
-  					  x in pairs, y in pairs,
-  					  v := apply(first,x), w := apply(first,y),
-  					  vv := apply(second,x), ww := apply(second,y),
-  					  alpha := magnitude(v,row,empty), 
-  					  beta := magnitude(w,row,empty),
-  					  alpha*beta leq 0 (*,
-  					  not (alpha*beta = 0)*)]
-  				   in
-                     head([eliminate(r, pairs) | r elt rows])
-                   end
-		         end
-		       end
-		     end
-		   end
-		 end
+"let gcd(x,y) = if x=0 then
+				  y
+				else
+				  if y = 0 then
+				    x
+				  else 
+				    if x leq y then
+				      gcd(x,y-x)
+				    else
+				      gcd(x-y,y)
+				    end
+				  end
+				end
+ in
+   let f(x,y) = gcd(x,y) in
+   	  let a = f in a(163,264) end
+   	end 
+ end");
+}
+
+public void fmLib() {
+	def("flow", "backward-forward");
+	def("first", "lambda (x,y) x");
+	def("second", "lambda (x,y) y");
+	def("combis", "lambda (list) 
+	                 apply(lambda (x,y) x,
+                           reduceList(tuple[[],list],
+							  lambda(x) x,
+	 						  lambda(accu,x)
+	 						    apply(lambda (a,b) tuple[append([tuple[x,y] | y in tail(b)],a),tail(b)],accu),
+	 						  list))");
+	def("supportLessEq", "lambda (a,b)
+	                        let a1 = apply(first,a) in
+                              let a2 = apply(second,a) in
+                                let b1 = apply(first,b) in
+                                  let b2 = apply(second,b) in
+                                    a1/a1 leq b1/b1 && a2/a2 leq b2/b2
+   						          end
+   						        end
+   						      end
+   						    end"); 						  
+	def("canonical", "lambda (vec)
+	                    let v1 = apply(first,vec) in
+                          let v2 = apply(second,vec) in
+                            let c = reduceList(0,identity,gcd,append([m | i,j from v1, m := magnitude(v1,i,j), not(m=0)],
+                                                                     [m | i,j from v2, m := magnitude(v2,i,j), not(m=0)])) in
+                              tuple[scale(1/c, v1),scale(1/c, v2)]
+                            end
+                          end
+                        end"); 			 
+	def("empty", "head([j| i,j from head(columns(flow))])");	 						  
+}
+
+public void fmHelpers() {
+	def("eliminate", "lambda(pairs, row)
+                       [tuple[scale(abs(beta),v) + scale(abs(alpha),w),
+                              scale(abs(beta),vv) + scale(abs(alpha),ww)] |
+                        c in combis(pairs),
+                        x := apply(first,c),
+                        y := apply(second,c),
+  					    v := apply(first,x), w := apply(first,y),
+  					    vv := apply(second,x), ww := apply(second,y),
+  					    alpha := magnitude(v,row,empty), 
+  					    beta := magnitude(w,row,empty),
+  					    alpha*beta leq 0,
+  					    not (alpha=0 || beta=0)]");
+}
+	
+public void fm() {
+	ep(
+"let rowList = [i | i,j from head(columns(forward))] in
+   let cols = columns(flow) in
+     let idents = columns(rightIdentity(flow)) in
+       let pairs = zip(cols,idents) in
+         let driver(pairs,row) = 
+           let eli = eliminate(pairs,row) in
+             let tmp = [canonical(v) | v in append(eli, pairs),
+  			   		                   v1 := apply(first,v), v2 := apply(second,v),
+  					                   magnitude(v1,row,empty) = 0] in
+               (*let dummy = print(tuple[row,[x | x in eli]]) in *)
+               (* let res = [t | t in tmp, all[supportLessEq(t,y) | y in tmp]] in *)
+               let res = [t | t in tmp, all[not(supportLessEq(y,t) && not(y=t)) | y in tmp]] in
+		         let dummy = print(tuple[row,count[x | x in res]]) in
+  	               res
+  		         end
+  		       end
+  	         end
+  	       end
+  	     in 
+  	       [apply(second,p) | p in reduceList(pairs, identity, driver, rowList)]
+         end
 	   end
      end
    end
  end");
 }
 
-//[apply(second, x) | x in zip(cols,idents)]
+public void fmWERKT () {
+	ep(
+//"let flow = backward-forward in	
+"let flow = backward-forward in
+   let first (x,y) = x in
+     let second (x,y) = y in
+     let combis(list) = apply(lambda (x,y) x,
+                           reduceList(tuple[[],list],
+							  lambda(x) x,
+	 						  lambda(accu,x)
+	 						    apply(lambda (a,b) tuple[append([tuple[x,y] | y in tail(b)],a),tail(b)],accu),
+	 						  list)) in   						 
+  let supportLessEq(a,b) = let a1 = apply(first,a) in
+                           let a2 = apply(second,a) in
+                             let b1 = apply(first,b) in
+                               let b2 = apply(second,b) in
+                                 a1/a1 leq b1/b1 && a2/a2 leq b2/b2
+   						       end
+   						     end
+   						   end
+   						 end in   						 
+  let canonical(vec) = let v1 = apply(first,vec) in
+                         let v2 = apply(second,vec) in
+                           let c = reduceList(0,identity,gcd,append([m | i,j from v1, m := magnitude(v1,i,j), not(m=0)],
+                                                                    [m | i,j from v2, m := magnitude(v2,i,j), not(m=0)])) in
+                             tuple[scale(1/c, v1),scale(1/c, v2)]
+                           end
+                         end
+                       end in 			 
+       let empty = head([j| i,j from head(columns(flow))]) in
+         let rowList = [i | i,j from head(columns(forward))] in
+             let cols = columns(flow) in
+	           let idents = columns(rightIdentity(flow)) in
+	             let pairs = zip(cols,idents) in
+                   let eliminate(pairs, row) =
+                     [tuple[scale(abs(beta),v) + scale(abs(alpha),w),
+                            scale(abs(beta),vv) + scale(abs(alpha),ww)] |
+                      c in combis(pairs),
+                      x := apply(first,c),
+                      y := apply(second,c),
+  					  (*x in pairs, y in pairs,*)
+  					  v := apply(first,x), w := apply(first,y),
+  					  vv := apply(second,x), ww := apply(second,y),
+  					  alpha := magnitude(v,row,empty), 
+  					  beta := magnitude(w,row,empty),
+  					  alpha*beta leq 0,
+  					  not (alpha=0 || beta=0)] in
+  					  let driver(pairs,row) = 
+  					  let eli = eliminate(pairs,row) in
+  					         let tmp = [canonical(v) | v in append(eli, pairs),
+  					                                    v1 := apply(first,v), v2 := apply(second,v),
+  					         							magnitude(v1,row,empty) = 0] in
+							  (*let dummy = print(tuple[row,[x | x in eli]]) in *)
+							   let res = [t | t in tmp, all[not(supportLessEq(y,t) && not(y=t)) | y in tmp]] in
+							  (* let res = [t | t in tmp, all[supportLessEq(t,y) | y in tmp]] in *)							   
+							    let dummy = print(tuple[row,count[x | x in res]]) in
+  					           	  res
+  					           	
+  					           	end
+  					           end
+  					         end
+  					         end
+  				     in 
+  				     [apply(second,p) | p in reduceList(pairs, identity, driver, rowList)]
+                   end
+                   end
+		         end
+		         
+		       end
+	end
+		     end
+		 end
+
+	   end
+     end
+   end
+   end
+  end
+ end");
+}
+
+public void fmHUH () {
+	ep(
+"let flow = backward-forward in
+  let first (x,y) = x in
+   let second (x,y) = y in
+    let combis(list) = apply(lambda (x,y) x,
+                             reduceList(tuple[[],list],
+							            lambda(x) x,
+	 						            lambda(accu,x)
+	 						              apply(lambda (a,b) tuple[append([tuple[x,y] | y in tail(b)],a),tail(b)],accu),
+	 						            list)) in   						 
+     let supportLessEq(a,b) = let a1 = apply(first,a) in
+                               let a2 = apply(second,a) in
+                                let b1 = apply(first,b) in
+                                 let b2 = apply(second,b) in
+                                  a1/a1 leq b1/b1 && a2/a2 leq b2/b2
+   						         end
+   						        end
+   						       end
+   						      end in   						 
+      let canonical(vec) = let v1 = apply(first,vec) in
+                            let v2 = apply(second,vec) in
+                             let c = reduceList(0,identity,gcd,append([m | i,j from v1, m := magnitude(v1,i,j), not(m=0)],
+                                                                     [m | i,j from v2, m := magnitude(v2,i,j), not(m=0)])) in
+                              tuple[scale(1/c, v1),scale(1/c, v2)]
+                             end
+                            end
+                           end in 			 
+       let empty = head([j| i,j from head(columns(flow))]) in
+         let rowList = [i | i,j from head(columns(forward))] in
+          let cols = columns(flow) in
+	       let idents = columns(rightIdentity(flow)) in
+	        let pairs = zip(cols,idents) in
+             let eliminate(pairs, row) =
+                     [tuple[scale(abs(beta),v) + scale(abs(alpha),w),
+                            scale(abs(beta),vv) + scale(abs(alpha),ww)] |
+                      c in combis(pairs),
+                      x := apply(first,c),
+                      y := apply(second,c),
+  					  (*x in pairs, y in pairs,*)
+  					  v := apply(first,x), w := apply(first,y),
+  					  vv := apply(second,x), ww := apply(second,y),
+  					  alpha := magnitude(v,row,empty), 
+  					  beta := magnitude(w,row,empty),
+  					  alpha*beta leq 0,
+  					  not (alpha=0 || beta=0)] in
+  		      let driver(pairs,row) = 
+  			   let eli = eliminate(pairs,row) in
+  			   let tmp = [canonical(v) | v in append(eli, pairs), magnitude(apply(first,v),row,empty) = 0] in
+			    let res = [t | t in tmp, all[supportLessEq(t,y) | y in tmp]] in							   
+				 let dummy = print(tuple[row,count[x | x in res]]) in
+  				  res
+				 end
+  			    end
+  			   end
+  			  end in 
+  			  [apply(second,p) | p in reduceList(pairs, identity, driver, rowList)]
+             end
+            end
+		   end
+		  end
+	     end
+		end
+	   end
+	  end
+     end
+    end
+   end
+  end
+ end");
+}
+
 
 public void show (str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
 		<typ, _> = inferTypeAPI(parsed, env());
-		//println("<exp> :: <pprint(typ)>");
 		println("<exp> :: <pprint(unfresh(typ))>");
 	} catch err: {
 		println(err);

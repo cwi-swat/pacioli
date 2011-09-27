@@ -25,4 +25,9 @@ public class Closure implements Callable {
 	public String pprint() {
 		return "|some closure|";
 	}
+
+	// hack for recursive functions
+	public Callable extend(Environment env) {
+		return new Closure(arguments,code,env.extend(environment));
+	}
 }

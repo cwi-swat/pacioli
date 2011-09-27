@@ -19,14 +19,15 @@ public list[str] glbstack = [];
 int glbcounter = 100;
 
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
+
 public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
-	try {
+	//try {
 		glbcounter = 100;
 		glbstack = [];
 		return inferType(exp,lib,());
-	} catch err: {
-		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
-	}
+	//} catch err: {
+	//	throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
+	//}
 }
 
 public void push(str log) {
@@ -94,8 +95,9 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 		case tup(items): {
 			types = [];
 			subs = ident;
+			s = ident;
 			for (x <- items) {
-				<t, s> = inferType(x, lib, envSubs(subs, assumptions));
+				<t, s> = inferType(x, lib, envSubs(s, assumptions));
 				subs = merge(subs,s);
 				types += [t];
 			}
@@ -145,6 +147,11 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			return <typ, S2>;
 		}
 		case let(var,val,body): {
+			
+			// hack for recursive functions
+			f = fresh("letrec");
+			assumptions = assumptions + (var: forall({},{},{},typeVar(f)));
+			
 			<t1, s1> = inferType(val, lib, assumptions);
 			// is deze nodig???
 			// as = envSubs(s1,assumptions);
