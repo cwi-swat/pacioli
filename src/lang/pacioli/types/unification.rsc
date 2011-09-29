@@ -152,6 +152,15 @@ public Substitution unifyTypes(Type x, Type y) {
 	}
 
 	switch (<x,y>) {
+		case <typeVar(a), typeVar(a)>: {
+			return ident;
+		}
+		case <typeVar(a), Type b>: {
+			return unifyVar(a,b);
+		}
+		case <Type a, typeVar(b)>: {
+			return unifyVar(b,a);
+		}
 		case <matrix(a,pu0,qv0), matrix(b,pu1,qv1)>:
 			return unifyMatrices(a,pu0,qv0, b,pu1,qv1);
 		case <function(a,b), function(c,d)>: {
@@ -165,10 +174,10 @@ public Substitution unifyTypes(Type x, Type y) {
 		case <tupType([]), tupType([])>: {
 			return ident;
 		}
-		case <_,tupType([])>: {
+		case <a,tupType([])>: {
 			throw "Incorrect number of arguments";
 		}
-		case <tupType([]), _>: {
+		case <tupType([]), a>: {
 			throw "Incorrect number of arguments";
 		}
 		case <tupType(a), tupType(b)>: {
@@ -184,15 +193,6 @@ public Substitution unifyTypes(Type x, Type y) {
 		}
 		case <boolean(), boolean()>: {
 			return ident;
-		}
-		case <typeVar(a), typeVar(a)>: {
-			return ident;
-		}
-		case <typeVar(a), Type b>: {
-			return unifyVar(a,b);
-		}
-		case <Type a, typeVar(b)>: {
-			return unifyVar(b,a);
 		}
 		default: {
 			throw "Cannot unify types <pprint(x)> and <pprint(y)> <x> <y>";

@@ -77,7 +77,7 @@ map[str,str] fileLoc =
 	 "valuation":          "case4/valuation.csv",
 	 "owner":              "case5/owner.csv",
 	 "parent":             "case5/parent.csv",
-	 "size":               "case5/size.csv",
+	 "fileSize":               "case5/fileSize.csv",
 	 "lines":              "case5/lines.csv",
 	 "root":               "case5/root.csv");
 
@@ -151,7 +151,7 @@ public Environment env() {
    "owner": forall({},{},{}, matrix(uno(),duo(compound([File]), uno()), duo(compound([Module]), uno()))),
    "parent": forall({},{},{}, matrix(uno(),duo(compound([Module]), uno()), duo(compound([Module]), uno()))),
    "lines": forall({},{},{}, matrix(linesOfCode,empty, duo(compound([File]), uno()))),
-   "size": forall({},{},{}, matrix(byte,empty, duo(compound([File]), uno()))),
+   "fileSize": forall({},{},{}, matrix(byte,empty, duo(compound([File]), uno()))),
    "root": forall({},{},{}, matrix(uno(), duo(compound([Module]), uno()),empty)),
    "emptyList": forall({},{},{"a"},listType(typeVar("a"))),   
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
@@ -249,7 +249,13 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  empty,
   				  				  empty))),
-	"gcd": forall({},{},{},
+	"size": forall({},{},{"a"},
+  				  function(tupType([listType(typeVar("a"))]),
+				           matrix(uno(), empty, empty))),
+	"div": forall({},{},{},
+  				  function(tupType([matrix(uno(), empty, empty),matrix(uno(), empty, empty)]),
+				           matrix(uno(), empty, empty))),  				  				  
+	"mod": forall({},{},{},
   				  function(tupType([matrix(uno(), empty, empty),matrix(uno(), empty, empty)]),
 				           matrix(uno(), empty, empty))),  				  				  
 	"sqrt": forall({"a"},{},{},
@@ -287,6 +293,14 @@ public Environment env() {
   				  					 duo(entityVar("P"), unitVar("u")),
   				  					 duo(entityVar("Q"), unitVar("v")))]),
 				         boolean())),
+	"less": forall({"a", "u", "v"},{"P", "Q"},{},
+				function(tupType([matrix(unitVar("a"), 
+  				  					 duo(entityVar("P"), unitVar("u")),
+  				  					 duo(entityVar("Q"), unitVar("v"))),
+  				  			  matrix(unitVar("a"), 
+  				  					 duo(entityVar("P"), unitVar("u")),
+  				  					 duo(entityVar("Q"), unitVar("v")))]),
+				         boolean())),				         
 	"indexLess": forall({},{"P"},{},
 				function(tupType([entity(entityVar("P")), entity(entityVar("P"))]),
 				         boolean())),				         
@@ -355,21 +369,39 @@ public Environment env() {
   				  					function(tupType([typeVar("b"), typeVar("c")]), typeVar("b")),
   									listType(typeVar("a"))]), 
   				  		   typeVar("b"))),
-	"reduceSet": forall({},{},{"a", "b"},
+	"loopList": forall({},{},{"a", "b", "c"},
   				  function(tupType([typeVar("b"),
-  				  					function(tupType([typeVar("a")]), typeVar("b")),
-  				  					function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
-  									setType(typeVar("a"))]), 
+  				  					function(tupType([typeVar("b"), typeVar("c")]), typeVar("b")),
+  									listType(typeVar("c"))]), 
   				  		   typeVar("b"))),  				  		   
-  	"reduceMatrix": forall({"a", "u", "v"},{"P", "Q"},{"b"},
-		function(tupType([typeVar("b"),
+	"reduceListLazy": forall({},{},{"a", "b", "c"},
+  				  function(tupType([typeVar("b"),
+  				  					function(tupType([typeVar("a")]), function(tupType([]), typeVar("c"))),
+  				  					function(tupType([typeVar("b"), function(tupType([]), typeVar("c"))]), typeVar("b")),
+  									listType(typeVar("a"))]), 
+  				  		   typeVar("b"))),  				  		   
+	"reduceSet": forall({},{},{"a", "b", "c"},
+  				  function(tupType([typeVar("c"),
+  				  					function(tupType([typeVar("a")]), typeVar("b")),
+  				  					function(tupType([typeVar("c"), typeVar("b")]), typeVar("c")),
+  									setType(typeVar("a"))]), 
+  				  		   typeVar("c"))),  				  		   
+  	"reduceMatrix": forall({"a", "u", "v"},{"P", "Q"},{"b", "c"},
+		function(tupType([typeVar("c"),
   					      function(tupType([entity(entityVar("P")), entity(entityVar("Q"))]),
   				  			 	   typeVar("b")),
-  						  function(tupType([typeVar("b"), typeVar("b")]), typeVar("b")),
+  						  function(tupType([typeVar("c"), typeVar("b")]), typeVar("c")),
 						  matrix(unitVar("a"), 
   				  				 duo(entityVar("P"), unitVar("u")),
   				  				 duo(entityVar("Q"), unitVar("v")))]), 
-  		   		 typeVar("b"))),
+  		   		 typeVar("c"))),
+	"loopMatrix": forall({"a", "u", "v"},{"P", "Q"},{"b", "c"},
+		function(tupType([typeVar("c"),
+  						  function(tupType([typeVar("c"), entity(entityVar("P")), entity(entityVar("Q"))]), typeVar("c")),
+						  matrix(unitVar("a"), 
+  				  				 duo(entityVar("P"), unitVar("u")),
+  				  				 duo(entityVar("Q"), unitVar("v")))]), 
+  		   		 typeVar("c"))),  		   		 
 	"emptySet": forall({},{},{"a"},setType(typeVar("a"))),
   	"singletonSet": forall({},{},{"a"},
 		function(tupType([typeVar("a")]), setType(typeVar("a")))),
@@ -383,6 +415,10 @@ public Environment env() {
   				  function(tupType([typeVar("a")]), listType(typeVar("a")))),
   	"append": forall({},{},{"a"},
   				  function(tupType([listType(typeVar("a")),listType(typeVar("a"))]), listType(typeVar("a")))),
+	"addMut": forall({},{},{"a"},
+  				  function(tupType([listType(typeVar("a")),typeVar("a")]), listType(typeVar("a")))),
+	"adjoinMut": forall({},{},{"a"},
+  				  function(tupType([setType(typeVar("a")),typeVar("a")]), setType(typeVar("a")))),
   	"iter": forall({},{},{"a", "b"},
   				  function(tupType([function(tupType([typeVar("a")]), listType(typeVar("b"))), 
   				  		   			listType(typeVar("a"))]), 
@@ -416,14 +452,6 @@ public str extendPrelude(str prelude, Environment env) {
 	return text;
 }
 
-Expression blend(Expression exp, map[str,Expression] repo) {
-	blended = exp;
-	for (b <- repo) {
-		blended = let(b,repo[b],blended);
-	}
-	return blended;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // The repl
 			  
@@ -441,52 +469,42 @@ public void ls () {
 
 public void parse (str exp) {
 	parsed = parseImplodePacioli(exp);
-	//println(pprint(parsed));
+	println(pprint(parsed));
 	println(parsed);
 }
 
-public void ep (str exp) {
-	//try {
-		for (name <- glbReplRepo) {
-			//header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
-			<code,sch> = glbReplRepo[name];
-			println("<pprint(code)><pprint(sch)>");
-		}
+public void compile(str exp) {
+	try {
 		fullEnv = env();
 		header = extendPrelude(prelude,fullEnv);
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
-			//println("<pprint(code)><pprint(sch)>");
 			fullEnv += (name:sch);
 			header += ";\neval <name> <compilePacioli(code)>";
 		}
 		parsed = parseImplodePacioli(exp);
-		//full = blend(parsed,glbReplRepo);
-		full = parsed;
-		<typ, _> = inferTypeAPI(full, fullEnv);
+		<typ, _> = inferTypeAPI(parsed, fullEnv);
 		println("<exp> :: <pprint(unfresh(typ))>");
 		code = compilePacioli(parsed);
-		//header = extendPrelude(prelude,fullEnv);
-		//for (name <- glbReplRepo) {
-		//	header += ";\neval <name> <compilePacioli(glbReplRepo[name])>";
-		//}
 		prog = "<header>;
 		   	   'eval result <code>; 
 	       	   'print result";		
 		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [prog]);
-	//} catch err: {
-	//	println(err);
-	//}
+	} catch err: {
+		println(err);
+	}
 }
 
-public void epFile (str name) {
-	//ep(head(readFile(name)));
+public void compileFile (str name) {
 	lines = readFile(name);
 	if (lines == []) return;
 	exp = (head(lines) | it + x | x <- tail(lines));
-	return ep(exp);
+	return compile(exp);
 }
 
+int glbcounter = 100;
+
+str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 public void def(str name, str exp) {
 	try {
@@ -497,7 +515,10 @@ public void def(str name, str exp) {
 			<code,sch> = glbReplRepo[n];
 			fullEnv += (n:sch);
 		}
-		//full = blend(parsed,glbReplRepo);
+		// hack for recursive functions
+		f = fresh("def");
+		fullEnv += (name: forall({},{},{},typeVar(f)));
+		
 		<typ, _> = inferTypeAPI(full, fullEnv);
 		typ = unfresh(typ);
  		// to make sure it compiles later on		
@@ -509,7 +530,6 @@ public void def(str name, str exp) {
 
 		glbReplRepo += (name: <parsed,scheme>);
 		println("<name> :: <pprint(typ)>");
-		//println("<name> = <exp>");
 	} catch err: {
 		println(err);
 	}
@@ -519,7 +539,7 @@ public void def(str name, str exp) {
 // Demos
 public void demo0() {
 	def("f", "lambda (x) x*x");
-	ep("f(2)");
+	compile("f(2)");
 }
 
 public void demo1() {
@@ -620,19 +640,19 @@ public void demo4() {
 
 	println("\nQuantities");
 	show("lines");
-	show("size");
+	show("fileSize");
 	show("owner");
 	show("parent");
 
 	println("\nAggregations");
-	show("size.owner");
-	show("size.owner.parent");
-	show("size.owner.parent*");
+	show("fileSize.owner");
+	show("fileSize.owner.parent");
+	show("fileSize.owner.parent*");
 	
 	println("\nComprehensions");
 	show("[x | x in columns(owner), not(x=0)]");
 	show("[lines.x | x in columns(owner), not(x=0)]");
-	show("[size.x/lines.x | x in columns(owner), not(x=0)]");
+	show("[fileSize.x/lines.x | x in columns(owner), not(x=0)]");
 	show("[total(x) | x in columns(owner), x=0]");
 	show("[t | x in columns(owner), t := total(x), t=0]");
 	show("count[t | x in columns(owner), t := total(x), t=0]");
@@ -640,13 +660,13 @@ public void demo4() {
 	println("\nAggregation functions.");
 	show("lambda (x) x.owner.parent*");
 	show("let agg(x) = x.owner.parent* in agg(lines) end");
-	//show("(lambda (agg) agg(size)/agg(lines)) (lambda (x) x.owner.parent*)");
-	show("let agg(x) = x.owner.parent* in agg(size)/agg(lines) end");
+	//show("(lambda (agg) agg(fileSize)/agg(lines)) (lambda (x) x.owner.parent*)");
+	show("let agg(x) = x.owner.parent* in agg(fileSize)/agg(lines) end");
 	
 }
 
 public void demo5() {
-	ep(
+	compile(
 "let dice = [1,2,3,4,5,6] in
    let sums = [x+y | x in dice, y in dice] in
      let total = count[s | s in sums] in
@@ -699,7 +719,7 @@ public void demo6() {
 }
 
 public void demo7() {
-  ep(
+  compile(
 "let powers(list) = reduceList([[]],
 							  lambda(x) [x],
 	 						  lambda(powers,x)
@@ -717,7 +737,7 @@ end");
 }
 
 public void demo8(){
-	ep(
+	compile(
 "let gcd(x,y) = if x=0 then
 				  y
 				else
@@ -739,6 +759,31 @@ public void demo8(){
 }
 
 public void fmLib() {
+	def("gcd", "lambda (x,y)
+	              let iter(a,b) = if a=0 then
+				                      b
+				                  else
+				                      if b = 0 then
+				                          a
+				                      else 
+				                          if x leq y then
+				                              gcd(x,mod(y,x))
+				                          else
+				                              gcd(mod(x,y),y)
+				                          end
+				                      end
+				                  end
+				  in
+				    if x less 0 then
+				        gcd(-x,y)
+				    else
+				        if (y less 0) then
+				            gcd(x,-y)
+				        else
+				            iter(x,y)
+				        end
+				    end
+				  end");
 	def("flow", "backward-forward");
 	def("first", "lambda (x,y) x");
 	def("second", "lambda (x,y) y");
@@ -759,6 +804,16 @@ public void fmLib() {
    						        end
    						      end
    						    end"); 						  
+	def("supportLess", "lambda (a,b)
+	                        let a1 = apply(first,a) in
+                              let a2 = apply(second,a) in
+                                let b1 = apply(first,b) in
+                                  let b2 = apply(second,b) in
+                                    a1/a1 less b1/b1 && a2/a2 less b2/b2
+   						          end
+   						        end
+   						      end
+   						    end");   						    
 	def("canonical", "lambda (vec)
 	                    let v1 = apply(first,vec) in
                           let v2 = apply(second,vec) in
@@ -782,27 +837,22 @@ public void fmHelpers() {
   					    vv := apply(second,x), ww := apply(second,y),
   					    alpha := magnitude(v,row,empty), 
   					    beta := magnitude(w,row,empty),
-  					    alpha*beta leq 0,
+  					    alpha*beta less 0,
   					    not (alpha=0 || beta=0)]");
 }
 	
 public void fm() {
-	ep(
+	compile(
 "let rowList = [i | i,j from head(columns(forward))] in
    let cols = columns(flow) in
      let idents = columns(rightIdentity(flow)) in
        let pairs = zip(cols,idents) in
          let driver(pairs,row) = 
-           let eli = eliminate(pairs,row) in
-             let tmp = [canonical(v) | v in append(eli, pairs),
-  			   		                   v1 := apply(first,v), v2 := apply(second,v),
-  					                   magnitude(v1,row,empty) = 0] in
-               (*let dummy = print(tuple[row,[x | x in eli]]) in *)
-               (* let res = [t | t in tmp, all[supportLessEq(t,y) | y in tmp]] in *)
-               let res = [t | t in tmp, all[not(supportLessEq(y,t) && not(y=t)) | y in tmp]] in
-		         let dummy = print(tuple[row,count[x | x in res]]) in
-  	               res
-  		         end
+           let tmp = [canonical(v) | v in append(eliminate(pairs,row), pairs),
+  			                         magnitude(apply(first,v),row,empty) = 0] in
+             let res = [t | t in tmp, all[not(supportLessEq(y,t)) | y in tmp, not(y=t)]] in
+		       let dummy = print(tuple[row,count[x | x in res]]) in
+  	             res
   		       end
   	         end
   	       end
@@ -816,7 +866,7 @@ public void fm() {
 }
 
 public void fmWERKT () {
-	ep(
+	compile(
 //"let flow = backward-forward in	
 "let flow = backward-forward in
    let first (x,y) = x in
@@ -897,7 +947,7 @@ public void fmWERKT () {
 }
 
 public void fmHUH () {
-	ep(
+	compile(
 "let flow = backward-forward in
   let first (x,y) = x in
    let second (x,y) = y in
@@ -968,6 +1018,31 @@ public void fmHUH () {
  end");
 }
 
+public void demo9() {
+	compile("let a=[1] in let b=a in [addMut(a,2),b] end end");
+	compile("let a = [1,2,3] in let b = reduceList([],lambda(x)[x+2],addMut,a) in b end end");
+}
+
+
+public void demo10() {
+	compile("let nums = [0,1,2,3,4,5] in
+	           let a = [[x,y] | x in nums, y in nums] in
+	             let b = [[x,y] | x in a, y in a] in
+	               let c = [[x,y] | x in b, y in b] in
+	                 size(c)
+	               end
+	             end
+	           end
+	         end");
+}
+
+public void test10() {
+	nums = [0,1,2,3,4,5];
+	a = [[x,y] | x <- nums, y <- nums];
+	b = [[x,y] | x <- a, y <- a];
+	c = [[x,y] | x <- b, y <- b];
+	println(size(c));
+}
 
 public void show (str exp) {
 	try {

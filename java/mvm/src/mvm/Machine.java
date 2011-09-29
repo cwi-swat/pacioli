@@ -18,11 +18,13 @@ import mvm.expressions.Lambda;
 import mvm.expressions.Or;
 import mvm.expressions.Variable;
 import mvm.primitives.Abs;
+import mvm.primitives.AddMut;
+import mvm.primitives.AdjoinMut;
 import mvm.primitives.Append;
 import mvm.primitives.Apply;
 import mvm.primitives.Columns;
+import mvm.primitives.Div;
 import mvm.primitives.Equal;
-import mvm.primitives.Gcd;
 import mvm.primitives.Get;
 import mvm.primitives.Head;
 import mvm.primitives.Identity;
@@ -31,8 +33,12 @@ import mvm.primitives.Isolate;
 import mvm.primitives.Join;
 import mvm.primitives.Kleene;
 import mvm.primitives.LeftIdentity;
+import mvm.primitives.Less;
 import mvm.primitives.LessEq;
+import mvm.primitives.LoopList;
+import mvm.primitives.LoopMatrix;
 import mvm.primitives.Magnitude;
+import mvm.primitives.Mod;
 import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
 import mvm.primitives.Not;
@@ -50,6 +56,7 @@ import mvm.primitives.Scale;
 import mvm.primitives.Set;
 import mvm.primitives.SingletonList;
 import mvm.primitives.SingletonSet;
+import mvm.primitives.Size;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
@@ -58,8 +65,6 @@ import mvm.primitives.Tuple;
 import mvm.primitives.Union;
 import mvm.primitives.Zip;
 import mvm.values.Boole;
-import mvm.values.PacioliList;
-import mvm.values.PacioliSet;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Entity;
 import mvm.values.matrix.Index;
@@ -151,6 +156,21 @@ public class Machine {
 		return list;
 	}
 	
+	public List<String> readStringList(Tokenizer tokenizer) throws IOException{
+		List<String> list = new ArrayList<String>();
+		int token = tokenizer.nextToken();
+		while (token != ')') {
+			tokenizer.pushBack();
+			list.add(tokenizer.readIdentifier());
+			token = tokenizer.nextToken();
+			if (token == ',') {
+				token = tokenizer.nextToken();
+			}
+		}
+		tokenizer.pushBack();
+		return list;
+	}
+	
 	private Expression readExpression(Tokenizer tokenizer) throws IOException {
 		int token = tokenizer.nextToken(); 
 		switch (token) {
@@ -161,7 +181,7 @@ public class Machine {
 			if (command.equals("lambda")) {
 				
 				tokenizer.readCharacter('(');
-				List<String> vars = tokenizer.readIdentifierList();
+				List<String> vars = readStringList(tokenizer);
 				tokenizer.readCharacter(')');
 				Expression body = readExpression(tokenizer);
 				
@@ -337,22 +357,30 @@ public class Machine {
 						for (String name: store.keySet()) {
 							env = env.extend(new Environment(name, store.get(name)));
 						}
+						env = env.extend(new Environment("size", new Size()));
 						env = env.extend(new Environment("print", new Print()));
 						env = env.extend(new Environment("tuple", new Tuple()));
 						env = env.extend(new Environment("apply", new Apply()));
 						env = env.extend(new Environment("equal", new Equal()));
 						env = env.extend(new Environment("sum", new Sum()));
 						env = env.extend(new Environment("magnitude", new Magnitude()));
-						env = env.extend(new Environment("gcd", new Gcd()));
+						env = env.extend(new Environment("div", new Div()));
+						env = env.extend(new Environment("mod", new Mod()));
+						env = env.extend(new Environment("less", new Less()));
+						env = env.extend(new Environment("lessEq", new LessEq()));
 						env = env.extend(new Environment("get", new Get()));
 						env = env.extend(new Environment("put", new Put()));
 						env = env.extend(new Environment("set", new Set()));
 						env = env.extend(new Environment("isolate", new Isolate()));
 						env = env.extend(new Environment("multiply", new Multiply()));
 						env = env.extend(new Environment("reduceMatrix", new ReduceMatrix()));
+						env = env.extend(new Environment("loopMatrix", new LoopMatrix()));
 						env = env.extend(new Environment("reduce", new Reduce()));
 						env = env.extend(new Environment("reduceList", new ReduceList()));
+						env = env.extend(new Environment("loopList", new LoopList()));
 						env = env.extend(new Environment("reduceSet", new ReduceSet()));
+						env = env.extend(new Environment("addMut", new AddMut()));
+						env = env.extend(new Environment("adjoinMut", new AdjoinMut()));
 						env = env.extend(new Environment("append", new Append()));
 						env = env.extend(new Environment("head", new Head()));
 						env = env.extend(new Environment("tail", new Tail()));
@@ -371,16 +399,15 @@ public class Machine {
 						env = env.extend(new Environment("leftIdentity", new LeftIdentity()));
 						env = env.extend(new Environment("rightIdentity", new RightIdentity()));
 						env = env.extend(new Environment("singletonSet", new SingletonSet()));
-						env = env.extend(new Environment("emptySet", new PacioliSet()));
+						//env = env.extend(new Environment("emptySet", new PacioliSet()));
 						env = env.extend(new Environment("union", new Union()));						
 						env = env.extend(new Environment("not", new Not()));
 						env = env.extend(new Environment("columns", new Columns()));
 						env = env.extend(new Environment("rows", new Rows()));
 						env = env.extend(new Environment("true", new Boole(true)));
 						env = env.extend(new Environment("false", new Boole(false)));
-						env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
-						env = env.extend(new Environment("zip", new Zip()));
-						env = env.extend(new Environment("lessEq", new LessEq()));						
+						//env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
+						env = env.extend(new Environment("zip", new Zip()));						
 						
 						if (verbose) {
 							out.format("-- Evaluating %s\n", exp.pprint());

@@ -22,6 +22,17 @@ public class Matrix implements PacioliValue {
 	private Index columnIndex;
 	private SimpleMatrix numbers;
 	
+	public Matrix(Double num) throws IOException{
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType singletonType = new MatrixType(new PowerProduct(),empty,empty);
+		type = singletonType;
+		rowIndex = index;
+		columnIndex = index;
+		numbers = new SimpleMatrix(1,1);
+		numbers.set(0, 0, num);
+	}
+	
 	public Matrix(MatrixType type, Index rowIndex, Index columnIndex){
 		this.type = type;
 		this.rowIndex = rowIndex;
@@ -421,12 +432,12 @@ public class Matrix implements PacioliValue {
 
 	public boolean less(Matrix other) {
 		if (this.isZero() && other.isZero()) {
-			return true;
+			return false;
 		}
 		if (this.isZero()) {
 			for (int i=0; i<numbers.numRows(); i++) {
 				for (int j=0; j<numbers.numCols(); j++) {
-					if (0 > other.numbers.get(i, j)) {
+					if (0 >= other.numbers.get(i, j)) {
 						return false;
 					}	
 				}
@@ -436,7 +447,7 @@ public class Matrix implements PacioliValue {
 		if (other.isZero()) {
 			for (int i=0; i<numbers.numRows(); i++) {
 				for (int j=0; j<numbers.numCols(); j++) {
-					if (numbers.get(i, j) > 0) {
+					if (numbers.get(i, j) >= 0) {
 						return false;
 					}	
 				}
@@ -445,7 +456,7 @@ public class Matrix implements PacioliValue {
 		}
 		for (int i=0; i<numbers.numRows(); i++) {
 			for (int j=0; j<numbers.numCols(); j++) {
-				if (numbers.get(i, j) > other.numbers.get(i, j)) {
+				if (numbers.get(i, j) >= other.numbers.get(i, j)) {
 					return false;
 				}	
 			}
@@ -493,6 +504,62 @@ public class Matrix implements PacioliValue {
 			}
 		}
 		return matrix;
+	}
+
+	public Matrix div(Matrix other) throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
+		Matrix matrix = new Matrix(entryType, index, index);
+		int a = (int) numbers.get(0,0);
+		int b = (int) other.numbers.get(0,0);
+		matrix.numbers.set(0, 0, a/b);
+		return matrix;
+	}
+
+	public Matrix mod(Matrix other) throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
+		Matrix matrix = new Matrix(entryType, index, index);
+		int a = (int) numbers.get(0,0);
+		int b = (int) other.numbers.get(0,0);
+		matrix.numbers.set(0, 0, a%b);
+		return matrix;
+	}
+
+	public boolean lessEq(Matrix other) {
+		if (this.isZero() && other.isZero()) {
+			return true;
+		}
+		if (this.isZero()) {
+			for (int i=0; i<numbers.numRows(); i++) {
+				for (int j=0; j<numbers.numCols(); j++) {
+					if (0 > other.numbers.get(i, j)) {
+						return false;
+					}	
+				}
+			}
+			return true;
+		}
+		if (other.isZero()) {
+			for (int i=0; i<numbers.numRows(); i++) {
+				for (int j=0; j<numbers.numCols(); j++) {
+					if (numbers.get(i, j) > 0) {
+						return false;
+					}	
+				}
+			}
+			return true;
+		}
+		for (int i=0; i<numbers.numRows(); i++) {
+			for (int j=0; j<numbers.numCols(); j++) {
+				if (numbers.get(i, j) > other.numbers.get(i, j)) {
+					return false;
+				}	
+			}
+		}
+		return true;
 	}
 
 }

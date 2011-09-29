@@ -78,5 +78,9 @@ public class PacioliList implements PacioliValue {
 		}
 		return new PacioliList(accu);
 	}
-	
+
+	public PacioliValue addMut(PacioliValue x) {
+		items.add(x);
+		return this;
+	}
 }

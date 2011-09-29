@@ -15,7 +15,12 @@ data Scheme = forall(set[str] unitVars,
 					 Type t);
 
 public str pprint(forall(unitVars, entityVars, typeVars, typ)) {
-	return "forall <commaSeparated([x | x <- typeVars + entityVars + unitVars])> : <pprint(typ)>";
+	vars = [x | x <- typeVars + entityVars + unitVars];
+	if (vars == []) {
+		return pprint(typ);
+	} else {
+		return "forall <commaSeparated(vars)>: <pprint(typ)>";
+	}
 }
 
 str commaSeparated(list[str] xs) {
@@ -72,7 +77,7 @@ public str pprint(Type t) {
 		}
 		case function(x,y): return "<pprint(x)> -\> <pprint(y)>";
 		case tupType([]): return "()";
-		case tupType(x): return "(<(pprint(head(x)) | it + "," + pprint(y) | y <- tail(x))>)";
+		case tupType(x): return "(<(pprint(head(x)) | it + ", " + pprint(y) | y <- tail(x))>)";
 		case listType(x): return "List\<<pprint(x)>\>";
 		case setType(x): return "Set\<<pprint(x)>\>";
 		case boolean(): return "Boole";

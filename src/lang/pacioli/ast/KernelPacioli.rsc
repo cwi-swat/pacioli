@@ -30,6 +30,7 @@ data Expression = variable(str name)
  				| filt(Expression exp)
  				| equal(Expression lhs, Expression rhs)
  				| lesseq(Expression lhs, Expression rhs)
+ 				| less(Expression lhs, Expression rhs)
  				| clos(Expression arg)
  				| kleene(Expression arg)
  				| mul(Expression lhs, Expression rhs)
@@ -57,15 +58,16 @@ public Expression normalize(Expression exp) {
 						 			 tup([it, application(variable("singletonSet"), tup([x]))])) | 
 						 x <- tail(xs))
 		case constInt(x) => const(x*1.0)
-		case comprehension(x,y) => translateComprehension("list",x,y)
-		case someComprehension(x,y) => translateComprehension("some",x,y)
-		case allComprehension(x,y) => translateComprehension("all",x,y)
-		case countComprehension(x,y) => translateComprehension("count",x,y)
-		case sumComprehension(x,y) => translateComprehension("sum",x,y)
-		case vecComprehension(x,y) => translateComprehension("vec",x,y)
-		case setComprehension(x,y) => translateComprehension("set",x,y)
+		case comprehension(x,y) => translateComprehension2("list",x,y)
+		case someComprehension(x,y) => translateComprehension2("some",x,y)
+		case allComprehension(x,y) => translateComprehension2("all",x,y)
+		case countComprehension(x,y) => translateComprehension2("count",x,y)
+		case sumComprehension(x,y) => translateComprehension2("sum",x,y)
+		case vecComprehension(x,y) => translateComprehension2("vec",x,y)
+		case setComprehension(x,y) => translateComprehension2("set",x,y)
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
 		case lesseq(x,y) => application(variable("lessEq"),tup([x,y]))
+		case less(x,y) => application(variable("less"),tup([x,y]))
 		case clos(x) => application(variable("closure"),tup([x]))
 		case kleene(x) => application(variable("kleene"),tup([x]))
 		case not(x) => application(variable("not"),tup([x]))
@@ -80,20 +82,128 @@ public Expression normalize(Expression exp) {
 	}
 }
 
+//Expression translateAccu(str kind, Expression accu, Expression item) {
+//	switch(kind) {
+//	case "list":
+//		abstraction(["accu",item], )
+//	}
+//}
+
+public Expression translateComprehension2(str kind, Expression header, list[Expression] parts) {
+	switch(kind) {
+	case "list":
+		return translateComprehensionRec(kind, variable("emptyList"), variable("addMut"), header, parts);
+	case "set":
+		return translateComprehensionRec(kind, variable("emptySet"), variable("addMut"), header, parts);		
+	case "sum":
+		return translateComprehensionRec(kind, const(0.0), variable("whocares"), header, parts);
+	case "count":
+		return translateComprehensionRec(kind, const(0.0), variable("whocares"), header, parts);		
+	case "some":
+		return translateComprehensionRec(kind, variable("false"), abstraction(["x","y"], or(variable("x"), variable("y"))), header, parts);
+	case "all":
+		return translateComprehensionRec(kind, variable("true"), abstraction(["x","y"], and(variable("x"), variable("y"))), header, parts);		
+	}
+}
+
+public Expression mergeBody (str kind, Expression x, Expression y) {
+	switch(kind) {
+	case "list":
+		return application(variable("addMut"), tup([x,y]));
+	case "set":
+		return application(variable("adjoinMut"), tup([x,y]));		
+	case "some":
+		return or(x,y);
+	case "all":
+		return and(x,y);
+	case "count":
+		return application(variable("sum"), tup([x,const(1.0)]));
+	case "sum":
+		return application(variable("sum"), tup([x,y]));		
+	}
+}
+
+public Expression translateComprehensionRec(str kind, Expression zero, Expression merge, Expression header, list[Expression] parts) {
+	if (parts == []) {
+		//return application(merge, tup([zero,header]));
+		//switch(zero) {
+		//	case variable(v):
+		//		return mergeBody(kind, zero, header);
+		//}
+		return mergeBody(kind, zero, header);
+		
+	} else {
+		first = head(parts);
+		switch (first) {
+			case generator(var,exp):
+				return translateGenerator(kind, var, exp, zero, merge, header, parts);
+			case setGenerator(var,exp):
+				return translateSetGenerator(kind, var, exp, zero, merge, header, parts);				
+			case matrixGenerator(row,col,exp):
+				return translateMatrixGenerator(kind, row, col, exp, zero, merge, header, parts);
+			case filt(exp): 
+				return branch(exp, translateComprehensionRec(kind, zero, merge, header,tail(parts)), zero);
+			case bind(var,exp): {
+				alt = [generator(var,application(variable("singletonList"),tup([exp])))] + tail(parts);
+				return translateComprehensionRec(kind, zero, merge, header,alt);
+			}
+			default: {
+				error = "oeps <first>";
+				throw error;
+			}
+		}
+	}
+}
+
+Expression translateGenerator(str kind, str var, Expression exp, Expression zero, Expression merge, Expression header, list[Expression] parts) {
+	return application(variable("loopList"), 
+					   tup([zero,
+						    //variable("identity"),
+						    abstraction(["accu",var], 
+  	                                    translateComprehensionRec(kind, variable("accu"), merge, header, tail(parts))), 
+					        exp]));
+}
+
+Expression translateSetGenerator(str kind, str var, Expression exp, Expression zero, Expression merge, Expression header, list[Expression] parts) {
+	return application(variable("reduceSet"), 
+					   tup([zero,
+						    variable("identity"),
+						    abstraction(["accu",var], 
+  	                                    translateComprehensionRec(kind, variable("accu"), merge, header, tail(parts))), 
+					        exp]));
+}
+
+Expression translateMatrixGenerator(str kind, str row, str col, Expression exp, Expression zero, Expression merge, Expression header, list[Expression] parts) {
+	return application(variable("loopMatrix"), 
+					   tup([zero,
+						    abstraction(["accu",row,col], 
+  	                                    translateComprehensionRec(kind, variable("accu"), merge, header, tail(parts))), 
+					        exp]));
+}
+
 public Expression translateComprehension(str kind, Expression header, list[Expression] parts) {
 	<zero,unit,merge> = comprehensionTriple(kind);
-	zero = abstraction(["yo"],zero); 
+	//zero = abstraction(["yo"],zero); 
 	if (parts == []) {
 		return application(unit, tup([header]));
 	} else {
 		first = head(parts);
 		switch (first) {
 			case generator(var,exp):  
-				return application(application(variable("reduce"), 
+				return application(variable("reduceList"), 
 					tup([zero,
-						 abstraction([var], abstraction(["yo"], translateComprehension(kind, header,tail(parts)))),
-						 merge, 
-					     exp])), tup([const(1.0)]));
+						 variable("identity"),
+						 //abstraction([var], translateComprehension(kind, header,tail(parts))),
+						 abstraction(["accu",var], 
+						             application(merge, tup([variable("accu"),
+						                                     translateComprehension(kind, header,tail(parts))]))), 
+					     exp]));
+			//case generator(var,exp):  
+			//	return application(variable("reduceList"), 
+			//		tup([zero,
+			//			 abstraction([var], translateComprehension(kind, header,tail(parts))),
+			//			 merge, 
+			//		     exp]));
 			//case matrixGenerator(var,exp):  
 			//	return application(variable("reduceMatrix"), 
 			//		tup([zero,
@@ -123,28 +233,36 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 	}
 }
 
-tuple[Expression,Expression,Expression] comprehensionTripleOLD(str kind) {
-	switch (kind) {
-		case "list": return <variable("emptyList"),variable("singletonList"),variable("append")>;
-		case "some": return <variable("false"),variable("identity"),abstraction(["x","y"],or(variable("x"),variable("y")))>;
-		case "all": return <variable("true"),variable("identity"),abstraction(["x","y"],and(variable("x"),variable("y")))>;
-		//case "all": return <variable("true"),variable("identity"),abstraction(["x","y"],and(variable("x"),variable("y")))>;
-		case "count": return <const(0.0),abstraction(["x"],const(1.0)),variable("sum")>;		
-		case "sum": return <const(0.0),variable("identity"),variable("sum")>;
-		case "vec": return <const(0.0),variable("identity"),variable("sum")>;
-		case "set": return <variable("emptySet"),variable("singletonSet"),variable("union")>;
-	}
+
+Expression delay(Expression exp) {
+	return abstraction([],exp);
+}
+
+Expression force(Expression exp) {
+	return application(exp, tup([]));
 }
 
 tuple[Expression,Expression,Expression] comprehensionTriple(str kind) {
 	dummy = tup([const(1.0)]);
 	switch (kind) {
 		case "list": return <variable("emptyList"),
-							 variable("singletonList"),
-							 abstraction(["x","y"],abstraction(["yo"],application(variable("append"),tup([application(variable("x"), dummy), application(variable("y"), dummy)]))))>;
+							 variable("identity"),
+							 variable("addMut")>;
+		//case "list": return <variable("emptyList"),
+		//					 variable("singletonList"),
+		//					 abstraction(["ac","de"], application(variable("addMut"),tup([variable("ac"), application(variable("head"), tup([variable("de")]))])))>;
+		//case "list": return <variable("emptyList"),
+		//					 abstraction(["un"], delay(variable("un"))),
+		//					 abstraction(["ac","de"], application(variable("addMut"),tup([variable("ac"), force(variable("de"))])))>;
+		//case "list": return <variable("emptyList"),
+		//					 variable("singletonList"),
+		//					 abstraction(["x","y"],abstraction(["yo"],application(variable("append"),tup([application(variable("x"), dummy), application(variable("y"), dummy)]))))>;
 		case "some": return <variable("false"),
 							 variable("identity"),
-							 abstraction(["x","y"],abstraction(["yo"], or(application(variable("x"), dummy), application(variable("y"), dummy))))>;
+							 abstraction(["x","y"], or(variable("x"), variable("y")))>;
+		//case "some": return <variable("false"),
+		//					 variable("identity"),
+		//					 abstraction(["x","y"],abstraction(["yo"], or(application(variable("x"), dummy), application(variable("y"), dummy))))>;
 		case "all": return <variable("true"),
 							variable("identity"),
 							abstraction(["x","y"],abstraction(["yo"], and(application(variable("x"), dummy), application(variable("y"), dummy))))>;
@@ -164,13 +282,25 @@ tuple[Expression,Expression,Expression] comprehensionTriple(str kind) {
 	}
 }
 
+tuple[Expression,Expression,Expression] comprehensionTripleOLD(str kind) {
+	switch (kind) {
+		case "list": return <variable("emptyList"),variable("singletonList"),variable("append")>;
+		case "some": return <variable("false"),variable("identity"),abstraction(["x","y"],or(variable("x"),variable("y")))>;
+		case "all": return <variable("true"),variable("identity"),abstraction(["x","y"],and(variable("x"),variable("y")))>;
+		//case "all": return <variable("true"),variable("identity"),abstraction(["x","y"],and(variable("x"),variable("y")))>;
+		case "count": return <const(0.0),abstraction(["x"],const(1.0)),variable("sum")>;		
+		case "sum": return <const(0.0),variable("identity"),variable("sum")>;
+		case "vec": return <const(0.0),variable("identity"),variable("sum")>;
+		case "set": return <variable("emptySet"),variable("singletonSet"),variable("union")>;
+	}
+}
 
 public str pprint(Expression exp) {
 	switch(exp) {
 		case variable(x): return "<x>";
 		case const(x): return "<x>";
 		case tup([]): return "()";
-		case tup(items): return "(<(pprint(head(items)) | it + "," + pprint(x) | x <- tail(items))>)";
+		case tup(items): return "(<(pprint(head(items)) | it + ", " + pprint(x) | x <- tail(items))>)";
 		case abstraction(x,y): return "(lambda <pprint(tup([variable(v) | v <- x]))> <pprint(y)>)";	
 		case application(x,y): return "<pprint(x)><pprint(y)>";
 		case let(v,x,y): return "(let <v> = <pprint(x)> in <pprint(y)>)";

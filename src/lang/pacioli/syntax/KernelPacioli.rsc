@@ -32,6 +32,7 @@ start syntax Expression = variable:Ident name
 	)
 	> equal: Expression "=" Expression
 	> lesseq: Expression "leq" Expression
+	> less: Expression "less" Expression
 	//> not: "!" Expression
 	> left (
 		assoc and: Expression "&&" Expression

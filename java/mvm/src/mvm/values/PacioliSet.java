@@ -56,4 +56,11 @@ public class PacioliSet implements PacioliValue {
 		//List<PacioliValue> items = new ArrayList<PacioliValue>(items);
 		return new ArrayList<PacioliValue>(items);
 	}
+
+	public PacioliValue adjoinMut(PacioliValue y) {
+		if (!items.contains(y)) {
+			items.add(y);
+		}
+		return this;		
+	}
 }

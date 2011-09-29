@@ -21,13 +21,13 @@ int glbcounter = 100;
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
-	//try {
+	try {
 		glbcounter = 100;
 		glbstack = [];
 		return inferType(exp,lib,());
-	//} catch err: {
-	//	throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
-	//}
+	} catch err: {
+		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
+	}
 }
 
 public void push(str log) {

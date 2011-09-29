@@ -1,9 +1,12 @@
 package mvm;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import mvm.values.PacioliList;
+import mvm.values.PacioliSet;
 import mvm.values.PacioliValue;
 
 public class Environment {
@@ -49,6 +52,15 @@ public class Environment {
 	}
 
 	public PacioliValue lookup(String name) throws IOException {
+		
+		if (name.equals("emptyList")) {
+			return new PacioliList(new ArrayList<PacioliValue>());
+		}
+		
+		if (name.equals("emptySet")) {
+			return new PacioliSet();
+		}
+		
 		if (store.containsKey(name)) {
 			return store.get(name);
 		} else {
