@@ -58,6 +58,7 @@ import mvm.primitives.SingletonList;
 import mvm.primitives.SingletonSet;
 import mvm.primitives.Size;
 import mvm.primitives.Sum;
+import mvm.primitives.Support;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
 import mvm.primitives.Transpose;
@@ -85,17 +86,123 @@ public class Machine {
 	
 	public boolean verbose;
 	
-	private HashMap<String, PacioliValue> store;
+	//private HashMap<String, PacioliValue> store;
+	private Environment store;
 	private UnitSystem unitSystem;
 	private HashMap<String, Entity> entities;
 	private HashMap<Base, Unit[]> indices;
 	
 	public Machine() {
 		verbose = false;
-		store = new HashMap<String, PacioliValue>();
+		//store = new HashMap<String, PacioliValue>();
+		store = new Environment();
 		unitSystem = makeSI();
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
+		
+		store.put("support", new Support());
+//		env = env.extend(new Environment("size", new Size()));
+//		env = env.extend(new Environment("print", new Print()));
+//		env = env.extend(new Environment("tuple", new Tuple()));
+//		env = env.extend(new Environment("apply", new Apply()));
+//		env = env.extend(new Environment("equal", new Equal()));
+//		env = env.extend(new Environment("sum", new Sum()));
+//		env = env.extend(new Environment("magnitude", new Magnitude()));
+//		env = env.extend(new Environment("div", new Div()));
+//		env = env.extend(new Environment("mod", new Mod()));
+//		env = env.extend(new Environment("less", new Less()));
+//		env = env.extend(new Environment("lessEq", new LessEq()));
+//		env = env.extend(new Environment("get", new Get()));
+//		env = env.extend(new Environment("put", new Put()));
+//		env = env.extend(new Environment("set", new Set()));
+//		env = env.extend(new Environment("isolate", new Isolate()));
+//		env = env.extend(new Environment("multiply", new Multiply()));
+//		env = env.extend(new Environment("reduceMatrix", new ReduceMatrix()));
+//		env = env.extend(new Environment("loopMatrix", new LoopMatrix()));
+//		env = env.extend(new Environment("reduce", new Reduce()));
+//		env = env.extend(new Environment("reduceList", new ReduceList()));
+//		env = env.extend(new Environment("loopList", new LoopList()));
+//		env = env.extend(new Environment("reduceSet", new ReduceSet()));
+//		env = env.extend(new Environment("addMut", new AddMut()));
+//		env = env.extend(new Environment("adjoinMut", new AdjoinMut()));
+//		env = env.extend(new Environment("append", new Append()));
+//		env = env.extend(new Environment("head", new Head()));
+//		env = env.extend(new Environment("tail", new Tail()));
+//		env = env.extend(new Environment("identity", new Identity()));
+//		env = env.extend(new Environment("singletonList", new SingletonList()));
+//		env = env.extend(new Environment("join", new Join()));
+//		env = env.extend(new Environment("scale", new Scale()));
+//		env = env.extend(new Environment("total", new Total()));
+//		env = env.extend(new Environment("transpose", new Transpose()));
+//		env = env.extend(new Environment("reciprocal", new Reciprocal()));
+//		env = env.extend(new Environment("negative", new Negative()));
+//		env = env.extend(new Environment("abs", new Abs()));
+//		env = env.extend(new Environment("indexLess", new IndexLess()));
+//		env = env.extend(new Environment("closure", new PosSeries()));
+//		env = env.extend(new Environment("kleene", new Kleene()));
+//		env = env.extend(new Environment("leftIdentity", new LeftIdentity()));
+//		env = env.extend(new Environment("rightIdentity", new RightIdentity()));
+//		env = env.extend(new Environment("singletonSet", new SingletonSet()));
+//		//env = env.extend(new Environment("emptySet", new PacioliSet()));
+//		env = env.extend(new Environment("union", new Union()));						
+//		env = env.extend(new Environment("not", new Not()));
+//		env = env.extend(new Environment("columns", new Columns()));
+//		env = env.extend(new Environment("rows", new Rows()));
+//		env = env.extend(new Environment("true", new Boole(true)));
+//		env = env.extend(new Environment("false", new Boole(false)));
+//		//env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
+//		env = env.extend(new Environment("zip", new Zip()));
+//		
+		store.put("size", new Size());
+		store.put("print", new Print());
+		store.put("tuple", new Tuple());
+		store.put("apply", new Apply());
+		store.put("equal", new Equal());
+		store.put("sum", new Sum());
+		store.put("magnitude", new Magnitude());
+		store.put("div", new Div());
+		store.put("mod", new Mod());
+		store.put("less", new Less());
+		store.put("lessEq", new LessEq());
+		store.put("get", new Get());
+		store.put("put", new Put());
+		store.put("set", new Set());
+		store.put("isolate", new Isolate());
+		store.put("multiply", new Multiply());
+		store.put("reduceMatrix", new ReduceMatrix());
+		store.put("loopMatrix", new LoopMatrix());
+		store.put("reduce", new Reduce());
+		store.put("reduceList", new ReduceList());
+		store.put("loopList", new LoopList());
+		store.put("reduceSet", new ReduceSet());
+		store.put("addMut", new AddMut());
+		store.put("adjoinMut", new AdjoinMut());
+		store.put("append", new Append());
+		store.put("head", new Head());
+		store.put("tail", new Tail());
+		store.put("identity", new Identity());
+		store.put("singletonList", new SingletonList());
+		store.put("join", new Join());
+		store.put("scale", new Scale());
+		store.put("total", new Total());
+		store.put("transpose", new Transpose());
+		store.put("reciprocal", new Reciprocal());
+		store.put("negative", new Negative());
+		store.put("abs", new Abs());
+		store.put("indexLess", new IndexLess());
+		store.put("closure", new PosSeries());
+		store.put("kleene", new Kleene());
+		store.put("leftIdentity", new LeftIdentity());
+		store.put("rightIdentity", new RightIdentity());
+		store.put("singletonSet", new SingletonSet());
+		store.put("union", new Union());					
+		store.put("not", new Not());
+		store.put("columns", new Columns());
+		store.put("rows", new Rows());
+		store.put("true", new Boole(true));
+		store.put("false", new Boole(false));
+		store.put("zip", new Zip());
+		
 	}
 	
 	public void run(String fileName, PrintStream out) throws IOException {
@@ -119,7 +226,8 @@ public class Machine {
 		if (!store.containsKey(name)) {
 			throw new IOException(String.format("name '%s' unknown", name));
 		}
-		return (Matrix) store.get(name);
+		//return (Matrix) store.get(name);
+		return (Matrix) store.lookup(name);
 	}
 
 	public void dumpTypes(PrintStream out) {
@@ -353,67 +461,17 @@ public class Machine {
 						String destination = tokenizer.readIdentifier();
 						Expression exp = readExpression(tokenizer);
 						tokenizer.readSeparator();
-						Environment env = new Environment();
-						for (String name: store.keySet()) {
-							env = env.extend(new Environment(name, store.get(name)));
-						}
-						env = env.extend(new Environment("size", new Size()));
-						env = env.extend(new Environment("print", new Print()));
-						env = env.extend(new Environment("tuple", new Tuple()));
-						env = env.extend(new Environment("apply", new Apply()));
-						env = env.extend(new Environment("equal", new Equal()));
-						env = env.extend(new Environment("sum", new Sum()));
-						env = env.extend(new Environment("magnitude", new Magnitude()));
-						env = env.extend(new Environment("div", new Div()));
-						env = env.extend(new Environment("mod", new Mod()));
-						env = env.extend(new Environment("less", new Less()));
-						env = env.extend(new Environment("lessEq", new LessEq()));
-						env = env.extend(new Environment("get", new Get()));
-						env = env.extend(new Environment("put", new Put()));
-						env = env.extend(new Environment("set", new Set()));
-						env = env.extend(new Environment("isolate", new Isolate()));
-						env = env.extend(new Environment("multiply", new Multiply()));
-						env = env.extend(new Environment("reduceMatrix", new ReduceMatrix()));
-						env = env.extend(new Environment("loopMatrix", new LoopMatrix()));
-						env = env.extend(new Environment("reduce", new Reduce()));
-						env = env.extend(new Environment("reduceList", new ReduceList()));
-						env = env.extend(new Environment("loopList", new LoopList()));
-						env = env.extend(new Environment("reduceSet", new ReduceSet()));
-						env = env.extend(new Environment("addMut", new AddMut()));
-						env = env.extend(new Environment("adjoinMut", new AdjoinMut()));
-						env = env.extend(new Environment("append", new Append()));
-						env = env.extend(new Environment("head", new Head()));
-						env = env.extend(new Environment("tail", new Tail()));
-						env = env.extend(new Environment("identity", new Identity()));
-						env = env.extend(new Environment("singletonList", new SingletonList()));
-						env = env.extend(new Environment("join", new Join()));
-						env = env.extend(new Environment("scale", new Scale()));
-						env = env.extend(new Environment("total", new Total()));
-						env = env.extend(new Environment("transpose", new Transpose()));
-						env = env.extend(new Environment("reciprocal", new Reciprocal()));
-						env = env.extend(new Environment("negative", new Negative()));
-						env = env.extend(new Environment("abs", new Abs()));
-						env = env.extend(new Environment("indexLess", new IndexLess()));
-						env = env.extend(new Environment("closure", new PosSeries()));
-						env = env.extend(new Environment("kleene", new Kleene()));
-						env = env.extend(new Environment("leftIdentity", new LeftIdentity()));
-						env = env.extend(new Environment("rightIdentity", new RightIdentity()));
-						env = env.extend(new Environment("singletonSet", new SingletonSet()));
-						//env = env.extend(new Environment("emptySet", new PacioliSet()));
-						env = env.extend(new Environment("union", new Union()));						
-						env = env.extend(new Environment("not", new Not()));
-						env = env.extend(new Environment("columns", new Columns()));
-						env = env.extend(new Environment("rows", new Rows()));
-						env = env.extend(new Environment("true", new Boole(true)));
-						env = env.extend(new Environment("false", new Boole(false)));
-						//env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
-						env = env.extend(new Environment("zip", new Zip()));						
+//						Environment env = new Environment();
+//						for (String name: store.keySet()) {
+//							env = env.extend(new Environment(name, store.lookup(name)));
+//						}
+//												
 						
 						if (verbose) {
 							out.format("-- Evaluating %s\n", exp.pprint());
 						}
 						
-						store.put(destination, exp.eval(env));
+						store.put(destination, exp.eval(store));
 						
 					} else if (command.equals("conversion")) {
 						
@@ -474,7 +532,7 @@ public class Machine {
 							throw new IOException(String.format("name '%s' unknown", source));
 						}
 						
-						out.println(store.get(source).pprint());
+						out.println(store.lookup(source).pprint());
 						
 					} else if (command.equals("unit")) {
 

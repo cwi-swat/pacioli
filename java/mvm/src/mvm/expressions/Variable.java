@@ -23,9 +23,9 @@ public class Variable implements Expression {
 		PacioliValue value = env.lookup(name);
 		
 		// hack for recursive functions
-		if (value instanceof Closure) {
-			return ((Closure) value).extend(env);
-		}
+//		if (value instanceof Closure) {
+//			return ((Closure) value).extend(env);
+//		}
 				
 		return value;
 	}

@@ -19,7 +19,9 @@ public class Closure implements Callable {
 	}
 	
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
-		return code.eval(environment.extend(new Environment(arguments, params)));
+		//return code.eval(environment.extend(new Environment(arguments, params)));
+		Environment frame = new Environment(arguments, params); 
+		return code.eval(frame.pushUnto(environment));
 	}
 
 	public String pprint() {
@@ -28,6 +30,7 @@ public class Closure implements Callable {
 
 	// hack for recursive functions
 	public Callable extend(Environment env) {
-		return new Closure(arguments,code,env.extend(environment));
+		//return new Closure(arguments,code,env.extend(environment));
+		return new Closure(arguments,code,environment.pushUnto(env));
 	}
 }

@@ -228,6 +228,13 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("Q"), reciprocal(unitVar("v"))),
   				  				  duo(entityVar("P"), reciprocal(unitVar("u")))))),
+	"support": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("Q"), uno()),
+  				  				  duo(entityVar("P"), uno())))),
 	"leftIdentity": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -799,17 +806,48 @@ public void fmLib() {
                               let a2 = apply(second,a) in
                                 let b1 = apply(first,b) in
                                   let b2 = apply(second,b) in
-                                    a1/a1 leq b1/b1 && a2/a2 leq b2/b2
+                                    support(a1) leq support(b1) && support(a2) leq support(b2)
    						          end
    						        end
    						      end
-   						    end"); 						  
+   						    end"); 		
+	def("supportPair", "lambda (a)
+	                        let a1 = apply(first,a) in
+                              let a2 = apply(second,a) in
+                                    tuple[support(a1), support(a2)]
+   						      end
+   						    end"); 		   						    				  
+	def("supportDiff", "lambda (a,b)
+	                        let a1 = apply(first,a) in
+                              let a2 = apply(second,a) in
+                                let b1 = apply(first,b) in
+                                  let b2 = apply(second,b) in
+                                    tuple[support(a1) - support(b1), support(a2) - support(b2)]
+   						          end
+   						        end
+   						      end
+   						    end");
 	def("supportLess", "lambda (a,b)
 	                        let a1 = apply(first,a) in
                               let a2 = apply(second,a) in
                                 let b1 = apply(first,b) in
                                   let b2 = apply(second,b) in
-                                    a1/a1 less b1/b1 && a2/a2 less b2/b2
+                                    support(a1) less support(b1) && support(a2) less support(b2)
+   						          end
+   						        end
+   						      end
+   						    end");   						
+	def("supportLessGood", "lambda (a,b)
+	                        let a1 = apply(first,a) in
+                              let a2 = apply(second,a) in
+                                let b1 = apply(first,b) in
+                                  let b2 = apply(second,b) in
+                                  	(all[not(magnitude(b1,i,j) = 0) | i,j from a1, not(magnitude(a1,i,j) = 0)] &&
+                                  	 all[not(magnitude(b2,i,j) = 0) | i,j from a2, not(magnitude(a2,i,j) = 0)])
+                                  	&&
+                                  	(some[magnitude(a1,i,j) = 0 | i,j from b1, not(magnitude(b1,i,j) = 0)] ||
+                                  	 some[magnitude(a2,i,j) = 0 | i,j from b2, not(magnitude(b2,i,j) = 0)])
+                                    (* a1/a1 less b1/b1 && a2/a2 less b2/b2 *)
    						          end
    						        end
    						      end
@@ -1025,7 +1063,7 @@ public void demo9() {
 
 
 public void demo10() {
-	compile("let nums = [0,1,2,3,4,5] in
+	compile("let nums = [0,1,2,3,4,5,6] in
 	           let a = [[x,y] | x in nums, y in nums] in
 	             let b = [[x,y] | x in a, y in a] in
 	               let c = [[x,y] | x in b, y in b] in
