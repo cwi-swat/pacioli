@@ -101,7 +101,7 @@ public class Tokenizer {
 		List<String> identifiers = readIdentifierList();
 		switch (tokenizer.nextToken()) {
 		case StreamTokenizer.TT_EOF:
-			if (identifiers.size() == 1 && identifiers.get(0).equals("empty")) {
+			if (identifiers.size() == 1 && identifiers.get(0).equals("Empty")) {
 				return new IndexType();
 			} else {
 				throw new EOFException("unexpected end of input while reading index type");

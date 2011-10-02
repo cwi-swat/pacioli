@@ -13,6 +13,7 @@ data Expression = variable(str name)
  				| application(Expression fn, Expression arg)
  				| let(str var, Expression val, Expression body)
  				| letLuxe(str var, list[str] vars, Expression val, Expression body)
+ 				| letSuperLuxe(list[str] vars, Expression val, Expression body)
  				| branch(Expression cond, Expression pos, Expression neg)
  				| comprehension(Expression head, list[Expression] rest)
  				| someComprehension(Expression head, list[Expression] rest)
@@ -20,6 +21,7 @@ data Expression = variable(str name)
  				| countComprehension(Expression head, list[Expression] rest)
  				| sumComprehension(Expression head, list[Expression] rest)
  				| setComprehension(Expression head, list[Expression] rest)
+ 				| gcdComprehension(Expression head, list[Expression] rest)
  				// todo: interesting vec comprehension
  				//| vecComprehension(Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
@@ -27,6 +29,7 @@ data Expression = variable(str name)
 				| matrixGenerator(str row, str column, Expression collection)
 				| setGenerator(str variable, Expression collection)
  				| bind(str variable, Expression exp)
+ 				| bindLuxe(list[str] vars, Expression exp)
  				| filt(Expression exp)
  				| equal(Expression lhs, Expression rhs)
  				| lesseq(Expression lhs, Expression rhs)
@@ -47,6 +50,7 @@ data Expression = variable(str name)
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+	    case letSuperLuxe(vars,val,body) => application(variable("apply"), tup([abstraction(vars,body), val]))
 		case letLuxe(var,vars,val,body) => let(var,abstraction(vars,val),body)
 		case lis([]) => variable("emptyList")
 		case lis(xs) => (application(variable("singletonList"), tup([head(xs)])) |
@@ -64,6 +68,7 @@ public Expression normalize(Expression exp) {
 		case countComprehension(x,y) => translateComprehension2("count",x,y)
 		case sumComprehension(x,y) => translateComprehension2("sum",x,y)
 		case vecComprehension(x,y) => translateComprehension2("vec",x,y)
+		case gcdComprehension(x,y) => translateComprehension2("gcd",x,y)
 		case setComprehension(x,y) => translateComprehension2("set",x,y)
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
 		case lesseq(x,y) => application(variable("lessEq"),tup([x,y]))
@@ -101,6 +106,8 @@ public Expression translateComprehension2(str kind, Expression header, list[Expr
 		return translateComprehensionRec(kind, const(0.0), variable("whocares"), header, parts);		
 	case "some":
 		return translateComprehensionRec(kind, variable("false"), abstraction(["x","y"], or(variable("x"), variable("y"))), header, parts);
+	case "gcd":
+		return translateComprehensionRec(kind, const(0.0), variable("whocares"), header, parts);
 	case "all":
 		return translateComprehensionRec(kind, variable("true"), abstraction(["x","y"], and(variable("x"), variable("y"))), header, parts);		
 	}
@@ -118,6 +125,8 @@ public Expression mergeBody (str kind, Expression x, Expression y) {
 		return and(x,y);
 	case "count":
 		return application(variable("sum"), tup([x,const(1.0)]));
+	case "gcd":
+		return application(variable("gcd"), tup([x,y]));		
 	case "sum":
 		return application(variable("sum"), tup([x,y]));		
 	}
@@ -143,9 +152,14 @@ public Expression translateComprehensionRec(str kind, Expression zero, Expressio
 				return translateMatrixGenerator(kind, row, col, exp, zero, merge, header, parts);
 			case filt(exp): 
 				return branch(exp, translateComprehensionRec(kind, zero, merge, header,tail(parts)), zero);
+			//case bind(var,exp): {
+			//	alt = [generator(var,application(variable("singletonList"),tup([exp])))] + tail(parts);
+			//	return translateComprehensionRec(kind, zero, merge, header,alt);
 			case bind(var,exp): {
-				alt = [generator(var,application(variable("singletonList"),tup([exp])))] + tail(parts);
-				return translateComprehensionRec(kind, zero, merge, header,alt);
+				return application(abstraction([var], translateComprehensionRec(kind, zero, merge, header,tail(parts))), tup([exp]));
+			}
+			case bindLuxe(vars,exp): {
+				return application(variable("apply"), tup([abstraction(vars, translateComprehensionRec(kind, zero, merge, header,tail(parts))), exp]));
 			}
 			default: {
 				error = "oeps <first>";

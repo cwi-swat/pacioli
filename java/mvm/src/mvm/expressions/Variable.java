@@ -3,7 +3,6 @@ package mvm.expressions;
 import java.io.IOException;
 
 import mvm.Environment;
-import mvm.values.Closure;
 import mvm.values.PacioliValue;
 
 public class Variable implements Expression {
@@ -19,15 +18,7 @@ public class Variable implements Expression {
 	};
 	
 	public PacioliValue eval(Environment env) throws IOException {
-
-		PacioliValue value = env.lookup(name);
-		
-		// hack for recursive functions
-//		if (value instanceof Closure) {
-//			return ((Closure) value).extend(env);
-//		}
-				
-		return value;
+		return env.lookup(name);
 	}
 
 	public String pprint() {

@@ -1,5 +1,6 @@
 package mvm.values.matrix;
 
+import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,13 +9,12 @@ import java.util.List;
 
 import mvm.Tokenizer;
 import mvm.values.Key;
+import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 
 import org.apache.commons.math.linear.OpenMapRealMatrix;
-import org.apache.commons.math.linear.OpenMapRealVector;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.linear.RealVector;
-import org.ejml.simple.SimpleMatrix;
 
 import units.PowerProduct;
 import units.Unit;
@@ -27,7 +27,10 @@ public class Matrix implements PacioliValue {
 	private Index columnIndex;
 	//private SimpleMatrix numbers;
 	private RealMatrix numbers;
-	
+
+	////////////////////////////////////////////////////////////////////////////
+	// Constructors
+
 	public Matrix(Double num) throws IOException{
 		IndexType empty = new IndexType();
 		Index index = new Index(empty ,null,null);
@@ -49,213 +52,13 @@ public class Matrix implements PacioliValue {
 		numbers = new OpenMapRealMatrix(rowIndex.size(),columnIndex.size());
 	}
 
-	public Matrix transpose() {
-		Matrix matrix = new Matrix(type.transpose(), columnIndex.reciprocal(), rowIndex.reciprocal());
-		matrix.numbers = numbers.transpose();
-		return matrix;
-	}
-
-	public Matrix sum(Matrix other) throws IOException {
-		if (other.isZero()) {
-			return this;
-		} else if (this.isZero()) {
-			return other;
-		} else if (type.equals(other.type)) {
-			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-			//matrix.numbers = numbers.plus(other.numbers);
-			matrix.numbers = numbers.add(other.numbers);
-			return matrix;
-		} else {
-			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not equal in sum");
-		}
-	}
-
-	public Matrix multiply(Matrix other) throws IOException{
-		int m = numbers.getRowDimension();
-		int n = numbers.getColumnDimension();
-		if (type.multiplyable(other.type)) {
-			Matrix matrix = new Matrix(type.multiply(other.type), rowIndex.multiply(other.rowIndex), columnIndex.multiply(other.columnIndex));
-			//matrix.numbers = numbers.elementMult(other.numbers);
-			matrix.numbers = new OpenMapRealMatrix(m, n);
-			for (int i=0; i < m; i++) {
-				for (int j=0; j < n; j++) {
-					matrix.numbers.setEntry(i, j, numbers.getEntry(i, j) * other.numbers.getEntry(i, j));
-				}
-			}
-			return matrix;
-		} else {
-			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for multiplication");
-		}
-	}
-	
-	public Matrix negative() {
-		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-		//matrix.numbers = numbers.negative();
-		matrix.numbers = numbers.scalarMultiply(-1);
-		return matrix;
-	}
-
-	public boolean isZero() {
-//		for (int i=0; i<numbers.numRows(); i++) {
-//			for (int j=0; j<numbers.numCols(); j++) {
-//				Double entry = numbers.get(i, j);
-		for (int i=0; i<numbers.getRowDimension(); i++) {
-			for (int j=0; j<numbers.getColumnDimension(); j++) {
-				Double entry = numbers.getEntry(i, j);
-				if (entry != 0) {
-					return false;	
-				}	
-			}
-		}
-		return true;
-	}
-	
-	public Matrix reciprocal() {
-		Matrix matrix = new Matrix(type.reciprocal(), rowIndex.reciprocal(), columnIndex.reciprocal());
-//		for (int i=0; i<numbers.numRows(); i++) {
-//			for (int j=0; j<numbers.numCols(); j++) {
-//				Double numerator = numbers.get(i, j);
-		for (int i=0; i<numbers.getRowDimension(); i++) {
-			for (int j=0; j<numbers.getColumnDimension(); j++) {
-				Double numerator = numbers.getEntry(i, j);				
-				if (numerator != 0) {
-					matrix.putDouble(i,j,1/numerator);	
-				}	
-			}
-		}
-		return matrix;
-	}
-	
-	public Matrix join(Matrix other) throws IOException{
-		if (type.joinable(other.type)) {
-			Matrix matrix = new Matrix(type.join(other.type), rowIndex, other.columnIndex);
-			//matrix.numbers = numbers.mult(other.numbers);
-			matrix.numbers = numbers.multiply(other.numbers);
-			return matrix;
-		} else {
-			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for joining");
-		}
-	}
-
-	private static RealMatrix identityNumbers(int size) {
-		RealMatrix numbers = new OpenMapRealMatrix(size, size);
-		for (int i=0; i<size; i++) {
-			numbers.setEntry(i, i, 1);
-		}
-		return numbers;
-	}
-	
-	public Matrix closure() throws IOException {
-		if (type.unitSquare()) {
-			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-			//SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
-			//matrix.numbers = ident.minus(numbers).invert().minus(ident);
-			RealMatrix ident = identityNumbers(rowIndex.size());
-			matrix.numbers = ident.subtract(numbers).inverse().subtract(ident);
-			return matrix; 
-		} else {
-			throw new IOException("type '" + type.pprint() + "' not square when taking closure");
-		}
-	}
-
-	public Matrix kleene() throws IOException {
-		if (type.unitSquare()) {
-			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-			//SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
-			//matrix.numbers = ident.minus(numbers).invert();
-			RealMatrix ident = identityNumbers(rowIndex.size());
-			matrix.numbers = ident.subtract(numbers).inverse();
-			return matrix; 
-		} else {
-			throw new IOException("type '" + type.pprint() + "' not square when taking kleene closure");
-		}
-	}
-
-	public PacioliValue scale(Matrix other) throws IOException {
-		if (type.singleton()) {
-			Matrix matrix = new Matrix(type.scale(other.type), other.rowIndex, other.columnIndex);
-			//matrix.numbers = other.numbers.scale(numbers.get(0,0));
-			matrix.numbers = other.numbers.scalarMultiply(numbers.getEntry(0,0));
-			return matrix;
-		} else {
-			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for scaling");
-		}
-	}
-
-	public PacioliValue leftIdentity() {
-		MatrixType identityType = type.leftIdentity();
-		Matrix matrix = new Matrix(identityType, rowIndex, rowIndex);
-//		for (int i=0; i < numbers.numRows(); i++) {
-//			matrix.numbers.set(i, i, 1.0);
-//		}
-		for (int i=0; i < numbers.getRowDimension(); i++) {
-			matrix.numbers.setEntry(i, i, 1.0);
-		}
-		return matrix;
-	}
-	
-	public PacioliValue rightIdentity() {
-		MatrixType identityType = type.rightIdentity();
-		Matrix matrix = new Matrix(identityType, columnIndex, columnIndex);
-//		for (int i=0; i < numbers.numCols(); i++) {
-//			matrix.numbers.set(i, i, 1.0);
-//		}
-		for (int i=0; i < numbers.getColumnDimension(); i++) {
-			matrix.numbers.setEntry(i, i, 1.0);
-		}
-		return matrix;
-	}
-	
-	public Matrix total() throws IOException {
-		IndexType empty = new IndexType();
-		Index index = new Index(empty ,null,null);
-		MatrixType totalType = new MatrixType(type.getFactor(),empty,empty);
-		Matrix matrix = new Matrix(totalType, index, index);
-		//matrix.numbers.set(0, 0, numbers.elementSum());
-		double sum = 0;
-		for (int i=0; i < numbers.getRowDimension(); i++) {
-			for (int j=0; j < numbers.getColumnDimension(); j++) {
-				sum += matrix.numbers.getEntry(i, j);
-			}
-		}
-		matrix.numbers.setEntry(0, 0, sum);
-		return matrix; 
-	}
-
-	
-	public List<Matrix> columns() throws IOException {
-		List<Matrix> columns = new ArrayList<Matrix>();
-		MatrixType extractedType = type.extractColumn();
-		Index index = new Index(new IndexType(),null,null);
-		//for (int i=0; i < numbers.numCols(); i++) {
-		for (int i=0; i < numbers.getColumnDimension(); i++) {
-			Matrix matrix = new Matrix(extractedType, rowIndex, index);
-			//matrix.numbers = numbers.extractVector(false, i);
-			matrix.numbers = numbers.getColumnMatrix(i);
-			columns.add(matrix);
-		}
-		return columns;
-	}
-
-
-	public List<Matrix> rows() throws IOException {
-		List<Matrix> rows = new ArrayList<Matrix>();
-		MatrixType extractedType = type.extractRow();
-		Index index = new Index(new IndexType(),null,null);
-		//for (int i=0; i < numbers.numRows(); i++) {
-		for (int i=0; i < numbers.getRowDimension(); i++) {
-			Matrix matrix = new Matrix(extractedType, index, columnIndex);
-			matrix.numbers = numbers.getRowMatrix(i);
-			rows.add(matrix);
-		}
-		return rows;
-	}
-	
-	private Unit unitAt(int i, int j) {
-		return type.getFactor().multiply(rowIndex.unitAt(i).multiply(columnIndex.unitAt(j).raise(-1)));		
-	}
+	////////////////////////////////////////////////////////////////////////////
+	// Printing
 	
 	public String pprint() {
+		if (isZero()) {
+			return "0";
+		}
 		Unit uno = new PowerProduct();
 		if (type.rowOrder() == 0 && type.columnOrder() == 0) {
 			if (unitAt(0,0).equals(uno)) {
@@ -267,54 +70,52 @@ public class Matrix implements PacioliValue {
 			}				
 		} else {
 			String output = "";
-			if (false) {
-				//String output = "----------------------------------------------------------------------------------";
-				output += String.format("\n %50s %20s", "index", "value");
-				output += "\n----------------------------------------------------------------------------------";
-				Number num;
-				Unit unit;
-				for (int i=0; i<rowIndex.size(); i++){
-					for (int j=0; j<columnIndex.size(); j++){
-						//num = numbers.get(i,j);
-						num = numbers.getEntry(i,j);
-						if (num.doubleValue() != 0) {
-							List<String> idx = new ArrayList<String>();
-							idx.addAll(rowIndex.ElementAt(i));
-							idx.addAll(columnIndex.ElementAt(j));
-							unit = unitAt(i,j);
-							if (unit.equals(uno)) {
-								output += String.format("\n %50s %20f", idx, num);
-							} else {
-								output += String.format("\n %50s %20f %s", idx, num, unit.pprint());
-							}
-		//					output += String.format("\n %40s %40s %20f %s",
-		//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
+			//String output = "----------------------------------------------------------------------------------";
+			output += String.format("\n %50s %20s", "index", "value");
+			output += "\n----------------------------------------------------------------------------------";
+			Number num;
+			Unit unit;
+			for (int i=0; i<rowIndex.size(); i++){
+				for (int j=0; j<columnIndex.size(); j++){
+					//num = numbers.get(i,j);
+					num = numbers.getEntry(i,j);
+					if (num.doubleValue() != 0) {
+						List<String> idx = new ArrayList<String>();
+						idx.addAll(rowIndex.ElementAt(i));
+						idx.addAll(columnIndex.ElementAt(j));
+						unit = unitAt(i,j);
+						if (unit.equals(uno)) {
+							output += String.format("\n %50s %20f", idx, num);
+						} else {
+							output += String.format("\n %50s %20f %s", idx, num, unit.pprint());
 						}
-					}
-				}
-			} else {
-				Number num;
-				Unit unit;
-				for (int i=0; i<rowIndex.size(); i++){
-					for (int j=0; j<columnIndex.size(); j++){
-						//num = numbers.get(i,j);
-						num = numbers.getEntry(i,j);
-						if (num.doubleValue() != 0) {
-							List<String> idx = new ArrayList<String>();
-							idx.addAll(rowIndex.ElementAt(i));
-							idx.addAll(columnIndex.ElementAt(j));
-							unit = unitAt(i,j);
-							if (unit.equals(uno)) {
-								output += String.format("\n%s %f", idx, num);
-							} else {
-								output += String.format("\n %50s %20f %s", idx, num, unit.pprint());
-							}
-		//					output += String.format("\n %40s %40s %20f %s",
-		//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
-						}
+	//					output += String.format("\n %40s %40s %20f %s",
+	//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
 					}
 				}
 			}
+//			} else {
+//				Number num;
+//				Unit unit;
+//				for (int i=0; i<rowIndex.size(); i++){
+//					for (int j=0; j<columnIndex.size(); j++){
+//						//num = numbers.get(i,j);
+//						num = numbers.getEntry(i,j);
+//						if (num.doubleValue() != 0) {
+//							List<String> idx = new ArrayList<String>();
+//							idx.addAll(rowIndex.ElementAt(i));
+//							idx.addAll(columnIndex.ElementAt(j));
+//							unit = unitAt(i,j);
+//							if (unit.equals(uno)) {
+//								output += String.format("\n%s %f", idx, num);
+//							} else {
+//								output += String.format("\n %50s %20f %s", idx, num, unit.pprint());
+//							}
+//		//					output += String.format("\n %40s %40s %20f %s",
+//		//							rowIndex.ElementAt(i), columnIndex.ElementAt(j), num, unitAt(i,j).pprint());
+//						}
+//					}
+//				}
 			return output;
 		}
 	}
@@ -323,6 +124,251 @@ public class Matrix implements PacioliValue {
 		return type.pprint();
 	}
 	
+	////////////////////////////////////////////////////////////////////////////
+	// Equality
+
+	public int hashCode() {
+		// It seems that the hashCode for numbers is not correct.
+		// Pacioli expression equal(singletonSet(1),singletonSet(1)) 
+		// gives false is the number's hashCode is used!
+		//return numbers.hashCode();
+		return type.hashCode();
+	}
+	
+	public boolean equals(Object other) {
+		if (other == this) {
+			return true;
+		}
+		if (! (other instanceof Matrix)) {
+			return false;
+		}
+		Matrix otherMatrix = (Matrix) other;
+		if (this.isZero() && otherMatrix.isZero()) {
+			return true;
+		} else {
+			//return this.numbers.isIdentical(otherMatrix.numbers, 0.0);
+			return this.numbers.equals(otherMatrix.numbers);
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Utilities
+
+	public List<Key> rowKeys() {
+		List<Key> keys = new ArrayList<Key>();
+		for (int i=0; i<rowIndex.size(); i++) {
+			keys.add(new Key(rowIndex.ElementAt(i), rowIndex));
+		}
+		return keys;
+	}
+	
+	public List<Key> columnKeys() {
+		List<Key> keys = new ArrayList<Key>();
+		for (int i=0; i<columnIndex.size(); i++) {
+			keys.add(new Key(columnIndex.ElementAt(i), columnIndex));
+		}
+		return keys;
+	}
+
+	private Unit unitAt(int i, int j) {
+		return type.getFactor().multiply(rowIndex.unitAt(i).multiply(columnIndex.unitAt(j).raise(-1)));		
+	}
+
+	public boolean isZero() {
+//		for (int i=0; i<numbers.numRows(); i++) {
+//			for (int j=0; j<numbers.numCols(); j++) {
+//				Double entry = numbers.get(i, j);
+//		for (int i=0; i<numbers.getRowDimension(); i++) {
+//			for (int j=0; j<numbers.getColumnDimension(); j++) {
+//				Double entry = numbers.getEntry(i, j);
+//				if (entry != 0) {
+//					return false;	
+//				}	
+//			}
+//		}
+		Iterator<RealVector.Entry> iterator;
+		RealVector.Entry entry;
+		for (int i=0; i<numbers.getRowDimension(); i++) {
+			iterator = numbers.getRowVector(i).sparseIterator();
+			while (iterator.hasNext()) {
+				entry = (RealVector.Entry) iterator.next();
+				if (entry.getValue() != 0.0) {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private static RealMatrix identityNumbers(int size) {
+		RealMatrix numbers = new OpenMapRealMatrix(size, size);
+		for (int i=0; i<size; i++) {
+			numbers.setEntry(i, i, 1);
+		}
+		return numbers;
+	}
+		
+	////////////////////////////////////////////////////////////////////////////
+	// Matrix manipulation
+	
+	
+//	public List<PacioliValue> elements() {
+//		List<PacioliValue> elements = new ArrayList<PacioliValue>();
+//		for (int i=0; i<numbers.numRows(); i++) {
+//			for (int j=0; j<numbers.numCols(); j++) {
+//				Double num = numbers.get(i, j);
+//				if (num!= 0) {
+//					Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+//					matrix.put(i, j, num);
+//					elements.add(matrix);
+//				}	
+//			}
+//		}
+//		return elements;
+//	}
+
+
+	public PacioliList rowDomain() {
+		List<PacioliValue> keys = new ArrayList<PacioliValue>();
+		for (Key key: rowKeys()) {
+			keys.add(key);
+		}
+		return new PacioliList(keys);
+	}
+	
+	public PacioliList columnDomain() {
+		List<PacioliValue> keys = new ArrayList<PacioliValue>();
+		for (Key key: columnKeys()) {
+			keys.add(key);
+		}
+		return new PacioliList(keys);
+	}
+
+	public PacioliValue get(Key row, Key column) throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType entryType = new MatrixType(type.getFactor(),empty,empty);
+		Matrix matrix = new Matrix(entryType, index, index);
+		//matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		matrix.numbers.setEntry(0, 0, numbers.getEntry(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		return matrix;
+	}
+
+	public PacioliValue magnitude(Key row, Key column) throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
+		Matrix matrix = new Matrix(entryType, index, index);
+//		if (isZero()) {
+//			matrix.numbers.set(0, 0, 0);
+//		} else {
+//			matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+//		}
+		if (isZero()) {
+			matrix.numbers.setEntry(0, 0, 0);
+		} else {
+			matrix.numbers.setEntry(0, 0, numbers.getEntry(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		}
+		return matrix;
+	}
+
+	public Matrix putDouble(int i, int j, Double value) {
+		//numbers.set(i, j, value);
+		numbers.setEntry(i, j, value);
+		return this;
+	}
+
+	public PacioliValue put(Key row, Key column, Matrix value) throws IOException {
+		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+		matrix.numbers = numbers.copy();
+		//matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), value.numbers.get(0,0));
+		matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), value.numbers.getEntry(0,0));
+		return matrix;
+	}
+	
+
+	public PacioliValue set(Key row, Key column, Matrix x) throws IOException {
+		MatrixType type = new MatrixType(x.type.getFactor(),row.index.homogeneousIndexType(),column.index.homogeneousIndexType());
+		Matrix matrix = new Matrix(type, row.index, column.index);
+		//matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), x.numbers.get(0,0));
+		matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), x.numbers.getEntry(0,0));
+		return matrix;
+	}
+
+	public PacioliValue isolate(Key row, Key column) throws IOException {
+		int i = row.index.ElementPos(row.names);
+		int j = column.index.ElementPos(column.names);
+		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+		//matrix.putDouble(i, j, numbers.get(i, j));
+		matrix.putDouble(i, j, numbers.getEntry(i, j));
+		return matrix;
+	}
+
+	private List<PacioliValue> columnRange(int from, int to) throws IOException {
+		List<PacioliValue> columns = new ArrayList<PacioliValue>();
+		MatrixType extractedType = type.extractColumn();
+		Index index = new Index(new IndexType(),null,null);
+		for (int i=from; i < to; i++) {
+			Matrix matrix = new Matrix(extractedType, rowIndex, index);
+			matrix.numbers = numbers.getColumnMatrix(i);
+			columns.add(matrix);
+		}
+		return columns;
+	}
+	
+	public PacioliValue column(Key key) throws IOException {
+		int position = columnIndex.ElementPos(key.names);
+		return columnRange(position,position+1).get(0);	
+	}
+	
+	public PacioliList columns() throws IOException {
+		//List<PacioliValue> columns = new ArrayList<PacioliValue>();
+//		MatrixType extractedType = type.extractColumn();
+//		Index index = new Index(new IndexType(),null,null);
+//		//for (int i=0; i < numbers.numCols(); i++) {
+//		for (int i=0; i < numbers.getColumnDimension(); i++) {
+//			Matrix matrix = new Matrix(extractedType, rowIndex, index);
+//			//matrix.numbers = numbers.extractVector(false, i);
+//			matrix.numbers = numbers.getColumnMatrix(i);
+//			columns.add(matrix);
+//		}
+//		return columns;
+		
+		
+		//List<PacioliValue> columns = new ArrayList<PacioliValue>();
+//		for (Matrix mat: columnRange(0, numbers.getColumnDimension())) {
+//			columns.add(mat);
+//		}
+		return new PacioliList(columnRange(0, numbers.getColumnDimension()));	
+		
+		
+	}
+
+	private List<PacioliValue> rowRange(int from, int to) throws IOException {
+		List<PacioliValue> rows = new ArrayList<PacioliValue>();
+		MatrixType extractedType = type.extractRow();
+		Index index = new Index(new IndexType(),null,null);
+		for (int i=from; i < to; i++) {
+			Matrix matrix = new Matrix(extractedType, index, columnIndex);
+			matrix.numbers = numbers.getRowMatrix(i);
+			rows.add(matrix);
+		}
+		return rows;
+	}
+	
+	public PacioliValue row(Key key) throws IOException {
+		int position = rowIndex.ElementPos(key.names);
+		return rowRange(position,position+1).get(0);	
+	}
+	
+	public PacioliList rows() throws IOException {
+		return new PacioliList(rowRange(0, numbers.getRowDimension()));	
+	}
+
+	////////////////////////////////////////////////////////////////////////////
+	// Reading and Writing
+
 	public void load(String source) throws IOException {
 		
 		int rowWidth = rowIndex.width();
@@ -409,122 +455,192 @@ public class Matrix implements PacioliValue {
 			}
 		}
 	}
-	
-	public int hashCode() {
-		// It seems that the hashCode for numbers is not correct.
-		// Pacioli expression equal(singletonSet(1),singletonSet(1)) 
-		// gives false is the number's hashCode is used!
-		//return numbers.hashCode();
-		return type.hashCode();
-	}
-	
-	public boolean equals(Object other) {
-		if (other == this) {
-			return true;
+
+	public void writeConspiracy(List<String> rowKey, BufferedWriter stream) throws IOException {
+				
+		for (int i=0; i<numbers.getRowDimension(); i++) {
+			for (int j=0; j<numbers.getColumnDimension(); j++) {
+				if (numbers.getEntry(i, j) != 0.0) {
+					for (String key: rowIndex.ElementAt(i)) {
+						stream.write(String.format("\"%s\" ", key));
+					}
+					for (String key: rowKey) {
+						stream.write(String.format("\"%s\" ", key));
+					}
+					stream.write(String.format("%s;\n", numbers.getEntry(i, j)));
+				}	
+			}
 		}
-		if (! (other instanceof Matrix)) {
-			return false;
-		}
-		Matrix otherMatrix = (Matrix) other;
-		if (this.isZero() && otherMatrix.isZero()) {
-			return true;
-		} else {
-			//return this.numbers.isIdentical(otherMatrix.numbers, 0.0);
-			return this.numbers.equals(otherMatrix.numbers);
-		}
-	}
-	
-//	public List<PacioliValue> elements() {
-//		List<PacioliValue> elements = new ArrayList<PacioliValue>();
-//		for (int i=0; i<numbers.numRows(); i++) {
-//			for (int j=0; j<numbers.numCols(); j++) {
-//				Double num = numbers.get(i, j);
-//				if (num!= 0) {
-//					Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-//					matrix.put(i, j, num);
-//					elements.add(matrix);
-//				}	
+//		Iterator<RealVector.Entry> iterator;
+//		RealVector.Entry entry;
+//		iterator = numbers.getRowVector(0).sparseIterator();
+//		while (iterator.hasNext()) {
+//			entry = (RealVector.Entry) iterator.next();
+//			if (entry.getValue() != 0.0) {
+//				for (String key: rowKey) {
+//					stream.write(String.format("\"%s\" ", key));
+//				}
+//				for (String key: columnIndex.ElementAt(entry.getIndex())) {
+//					stream.write(String.format("\"%s\" ", key));
+//				}
+//				stream.write(String.format("%s;\n", entry.getValue()));
 //			}
 //		}
-//		return elements;
-//	}
-
-	public List<Key> rowKeys() {
-		List<Key> keys = new ArrayList<Key>();
-		for (int i=0; i<rowIndex.size(); i++) {
-			keys.add(new Key(rowIndex.ElementAt(i), rowIndex));
-		}
-		return keys;
 	}
 	
-	public List<Key> columnKeys() {
-		List<Key> keys = new ArrayList<Key>();
-		for (int i=0; i<columnIndex.size(); i++) {
-			keys.add(new Key(columnIndex.ElementAt(i), columnIndex));
-		}
-		return keys;
-	}
+	////////////////////////////////////////////////////////////////////////////
+	// Mathematical Operations
 
-	public PacioliValue get(Key row, Key column) throws IOException {
-		IndexType empty = new IndexType();
-		Index index = new Index(empty ,null,null);
-		MatrixType entryType = new MatrixType(type.getFactor(),empty,empty);
-		Matrix matrix = new Matrix(entryType, index, index);
-		//matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
-		matrix.numbers.setEntry(0, 0, numbers.getEntry(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+	public Matrix transpose() {
+		Matrix matrix = new Matrix(type.transpose(), columnIndex.reciprocal(), rowIndex.reciprocal());
+		matrix.numbers = numbers.transpose();
 		return matrix;
 	}
 
-	public PacioliValue magnitude(Key row, Key column) throws IOException {
-		IndexType empty = new IndexType();
-		Index index = new Index(empty ,null,null);
-		MatrixType entryType = new MatrixType(new PowerProduct(),empty,empty);
-		Matrix matrix = new Matrix(entryType, index, index);
-//		if (isZero()) {
-//			matrix.numbers.set(0, 0, 0);
-//		} else {
-//			matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
-//		}
-		if (isZero()) {
-			matrix.numbers.setEntry(0, 0, 0);
+	public Matrix sum(Matrix other) throws IOException {
+		if (other.isZero()) {
+			return this;
+		} else if (this.isZero()) {
+			return other;
+		} else if (type.equals(other.type)) {
+			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+			//matrix.numbers = numbers.plus(other.numbers);
+			matrix.numbers = numbers.add(other.numbers);
+			return matrix;
 		} else {
-			matrix.numbers.setEntry(0, 0, numbers.getEntry(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not equal in sum");
+		}
+	}
+
+	public Matrix multiply(Matrix other) throws IOException{
+		int m = numbers.getRowDimension();
+		int n = numbers.getColumnDimension();
+		if (type.multiplyable(other.type)) {
+			Matrix matrix = new Matrix(type.multiply(other.type), rowIndex.multiply(other.rowIndex), columnIndex.multiply(other.columnIndex));
+			//matrix.numbers = numbers.elementMult(other.numbers);
+			matrix.numbers = new OpenMapRealMatrix(m, n);
+			for (int i=0; i < m; i++) {
+				for (int j=0; j < n; j++) {
+					matrix.numbers.setEntry(i, j, numbers.getEntry(i, j) * other.numbers.getEntry(i, j));
+				}
+			}
+			return matrix;
+		} else {
+			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for multiplication");
+		}
+	}
+	
+	public Matrix negative() {
+		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+		//matrix.numbers = numbers.negative();
+		matrix.numbers = numbers.scalarMultiply(-1);
+		return matrix;
+	}
+
+	public Matrix reciprocal() {
+		Matrix matrix = new Matrix(type.reciprocal(), rowIndex.reciprocal(), columnIndex.reciprocal());
+//		for (int i=0; i<numbers.numRows(); i++) {
+//			for (int j=0; j<numbers.numCols(); j++) {
+//				Double numerator = numbers.get(i, j);
+		for (int i=0; i<numbers.getRowDimension(); i++) {
+			for (int j=0; j<numbers.getColumnDimension(); j++) {
+				Double numerator = numbers.getEntry(i, j);				
+				if (numerator != 0) {
+					matrix.putDouble(i,j,1/numerator);	
+				}	
+			}
 		}
 		return matrix;
 	}
-
-	public Matrix putDouble(int i, int j, Double value) {
-		//numbers.set(i, j, value);
-		numbers.setEntry(i, j, value);
-		return this;
+	
+	public Matrix join(Matrix other) throws IOException{
+		if (type.joinable(other.type)) {
+			Matrix matrix = new Matrix(type.join(other.type), rowIndex, other.columnIndex);
+			//matrix.numbers = numbers.mult(other.numbers);
+			matrix.numbers = numbers.multiply(other.numbers);
+			return matrix;
+		} else {
+			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for joining");
+		}
 	}
 
-	public PacioliValue put(Key row, Key column, Matrix value) throws IOException {
-		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-		matrix.numbers = numbers.copy();
-		//matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), value.numbers.get(0,0));
-		matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), value.numbers.getEntry(0,0));
+	public Matrix closure() throws IOException {
+		if (type.unitSquare()) {
+			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+			//SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
+			//matrix.numbers = ident.minus(numbers).invert().minus(ident);
+			RealMatrix ident = identityNumbers(rowIndex.size());
+			matrix.numbers = ident.subtract(numbers).inverse().subtract(ident);
+			return matrix; 
+		} else {
+			throw new IOException("type '" + type.pprint() + "' not square when taking closure");
+		}
+	}
+
+	public Matrix kleene() throws IOException {
+		if (type.unitSquare()) {
+			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+			//SimpleMatrix ident = SimpleMatrix.identity(rowIndex.size());
+			//matrix.numbers = ident.minus(numbers).invert();
+			RealMatrix ident = identityNumbers(rowIndex.size());
+			matrix.numbers = ident.subtract(numbers).inverse();
+			return matrix; 
+		} else {
+			throw new IOException("type '" + type.pprint() + "' not square when taking kleene closure");
+		}
+	}
+
+	public PacioliValue scale(Matrix other) throws IOException {
+		if (type.singleton()) {
+			Matrix matrix = new Matrix(type.scale(other.type), other.rowIndex, other.columnIndex);
+			//matrix.numbers = other.numbers.scale(numbers.get(0,0));
+			matrix.numbers = other.numbers.scalarMultiply(numbers.getEntry(0,0));
+			return matrix;
+		} else {
+			throw new IOException("types '" + type.pprint() + "' and '" + other.type.pprint() + "' not compatible for scaling");
+		}
+	}
+
+	public PacioliValue leftIdentity() {
+		MatrixType identityType = type.leftIdentity();
+		Matrix matrix = new Matrix(identityType, rowIndex, rowIndex);
+//		for (int i=0; i < numbers.numRows(); i++) {
+//			matrix.numbers.set(i, i, 1.0);
+//		}
+		for (int i=0; i < numbers.getRowDimension(); i++) {
+			matrix.numbers.setEntry(i, i, 1.0);
+		}
 		return matrix;
 	}
 	
-
-	public PacioliValue set(Key row, Key column, Matrix x) throws IOException {
-		MatrixType type = new MatrixType(x.type.getFactor(),row.index.homogeneousIndexType(),column.index.homogeneousIndexType());
-		Matrix matrix = new Matrix(type, row.index, column.index);
-		//matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), x.numbers.get(0,0));
-		matrix.putDouble(row.index.ElementPos(row.names), column.index.ElementPos(column.names), x.numbers.getEntry(0,0));
+	public PacioliValue rightIdentity() {
+		MatrixType identityType = type.rightIdentity();
+		Matrix matrix = new Matrix(identityType, columnIndex, columnIndex);
+//		for (int i=0; i < numbers.numCols(); i++) {
+//			matrix.numbers.set(i, i, 1.0);
+//		}
+		for (int i=0; i < numbers.getColumnDimension(); i++) {
+			matrix.numbers.setEntry(i, i, 1.0);
+		}
 		return matrix;
 	}
-
-	public PacioliValue isolate(Key row, Key column) throws IOException {
-		int i = row.index.ElementPos(row.names);
-		int j = column.index.ElementPos(column.names);
-		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-		//matrix.putDouble(i, j, numbers.get(i, j));
-		matrix.putDouble(i, j, numbers.getEntry(i, j));
-		return matrix;
+	
+	public Matrix total() throws IOException {
+		IndexType empty = new IndexType();
+		Index index = new Index(empty ,null,null);
+		MatrixType totalType = new MatrixType(type.getFactor(),empty,empty);
+		Matrix matrix = new Matrix(totalType, index, index);
+		//matrix.numbers.set(0, 0, numbers.elementSum());
+		double sum = 0;
+		for (int i=0; i < numbers.getRowDimension(); i++) {
+			for (int j=0; j < numbers.getColumnDimension(); j++) {
+				sum += matrix.numbers.getEntry(i, j);
+			}
+		}
+		matrix.numbers.setEntry(0, 0, sum);
+		return matrix; 
 	}
-
+	
 	public boolean less(Matrix other) {
 		if (this.isZero() && other.isZero()) {
 			return false;
@@ -584,6 +700,7 @@ public class Matrix implements PacioliValue {
 	}
 
 	public boolean lessEq(Matrix other) {
+		/*
 		if (this.isZero() && other.isZero()) {
 			return true;
 		}
@@ -621,6 +738,55 @@ public class Matrix implements PacioliValue {
 				if (numbers.getEntry(i, j) > other.numbers.getEntry(i, j)) {
 					return false;
 				}	
+			}
+		}*/
+		Iterator<RealVector.Entry> iterator;
+		RealVector.Entry entry;
+		boolean isZero = isZero();
+		boolean otherIsZero = other.isZero();
+		if (isZero && otherIsZero) {
+			return true;
+		}
+		if (otherIsZero) {
+			for (int i=0; i<numbers.getRowDimension(); i++) {
+				iterator = numbers.getRowVector(i).sparseIterator();
+				while (iterator.hasNext()) {
+					entry = iterator.next();
+					if (entry.getValue() > 0) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		if (isZero) {
+			for (int i=0; i<other.numbers.getRowDimension(); i++) {
+				iterator = other.numbers.getRowVector(i).sparseIterator();
+				while (iterator.hasNext()) {
+					entry = iterator.next();
+					if (entry.getValue() < 0) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		for (int i=0; i<numbers.getRowDimension(); i++) {
+			iterator = numbers.getRowVector(i).sparseIterator();
+			while (iterator.hasNext()) {
+				entry = (RealVector.Entry) iterator.next();
+				if (entry.getValue() > other.numbers.getEntry(i, entry.getIndex())) {
+					return false;
+				}
+			}
+		}
+		for (int i=0; i<other.numbers.getRowDimension(); i++) {
+			iterator = other.numbers.getRowVector(i).sparseIterator();
+			while (iterator.hasNext()) {
+				entry = (RealVector.Entry) iterator.next();
+				if (entry.getValue() < numbers.getEntry(i, entry.getIndex())) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -721,6 +887,6 @@ public class Matrix implements PacioliValue {
 				}
 			}
 		}
-		return matrix;	}
-
+		return matrix;	
+	}
 }

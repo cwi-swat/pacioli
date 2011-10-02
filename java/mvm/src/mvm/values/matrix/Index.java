@@ -24,7 +24,14 @@ public class Index {
 		this.units = units;
 		this.positions = positions;
 	}
-			
+	
+	public Index() throws IOException {
+		this.type = new IndexType();
+		entities = entityList(null);
+		positions = positionsMap();
+		units = unitArrayList(null);
+	}
+	
 	public Index(IndexType type, Map<String, Entity> entityCallback, Map<Base, Unit[]> unitCallback) throws IOException {
 		this.type = type;
 		entities = entityList(entityCallback);

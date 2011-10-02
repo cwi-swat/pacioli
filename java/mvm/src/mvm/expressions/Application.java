@@ -19,16 +19,12 @@ public class Application implements Expression {
 	}
 
 	public PacioliValue eval(Environment env) throws IOException {
-		PacioliValue fun = function.eval(env);
-		if (fun instanceof Callable) {
-			List<PacioliValue> params = new ArrayList<PacioliValue>();
-			for (Expression exp: arguments) {
-				params.add(exp.eval(env));
-			}
-			return ((Callable) fun).apply(params); 
-		} else {
-			throw new IOException("Function application argument is not a function");
+		Callable fun = (Callable) function.eval(env);
+		List<PacioliValue> params = new ArrayList<PacioliValue>();
+		for (Expression exp: arguments) {
+			params.add(exp.eval(env));
 		}
+		return fun.apply(params); 
 	}
 
 	public String pprint() {

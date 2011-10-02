@@ -97,7 +97,7 @@ private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Un
 public str serial (duo(EntityType entity, Unit unit)){
 	compound(x) = entity;
 	if (x == []) {
-		return "empty";
+		return "Empty";
 	} else {
 		front = ("<pprint(head(x))>" | "<it>,<pprint(y)>" | y <- tail(x));
 		return front + "." + serial(unit);
@@ -127,7 +127,7 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 public str pprint(EntityType t) {
 	switch (t) {
 		case entityVar(x): return "\'<x>";
-		case compound([]): return "empty";
+		case compound([]): return "Empty";
 		case compound(x): return ("<pprint(head(x))>" | "<it>*<pprint(y)>" | y <- tail(x)); 
 	}
 }

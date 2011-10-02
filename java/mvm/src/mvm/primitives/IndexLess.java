@@ -15,8 +15,8 @@ public class IndexLess implements Callable {
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
-		if (params.size() != 3) {
-			throw new IOException("function 'indexLess' expects three arguments");
+		if (params.size() != 2) {
+			throw new IOException("function 'indexLess' expects two arguments");
 		}
 		if (!(params.get(0) instanceof Key)) {
 			throw new IOException("first argument to function 'indexLess' is not a key");

@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import mvm.values.Key;
 import mvm.values.PacioliList;
 import mvm.values.PacioliSet;
 import mvm.values.PacioliValue;
-import mvm.values.matrix.Matrix;
 
 public class Environment {
 	
@@ -43,24 +43,6 @@ public class Environment {
 		}
 		next = null;
 	}
-
-	// heroverwegen
-	public Environment extend(Environment other) {
-		Environment copy = this.clone();
-		for (String key: other.store.keySet()) {
-			copy.store.put(key, other.store.get(key));
-		}
-		return copy;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public Environment clone() {
-		Environment env = new Environment();
-		env.store = (HashMap<String, PacioliValue>) store.clone();
-		env.next = next;
-		return env;
-	}
-
 	public PacioliValue lookup(String name) throws IOException {
 		
 		if (name.equals("emptyList")) {
@@ -69,6 +51,10 @@ public class Environment {
 		
 		if (name.equals("emptySet")) {
 			return new PacioliSet();
+		}
+		
+		if (name.equals("empty")) {
+			return new Key();
 		}
 		
 		if (store.containsKey(name)) {
@@ -88,8 +74,6 @@ public class Environment {
 			next = environment;
 			return this;
 		} else {
-//			next.pushUnto(environment);
-//			return this;
 			throw new RuntimeException("huh");
 		}
 	}

@@ -1,6 +1,8 @@
 package mvm;
 
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -22,9 +24,12 @@ import mvm.primitives.AddMut;
 import mvm.primitives.AdjoinMut;
 import mvm.primitives.Append;
 import mvm.primitives.Apply;
+import mvm.primitives.Column;
+import mvm.primitives.ColumnDomain;
 import mvm.primitives.Columns;
 import mvm.primitives.Div;
 import mvm.primitives.Equal;
+import mvm.primitives.Gcd;
 import mvm.primitives.Get;
 import mvm.primitives.Head;
 import mvm.primitives.Identity;
@@ -51,6 +56,8 @@ import mvm.primitives.ReduceList;
 import mvm.primitives.ReduceMatrix;
 import mvm.primitives.ReduceSet;
 import mvm.primitives.RightIdentity;
+import mvm.primitives.Row;
+import mvm.primitives.RowDomain;
 import mvm.primitives.Rows;
 import mvm.primitives.Scale;
 import mvm.primitives.Set;
@@ -66,6 +73,7 @@ import mvm.primitives.Tuple;
 import mvm.primitives.Union;
 import mvm.primitives.Zip;
 import mvm.values.Boole;
+import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Entity;
 import mvm.values.matrix.Index;
@@ -86,7 +94,6 @@ public class Machine {
 	
 	public boolean verbose;
 	
-	//private HashMap<String, PacioliValue> store;
 	private Environment store;
 	private UnitSystem unitSystem;
 	private HashMap<String, Entity> entities;
@@ -94,65 +101,13 @@ public class Machine {
 	
 	public Machine() {
 		verbose = false;
-		//store = new HashMap<String, PacioliValue>();
 		store = new Environment();
 		unitSystem = makeSI();
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
 		
+		store.put("gcd", new Gcd());
 		store.put("support", new Support());
-//		env = env.extend(new Environment("size", new Size()));
-//		env = env.extend(new Environment("print", new Print()));
-//		env = env.extend(new Environment("tuple", new Tuple()));
-//		env = env.extend(new Environment("apply", new Apply()));
-//		env = env.extend(new Environment("equal", new Equal()));
-//		env = env.extend(new Environment("sum", new Sum()));
-//		env = env.extend(new Environment("magnitude", new Magnitude()));
-//		env = env.extend(new Environment("div", new Div()));
-//		env = env.extend(new Environment("mod", new Mod()));
-//		env = env.extend(new Environment("less", new Less()));
-//		env = env.extend(new Environment("lessEq", new LessEq()));
-//		env = env.extend(new Environment("get", new Get()));
-//		env = env.extend(new Environment("put", new Put()));
-//		env = env.extend(new Environment("set", new Set()));
-//		env = env.extend(new Environment("isolate", new Isolate()));
-//		env = env.extend(new Environment("multiply", new Multiply()));
-//		env = env.extend(new Environment("reduceMatrix", new ReduceMatrix()));
-//		env = env.extend(new Environment("loopMatrix", new LoopMatrix()));
-//		env = env.extend(new Environment("reduce", new Reduce()));
-//		env = env.extend(new Environment("reduceList", new ReduceList()));
-//		env = env.extend(new Environment("loopList", new LoopList()));
-//		env = env.extend(new Environment("reduceSet", new ReduceSet()));
-//		env = env.extend(new Environment("addMut", new AddMut()));
-//		env = env.extend(new Environment("adjoinMut", new AdjoinMut()));
-//		env = env.extend(new Environment("append", new Append()));
-//		env = env.extend(new Environment("head", new Head()));
-//		env = env.extend(new Environment("tail", new Tail()));
-//		env = env.extend(new Environment("identity", new Identity()));
-//		env = env.extend(new Environment("singletonList", new SingletonList()));
-//		env = env.extend(new Environment("join", new Join()));
-//		env = env.extend(new Environment("scale", new Scale()));
-//		env = env.extend(new Environment("total", new Total()));
-//		env = env.extend(new Environment("transpose", new Transpose()));
-//		env = env.extend(new Environment("reciprocal", new Reciprocal()));
-//		env = env.extend(new Environment("negative", new Negative()));
-//		env = env.extend(new Environment("abs", new Abs()));
-//		env = env.extend(new Environment("indexLess", new IndexLess()));
-//		env = env.extend(new Environment("closure", new PosSeries()));
-//		env = env.extend(new Environment("kleene", new Kleene()));
-//		env = env.extend(new Environment("leftIdentity", new LeftIdentity()));
-//		env = env.extend(new Environment("rightIdentity", new RightIdentity()));
-//		env = env.extend(new Environment("singletonSet", new SingletonSet()));
-//		//env = env.extend(new Environment("emptySet", new PacioliSet()));
-//		env = env.extend(new Environment("union", new Union()));						
-//		env = env.extend(new Environment("not", new Not()));
-//		env = env.extend(new Environment("columns", new Columns()));
-//		env = env.extend(new Environment("rows", new Rows()));
-//		env = env.extend(new Environment("true", new Boole(true)));
-//		env = env.extend(new Environment("false", new Boole(false)));
-//		//env = env.extend(new Environment("emptyList", new PacioliList(new ArrayList<PacioliValue>())));
-//		env = env.extend(new Environment("zip", new Zip()));
-//		
 		store.put("size", new Size());
 		store.put("print", new Print());
 		store.put("tuple", new Tuple());
@@ -197,8 +152,12 @@ public class Machine {
 		store.put("singletonSet", new SingletonSet());
 		store.put("union", new Union());					
 		store.put("not", new Not());
+		store.put("column", new Column());
+		store.put("row", new Row());
 		store.put("columns", new Columns());
 		store.put("rows", new Rows());
+		store.put("columnDomain", new ColumnDomain());
+		store.put("rowDomain", new RowDomain());
 		store.put("true", new Boole(true));
 		store.put("false", new Boole(false));
 		store.put("zip", new Zip());
@@ -226,7 +185,6 @@ public class Machine {
 		if (!store.containsKey(name)) {
 			throw new IOException(String.format("name '%s' unknown", name));
 		}
-		//return (Matrix) store.get(name);
 		return (Matrix) store.lookup(name);
 	}
 
@@ -338,8 +296,8 @@ public class Machine {
 		case Tokenizer.TT_NUMBER:
 			// todo: read optional unit
 			Unit factor = parseUnit("", "1"); 
-			IndexType rowType = parseIndexType("empty");
-			IndexType columnType = parseIndexType("empty");
+			IndexType rowType = parseIndexType("Empty");
+			IndexType columnType = parseIndexType("Empty");
 			MatrixType type = new MatrixType(factor, rowType, columnType);
 			
 			Index rowIndex = new Index(rowType, entities, indices);
@@ -374,6 +332,50 @@ public class Machine {
 					
 						tokenizer.readSeparator();
 					
+					} else if (command.equals("dump")) {
+						
+						String source = tokenizer.readIdentifier();
+						String entityFile = tokenizer.readString();
+						String matrixFile = tokenizer.readString();
+						
+						if (true) { //(verbose) {
+							out.format("dumping basis %s into %s and %s", source, entityFile, matrixFile);
+						}
+						
+						PacioliValue value = store.lookup(source);
+						if (value instanceof PacioliList) {
+							
+							PacioliList list = (PacioliList) value;
+							
+							int index = 0;
+							Matrix matrix;
+							BufferedWriter entityStream = new BufferedWriter(new FileWriter(entityFile));
+							BufferedWriter matrixStream = new BufferedWriter(new FileWriter(matrixFile));
+							List<String> rowKey = new ArrayList<String>();
+							
+							for (PacioliValue item: list.items()) {
+								
+								entityStream.write(String.format("\"Conspiracy%s\";\n", index));
+								
+								if (item instanceof Matrix) {
+									matrix = (Matrix) item;
+									rowKey.clear();
+									rowKey.add(String.format("Conspiracy%s", index));
+									matrix.writeConspiracy(rowKey, matrixStream);
+								} else {
+									throw new RuntimeException("Value '<source>' to dump is not a list of matrices");
+								}
+								
+								index++;
+							}
+							
+							entityStream.close();
+							matrixStream.close();
+							
+						} else {
+							throw new RuntimeException("Value '<source>' to dump is not a list");
+						}
+						
 					} else if (command.equals("load")) {
 						
 						String destination = tokenizer.readIdentifier();
@@ -461,11 +463,6 @@ public class Machine {
 						String destination = tokenizer.readIdentifier();
 						Expression exp = readExpression(tokenizer);
 						tokenizer.readSeparator();
-//						Environment env = new Environment();
-//						for (String name: store.keySet()) {
-//							env = env.extend(new Environment(name, store.lookup(name)));
-//						}
-//												
 						
 						if (verbose) {
 							out.format("-- Evaluating %s\n", exp.pprint());

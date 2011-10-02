@@ -1,11 +1,9 @@
 package mvm.primitives;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import mvm.values.Callable;
-import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Matrix;
 
@@ -23,11 +21,7 @@ public class Rows implements Callable {
 			throw new IOException("argument to function 'rows' is not a matrix");
 		}
 		Matrix matrix = (Matrix) params.get(0);
-		List<PacioliValue> rows = new ArrayList<PacioliValue>();
-		for (Matrix mat: matrix.rows()) {
-			rows.add(mat);
-		}
-		return new PacioliList(rows);
+		return matrix.rows();
 	}
 
 }

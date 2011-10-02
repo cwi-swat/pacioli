@@ -16,6 +16,7 @@ start syntax Expression = variable:Ident name
 	| sumComprehension: "sum" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| vecComprehension: "vec" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
+	| gcdComprehension: "gcd" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| right application: Expression fn Args args
 	> neg: "-" Expression
@@ -35,9 +36,14 @@ start syntax Expression = variable:Ident name
 	> less: Expression "less" Expression
 	//> not: "!" Expression
 	> left (
+		assoc implies: Expression "==\>" Expression
+	  | assoc equiv: Expression "\<=\>" Expression
+	)
+	> left (
 		assoc and: Expression "&&" Expression
 	  | assoc or: Expression "||" Expression
 	)
+	> letSuperLuxe: "let" "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
 	> letLuxe: "let" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
 	> let: "let" Ident var "=" Expression val "in" Expression body "end"
 	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
@@ -51,6 +57,7 @@ syntax ComprehensionTerm
 	| setGenerator: Ident name "elt" Expression exp
 	| matrixGenerator: Ident row "," Ident col "from" Expression exp
 	| bind: Ident name ":=" Expression exp 
+	| bindLuxe: "(" {Ident ","}* vars ")" ":=" Expression exp
 	| filt: Expression exp;
  
 //keyword Keywords="lambda";

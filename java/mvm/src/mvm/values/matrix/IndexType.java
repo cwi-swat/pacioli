@@ -99,7 +99,7 @@ public class IndexType {
 	
 	public String pprint() {
 		if (width() == 0) {
-			return "empty";
+			return "Empty";
 		} else {
 			String output = "";
 			String sep = "";
