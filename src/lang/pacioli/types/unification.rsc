@@ -89,7 +89,7 @@ public EntityBinding entityUnfresh(set[str] variables) {
 public Substitution merge(substitution(ub0,eb0,tb0), substitution(ub1,eb1,tb1)) {
 	return substitution(mergeUnits(ub0,ub1),
 						mergeEntities(eb0,eb1),
-				 		(x: t | x <- tb0, t := typeSubs(substitution((),(),tb1), tb0[x]), notIsVar(t,x)) + tb1);
+				 		(x: t | x <- tb0, t := typeSubs(substitution(ub1,eb1,tb1), tb0[x]), notIsVar(t,x)) + tb1);
 }
 
 public bool notIsVar(t,v) {

@@ -1,4 +1,3 @@
-"Creditors";
 "Journal of 'Purchase maintenance supplies'";
 "Journal of 'Sales'";
 "Journal of 'Maintenance visit'";
@@ -10,6 +9,7 @@
 "Cash / bank";
 "Yearly contracts";
 "Maintenance supplies";
+"Creditors";
 "Durable maintenance resources";
 "Other maintenance resources";
 "Maintenance man-hours";

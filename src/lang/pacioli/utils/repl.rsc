@@ -239,8 +239,8 @@ public Environment env() {
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("Q"), unitVar("v")))]),
 				           matrix(unitVar("a"), 
-  				  				  duo(entityVar("Q"), uno()),
-  				  				  duo(entityVar("P"), uno())))),
+  				  				  duo(entityVar("P"), uno()),
+  				  				  duo(entityVar("Q"), uno())))),
 	"leftIdentity": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -444,9 +444,9 @@ public Environment env() {
   				  				           duo(entityVar("P"), uno()),
   				  				           duo(entityVar("Q"), unitVar("v"))),
   				  				    entity(entityVar("P"))]),
-				           matrix(unitVar("a"), 
-  				  				  duo(entityVar("Q"), unitVar("v")),
-  				  				  empty))),
+				           matrix(unitVar("a"),
+  				  				  empty, 
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
 	"column": forall({"a", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				           duo(entityVar("P"), unitVar("v")),
@@ -455,20 +455,20 @@ public Environment env() {
 				           matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("v")),
   				  				  empty))),
-	"columns": forall({"a", "v"},{"P", "Q"},{},
-  				  function(tupType([matrix(unitVar("a"), 
-  				  				           duo(entityVar("P"), unitVar("v")),
-  				  				           duo(entityVar("Q"), uno()))]),
-				           listType(matrix(unitVar("a"), 
-  				  				   		   duo(entityVar("P"), unitVar("v")),
-  				  				   		   empty)))),  				  				   		   
-	"rows": forall({"a", "v"},{"P", "Q"},{},
-  				  function(tupType([matrix(unitVar("a"), 
-  				  				           duo(entityVar("P"), uno()),
-  				  				           duo(entityVar("Q"), unitVar("v")))]),
-				           listType(matrix(unitVar("a"), 
-				             			   empty,
-  				  				   		   duo(entityVar("Q"), unitVar("v")))))),
+	//"columns": forall({"a", "v"},{"P", "Q"},{},
+ // 				  function(tupType([matrix(unitVar("a"), 
+ // 				  				           duo(entityVar("P"), unitVar("v")),
+ // 				  				           duo(entityVar("Q"), uno()))]),
+	//			           listType(matrix(unitVar("a"), 
+ // 				  				   		   duo(entityVar("P"), unitVar("v")),
+ // 				  				   		   empty)))),  				  				   		   
+	//"rows": forall({"a", "v"},{"P", "Q"},{},
+ // 				  function(tupType([matrix(unitVar("a"), 
+ // 				  				           duo(entityVar("P"), uno()),
+ // 				  				           duo(entityVar("Q"), unitVar("v")))]),
+	//			           listType(matrix(unitVar("a"), 
+	//			             			   empty,
+ // 				  				   		   duo(entityVar("Q"), unitVar("v")))))),
 	"columnDomain": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					       duo(entityVar("P"), unitVar("u")),
@@ -484,7 +484,7 @@ public Environment env() {
 ////////////////////////////////////////////////////////////////////////////////
 // Repl utilities
 
-public str extendPrelude(str prelude, Environment env) {
+public str addLoads(str prelude, Environment env) {
 	text = prelude;
 	for (name <- env) {
 		if (forall({},{},{},matrix(f,r,c)) := env[name] && name in fileLoc) {
@@ -494,10 +494,30 @@ public str extendPrelude(str prelude, Environment env) {
 	return text;
 }
 
+public str addEvals(str prelude, Repo repo) {
+	text = prelude;
+	// Two passes to support some dependencies
+	for (name <- glbReplRepoOrder) {
+		<code,sch> = repo[name];
+		if (isFunction(sch)) {
+			text += ";\neval <name> <compilePacioli(code)>";
+		}
+	}
+	for (name <- glbReplRepoOrder) {
+		<code,sch> = repo[name];
+		if (!isFunction(sch)) {
+			text += ";\neval <name> <compilePacioli(code)>";
+		}
+	}
+	return text;
+}		
 ////////////////////////////////////////////////////////////////////////////////
 // The repl
 			  
-map[str,tuple[Expression,Scheme]] glbReplRepo = ();
+alias Repo = map[str,tuple[Expression,Scheme]];
+  			  
+Repo glbReplRepo = ();
+list[str] glbReplRepoOrder = [];
 
 public bool isFunction(forall(_,_,_, Type t)) {
 	switch (t) {
@@ -542,26 +562,33 @@ public void parse (str exp) {
 	println(parsed);
 }
 
+
 public void compile(str exp) {
 	try {
 		fullEnv = env();
-		header = extendPrelude(prelude,fullEnv);
+		header = addLoads(prelude,fullEnv);
+		header = addEvals(header,glbReplRepo);
 		
-		// Two passes to support some dependencies
+		//// Two passes to support some dependencies
+		//for (name <- glbReplRepo) {
+		//	<code,sch> = glbReplRepo[name];
+		//	if (isFunction(sch)) {
+		//		fullEnv += (name:sch);
+		//		header += ";\neval <name> <compilePacioli(code)>";
+		//	}
+		//}
+		//for (name <- glbReplRepo) {
+		//	<code,sch> = glbReplRepo[name];
+		//	if (!isFunction(sch)) {
+		//		fullEnv += (name:sch);
+		//		header += ";\neval <name> <compilePacioli(code)>";
+		//	}
+		//}
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
-			if (isFunction(sch)) {
-				fullEnv += (name:sch);
-				header += ";\neval <name> <compilePacioli(code)>";
-			}
+			fullEnv += (name:sch);
 		}
-		for (name <- glbReplRepo) {
-			<code,sch> = glbReplRepo[name];
-			if (!isFunction(sch)) {
-				fullEnv += (name:sch);
-				header += ";\neval <name> <compilePacioli(code)>";
-			}
-		}
+		
 		parsed = parseImplodePacioli(exp);
 		<typ, _> = inferTypeAPI(parsed, fullEnv);
 		println("<exp> :: <pprint(unfresh(typ))>");
@@ -570,6 +597,37 @@ public void compile(str exp) {
 		   	   'eval result <code>; 
 	       	   'print result";		
 		writeFile(|file:///<glbCasesDirectory>tmp.mvm|, [prog]);
+	} catch err: {
+		println(err);
+	}
+}
+
+public void def(str name, str exp) {
+	try {
+		parsed = parseImplodePacioli(exp);
+		full = parsed;
+		fullEnv = env();
+		for (n <- glbReplRepo) {
+			<code,sch> = glbReplRepo[n];
+			fullEnv += (n:sch);
+		}
+		// hack for recursive functions
+		f = fresh("def");
+		fullEnv += (name: forall({},{},{},typeVar(f)));
+		
+		<typ, s> = inferTypeAPI(full, fullEnv);
+		typ = unfresh(typ);
+ 		// to make sure it compiles later on		
+		compilePacioli(full);
+		scheme = forall(unitVariables(typ),
+				entityVariables(typ),
+				typeVariables(typ),
+				typ);
+
+		glbReplRepo += (name: <parsed,scheme>);
+		glbReplRepoOrder -= name;
+		glbReplRepoOrder += name;
+		println("<name> :: <pprint(typ)>");
 	} catch err: {
 		println(err);
 	}
@@ -585,7 +643,7 @@ public void compileFile (str name) {
 public void dump(str exp, str entityFile, str matrixFile) {
 	try {
 		fullEnv = env();
-		header = extendPrelude(prelude,fullEnv);
+		header = addLoads(prelude,fullEnv);
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
 			fullEnv += (name:sch);
@@ -608,35 +666,6 @@ int glbcounter = 100;
 
 str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
-public void def(str name, str exp) {
-	try {
-		parsed = parseImplodePacioli(exp);
-		full = parsed;
-		fullEnv = env();
-		for (n <- glbReplRepo) {
-			<code,sch> = glbReplRepo[n];
-			fullEnv += (n:sch);
-		}
-		// hack for recursive functions
-		f = fresh("def");
-		fullEnv += (name: forall({},{},{},typeVar(f)));
-		
-		<typ, _> = inferTypeAPI(full, fullEnv);
-		typ = unfresh(typ);
- 		// to make sure it compiles later on		
-		compilePacioli(full);
-		scheme = forall(unitVariables(typ),
-				entityVariables(typ),
-				typeVariables(typ),
-				typ);
-
-		glbReplRepo += (name: <parsed,scheme>);
-		println("<name> :: <pprint(typ)>");
-	} catch err: {
-		println(err);
-	}
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 // Demos
 public void demo0() {
@@ -647,123 +676,125 @@ public void demo0() {
 public void demo1() {
 
 	println("\nBase units are pre-defined");
-	show("gram");
-	show("metre");
+	compile("gram");
+	compile("metre");
 	
 	println("\nUnits can always be multiplied");
-	show("gram * gram");
-	show("gram * metre");
+	compile("gram * gram");
+	compile("gram * metre");
 	
 	println("\nUnits can not always be summed");
-	show("gram + gram");
+	compile("gram + gram");
 	println("\ngram + metre gives an error:");
-	show("gram + metre");
+	compile("gram + metre");
 	
 	println("\nThe type is semantic, the order of multiplication is irrelevant");
-	show("gram*metre + gram*metre");
-	show("gram*metre + metre*gram");
+	compile("gram*metre + gram*metre");
+	compile("gram*metre + metre*gram");
 	
 	println("\nThe type system does inference.");
-	show("lambda (x) x*metre + gram*metre");
+	compile("lambda (x) x*metre + gram*metre");
 	
 	println("\nThe type system derives a most general type."); 
-	show("lambda (x,y) x*y + gram*metre");
-	show("(lambda (x) lambda (y) x*y + gram*metre) (gram)");
-	show("(lambda (x,y) x*y + gram*metre)(gram,metre)");
-	show("(lambda (x,y) x*y + gram*metre)(metre,gram)");
+	compile("lambda (x,y) x*y + gram*metre");
+	compile("(lambda (x) lambda (y) x*y + gram*metre) (gram)");
+	compile("(lambda (x,y) x*y + gram*metre)(gram,metre)");
+	compile("(lambda (x,y) x*y + gram*metre)(metre,gram)");
 	
 	println("\nMultiplying left and right is not allowed. A multiplication and division cancel");
 	println("\n(lambda (x,y) x*y + gram*metre)(metre*second,gram*second) gives an error:"); 
-	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram*second)");
-	show("(lambda (x,y) x*y + gram*metre)(metre*second,gram/second)");
+	compile("(lambda (x,y) x*y + gram*metre)(metre*second,gram*second)");
+	compile("(lambda (x,y) x*y + gram*metre)(metre*second,gram/second)");
 }
 	
 public void demo2() {
 	
 	// General
-	show("lambda(x) x.x");
-	show("lambda(x) x+x+x+x");
-	show("lambda(x) (x+x)*(x+x)");
-	show("lambda(x,y) (x-y).(y-x)");
+	compile("lambda(x) x.x");
+	compile("lambda(x) x+x+x+x");
+	compile("lambda(x) (x+x)*(x+x)");
+	compile("lambda(x,y) (x-y).(y-x)");
 	
 	// Norm
-	show("lambda(x) total(x*x)");
-	show("lambda(x) sqrt(total(x*x))");
+	compile("lambda(x) total(x*x)");
+	compile("lambda(x) sqrt(total(x*x))");
 	
 	// Lie algebras
-	show("lambda(x,y) x.y-y.x");
+	compile("lambda(x,y) x.y-y.x");
 	
 	// Netting problem
-	show("lambda(x) bom.x");
-	show("(lambda(x) x . output) (conv . bom . conv^R^T)");
-	show("(lambda(x) closure(x)) (conv.bom.conv^R^T)");
-	show("(lambda(x) closure(x) . output) (conv . bom . conv^R^T)");
-	show("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . conv^R^T)");
+	compile("lambda(x) bom.x");
+	compile("(lambda(x) x . output) (conv . bom . conv^R^T)");
+	compile("(lambda(x) closure(x)) (conv.bom.conv^R^T)");
+	compile("(lambda(x) closure(x) . output) (conv . bom . conv^R^T)");
+	compile("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . conv^R^T)");
 	
 	// Salesdata
-	show("sales / amount^T");
-	show("(lambda(price) (price . P2^R^T) * (price . P2^R^T)) (sales / amount^T)");
-	show("(lambda(price) price.P2^R^T * price.P2^R^T) (sales / amount^T)");
-	show("(lambda(price) (price . P2^R^T)) (sales / amount^T)");
-	show("(lambda(price) price.P2^R^T) (sales / amount^T)");
+	compile("sales / amount^T");
+	compile("(lambda(price) (price . P2^R^T) * (price . P2^R^T)) (sales / amount^T)");
+	compile("(lambda(price) price.P2^R^T * price.P2^R^T) (sales / amount^T)");
+	compile("(lambda(price) (price . P2^R^T)) (sales / amount^T)");
+	compile("(lambda(price) price.P2^R^T) (sales / amount^T)");
 	
 	// Restaurant
-	show("menu_price . menu_sales");
-	show("menu_price * menu_sales^T");
+	compile("menu_price . menu_sales");
+	compile("menu_price * menu_sales^T");
 }
 
 public void demo3() {
-
+	
+	stdLib();
+	
 	println("\nThe quantities involved");
-	show("backward");
-	show("forward");
-	show("backward-forward");
-	show("valuation");
-	show("valuation.(backward-forward)");
+	compile("backward");
+	compile("forward");
+	compile("backward-forward");
+	compile("valuation");
+	compile("valuation.(backward-forward)");
 		
 	println("\nSome comprehensions");
-	show("columns(backward-forward)");
-	show("[x | x in columns(backward-forward)]");
-	show("[x | x in columns(backward-forward), not(valuation.x = 0)]");
-	show("count[x | x in columns(backward-forward)]");
-	show("count[x | x in columns(backward-forward), not(valuation.x = 0)]");
-	show("[val | x in columns(backward-forward), val := valuation.x, not(val = 0)]");
-	show("sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
-	show("valuation . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	compile("columns(backward-forward)");
+	compile("[x | x in columns(backward-forward)]");
+	compile("[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	compile("count[x | x in columns(backward-forward)]");
+	compile("count[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	compile("[val | x in columns(backward-forward), val := valuation.x, not(val = 0)]");
+	compile("sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	compile("valuation . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
 	
 	println("\nSome abstractions");
-	show("lambda (a) a . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
-	show("lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)]");
-	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(backward)");
-	show("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(forward)");
+	compile("lambda (a) a . sum[x | x in columns(backward-forward), not(valuation.x = 0)]");
+	compile("lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)]");
+	compile("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(backward)");
+	compile("(lambda (a) valuation . sum[x | x in columns(a-forward), not(valuation.x = 0)])(forward)");
 }
 
 public void demo4() {
 
 	println("\nQuantities");
-	show("lines");
-	show("fileSize");
-	show("owner");
-	show("parent");
+	compile("lines");
+	compile("fileSize");
+	compile("owner");
+	compile("parent");
 
 	println("\nAggregations");
-	show("fileSize.owner");
-	show("fileSize.owner.parent");
-	show("fileSize.owner.parent*");
+	compile("fileSize.owner");
+	compile("fileSize.owner.parent");
+	compile("fileSize.owner.parent*");
 	
 	println("\nComprehensions");
-	show("[x | x in columns(owner), not(x=0)]");
-	show("[lines.x | x in columns(owner), not(x=0)]");
-	show("[fileSize.x/lines.x | x in columns(owner), not(x=0)]");
-	show("[total(x) | x in columns(owner), x=0]");
-	show("[t | x in columns(owner), t := total(x), t=0]");
-	show("count[t | x in columns(owner), t := total(x), t=0]");
+	compile("[x | x in columns(owner), not(x=0)]");
+	compile("[lines.x | x in columns(owner), not(x=0)]");
+	compile("[fileSize.x/lines.x | x in columns(owner), not(x=0)]");
+	compile("[total(x) | x in columns(owner), x=0]");
+	compile("[t | x in columns(owner), t := total(x), t=0]");
+	compile("count[t | x in columns(owner), t := total(x), t=0]");
 	
 	println("\nAggregation functions.");
-	show("lambda (x) x.owner.parent*");
-	show("let agg(x) = x.owner.parent* in agg(lines) end");
-	//show("(lambda (agg) agg(fileSize)/agg(lines)) (lambda (x) x.owner.parent*)");
-	show("let agg(x) = x.owner.parent* in agg(fileSize)/agg(lines) end");
+	compile("lambda (x) x.owner.parent*");
+	compile("let agg(x) = x.owner.parent* in agg(lines) end");
+	//compile("(lambda (agg) agg(fileSize)/agg(lines)) (lambda (x) x.owner.parent*)");
+	compile("let agg(x) = x.owner.parent* in agg(fileSize)/agg(lines) end");
 	
 }
 
@@ -783,40 +814,40 @@ public void demo5() {
 public void demo6() {
 	
 	println("Some fun with lattices I");
-	show("[negative]");
-	show("[transpose]");
-	show("[reciprocal]");
-	show("[negative, transpose]");
-	show("[negative, reciprocal]");
-	show("[transpose, reciprocal]");
-	show("[negative, transpose, reciprocal]");
+	compile("[negative]");
+	compile("[transpose]");
+	compile("[reciprocal]");
+	compile("[negative, transpose]");
+	compile("[negative, reciprocal]");
+	compile("[transpose, reciprocal]");
+	compile("[negative, transpose, reciprocal]");
 	
 	println("Some fun with lattices II");
-	show("[identity, negative]");
-	show("[identity, transpose]");
-	show("[identity, reciprocal]");
-	show("[identity, negative, transpose]");
-	show("[identity, negative, reciprocal]");
-	show("[identity, transpose, reciprocal]");
-	show("[identity, negative, transpose, reciprocal]");
+	compile("[identity, negative]");
+	compile("[identity, transpose]");
+	compile("[identity, reciprocal]");
+	compile("[identity, negative, transpose]");
+	compile("[identity, negative, reciprocal]");
+	compile("[identity, transpose, reciprocal]");
+	compile("[identity, negative, transpose, reciprocal]");
 	
 	println("Some fun with lattices of binary functions I");
-	show("[join]");
-	show("[sum]");
-	show("[multiply]");
-	show("[join, sum]");
-	show("[join, multiply]");
-	show("[sum, multiply]");
-	show("[join, sum, multiply]");
+	compile("[join]");
+	compile("[sum]");
+	compile("[multiply]");
+	compile("[join, sum]");
+	compile("[join, multiply]");
+	compile("[sum, multiply]");
+	compile("[join, sum, multiply]");
 	
 	println("Some fun with lattices of binary functions II");
-	show("[lambda (x,y) if (x=y) then x else y end, join]");
-	show("[lambda (x,y) if (x=y) then x else y end, sum]");
-	show("[lambda (x,y) if (x=y) then x else y end, multiply]");
-	show("[lambda (x,y) if (x=y) then x else y end, join, sum]");
-	show("[lambda (x,y) if (x=y) then x else y end, join, multiply]");
-	show("[lambda (x,y) if (x=y) then x else y end, sum, multiply]");
-	show("[lambda (x,y) if (x=y) then x else y end, join, sum, multiply]");
+	compile("[lambda (x,y) if (x=y) then x else y end, join]");
+	compile("[lambda (x,y) if (x=y) then x else y end, sum]");
+	compile("[lambda (x,y) if (x=y) then x else y end, multiply]");
+	compile("[lambda (x,y) if (x=y) then x else y end, join, sum]");
+	compile("[lambda (x,y) if (x=y) then x else y end, join, multiply]");
+	compile("[lambda (x,y) if (x=y) then x else y end, sum, multiply]");
+	compile("[lambda (x,y) if (x=y) then x else y end, join, sum, multiply]");
 	
 }
 
@@ -881,6 +912,72 @@ public void test9() {
 }
 
 public void fm() {
+	stdLib();
+	def("eliminate", "lambda(quadruples, row)
+                       [tuple[scaled1, support(scaled1), scaled2, support(scaled2)] |
+                        c in combis(quadruples),
+                        (v,w) := c,
+                        (v1,sv2,v2,sv2) := v,
+                        (w1,sw1,w2,sw2) := w,
+  					    alpha := magnitude(v1,row,empty), 
+  					    beta := magnitude(w1,row,empty),
+  					    alpha*beta less 0,
+  					    scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+  					    scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]");  					    
+	def("canonical", "lambda (quadruple)
+	                    let (v1,sv1,v2,sv2) = quadruple in
+                          let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
+                                          gcd[magnitude(v2,i,j) | i,j from v2]) in
+                            tuple[scale(c, v1),sv1,scale(c, v2),sv2]
+                          end
+                        end");                                
+	def("normalize", "lambda (quadruples, row)
+	                    [canonical(v) | v in quadruples, 
+	                                    (v1,sv1,v2,sv2) := quadruple,
+	                                    magnitude(v1, row, empty) = 0]");
+	def("minimize", "lambda (quadruples)
+	                   loopList([], 
+	                            lambda (prev,quadruple)
+	                              let (n1,sn1,n2,sn2) = quadruple in
+                                    let (bit,new) = loopList(tuple[true,[]], 
+	                                                         lambda (accu,p)
+	                                                           let (bit, new) = accu in
+	                                                             let (p1,sp1,p2,sp2) = p in
+	                                                               if sn1 leq sp1 && sn2 leq sp2 then
+	                                                                 tuple[false, if bit then addMut(new,quadruple) else new end]
+	                                                               else
+	                                                                 tuple[bit && not(sp1 leq sn1 && sp2 leq sn2), addMut(new,p)]
+	                                                               end    
+	                                                             end
+	                                                           end, 
+	                                                         prev) in
+	                                  if bit then addMut(new,quadruple) else new end
+                                    end
+ 	                              end, 
+	                            quadruples)");
+	def("driver", "lambda(quadruples, row)
+                     let eliminated = eliminate(quadruples,row) in
+	                   (*let normalized = [canonical(v) | v in append(eliminated, quadruples), getMagnitude(v,row) = 0] in*)
+	                   let normalized = normalize(append(eliminated, quadruples), row) in
+		                 let bases = minimize(normalized) in
+		                   let dummy = print(tuple[row, size(eliminated), size(normalized), size(bases)]) in
+  	                         bases
+  	                       end
+  		                 end
+			           end
+                     end");
+	def("fourierMotzkin", "lambda (matrix)
+	                         let quadruples = [tuple[p1,support(p1),p2,support(p2)] |
+	                                           pair in zip(columns(matrix),columns(rightIdentity(matrix))),
+	                                           (p1,p2) := pair] in
+                               [p2 | p in loopList(quadruples, driver, rowDomain(matrix)), (p1,sp1,p2,sp2) := p]
+                             end");
+	dump("fourierMotzkin(backward-forward)",
+	     "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity",
+	     "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv");
+}
+
+public void stdLib() {
 	def("combis", "lambda (list) 
 		             let (result, dummy) = loopList(tuple[[],list],
 							                        lambda(accu,x)
@@ -890,55 +987,12 @@ public void fm() {
 	 						                        list) in
 	 		           result
 	 		         end");
-	def("canonical", "lambda (pair)
-	                    let (v1,v2) = pair in
-                          let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
-                                          gcd[magnitude(v2,i,j) | i,j from v2]) in
-                            tuple[scale(c, v1),scale(c, v2)]
-                          end
-                        end");                                
-	def("eliminate", "lambda(pairs, row)
-                       [tuple[scale(abs(beta),v1) + scale(abs(alpha),w1),
-                              scale(abs(beta),v2) + scale(abs(alpha),w2)] |
-                        c in combis(pairs),
-                        (v,w) := c,
-                        (v1,v2) := v,
-                        (w1,w2) := w,
-  					    alpha := magnitude(v1,row,empty), 
-  					    beta := magnitude(w1,row,empty),
-  					    alpha*beta less 0]");
-  	def("minimize", "lambda (transitions)
-  	                   [n | n in transitions,
-	                        (n1,n2) := n,
-				            sn1 := support(n1),
-				            sn2 := support(n2),
-		                    all[(sn1 = sm1 && sn2 = sm2) || not(sm1 leq sn1 && sm2 leq sn2) |
-		                        m in transitions,
-		                        (m1,m2) := m,
-                                sm1 := support(m1),
-				                sm2 := support(m2)]]");
-	def("driver", "lambda(pairs, row)
-                     let eliminated = eliminate(pairs,row) in
-	                   let normalized = [canonical(v) | v in append(eliminated, pairs),
-	                                                    (v1,v2) := v,
-  					                                    magnitude(v1,row,empty) = 0] in
-		                 let bases = minimize(normalized)  in
-		                   let dummy = print(tuple[row,size(eliminated), size(normalized), size(bases)]) in
-  	                         bases
-  	                       end
-  		                 end
-			           end
-                     end");
-	def("fourierMotzkin", "lambda (matrix)
-                             let pairs = zip(columns(matrix),columns(rightIdentity(matrix))) in
-  	                           [p2 | p in loopList(pairs, driver, rowDomain(matrix)), (p1,p2) := p]
-                             end");
-	dump("fourierMotzkin(backward-forward)",
-	     "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity",
-	     "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv");
+	def("columns", "lambda (matrix) [column(matrix,j) | j in columnDomain(matrix)]");
+	def("rows", "lambda (matrix) [row(matrix,i) | i in rowDomain(matrix)]");
 }
 
 public void fmAnalysis() {
+	stdLib();
 	def("flow", "backward-forward");
 	def("leftBang", "lambda (matrix) sum[c | c in columns(support(leftIdentity(matrix)))]");
 	def("rightBang", "lambda (matrix) sum[r | r in rows(support(rightIdentity(matrix)))]");
@@ -953,24 +1007,7 @@ public void fmAnalysis() {
 	            t := column(basis,con),
 	            illVal := value.illicitProduction(t),
 	            legVal := value.legitProduction(t), 
-	            0 less illVal || 0 less legVal]");
-	compile("[j | j in columnDomain(basis), col := column(basis,j), not(flow.col = 0)]");
+	            0 less illVal]");
+	//compile("[j | j in columnDomain(basis), col := column(basis,j), not(flow.col = 0)]");
 }
 
-public void show (str exp) {
-	try {
-		parsed = parseImplodePacioli(exp);
-		<typ, _> = inferTypeAPI(parsed, env());
-		println("<exp> :: <pprint(unfresh(typ))>");
-	} catch err: {
-		println(err);
-	}	
-}
-
-
-public void yo() {
-def("canonical", "lambda (pair)
-	                    let (v1,v2) = pair in
-                          true
-                        end)");   
-}

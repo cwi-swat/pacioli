@@ -26,7 +26,13 @@ public tuple[Type, Substitution] inferTypeAPI(Expression exp, Environment lib) {
 		glbstack = [];
 		return inferType(exp,lib,());
 	} catch err: {
-		throw("\nType error: <err>\n\nStack:<("" | "<it>\n<frame>" | frame <- glbstack)>");
+	    stack = "";
+	    i = size(glbstack);
+	    for (frame <- glbstack) {
+	    	i -= 1;
+	    	stack = "\n<i>) <frame>" + stack;
+	    }
+	    throw("\nType error while processing\n<stack>\n\n<err>");
 	}
 }
 
@@ -75,9 +81,13 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 	push("<pprint(exp)>");
 	switch (exp) {
 		case variable(x): {
-			typ = instScheme(assumptions[x] ? lib[x]);
-			pop("<pprint(typ)>");
-			return <typ, ident>;
+			if (x in assumptions || x in lib) {
+				typ = instScheme(assumptions[x] ? lib[x]);
+				pop("<pprint(typ)>");
+				return <typ, ident>;
+			} else {
+				throw "Variable \'<x>\' uknown";
+			}
 		}
 		case const(0.0): {
 			typ = matrix(unitVar(fresh("u")),duo(entityVar(fresh("E")),unitVar(fresh("u"))),duo(entityVar(fresh("E")),unitVar(fresh("u")))); // todo
@@ -90,18 +100,20 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			return <typ, ident>;
 		}
 		case tup([]): {
-			return <tupType([]),ident>;
+			typ = tupType([]);
+			pop("<pprint(typ)>");
+			return <typ, ident>;
 		}
 		case tup(items): {
 			types = [];
 			subs = ident;
 			s = ident;
 			for (x <- items) {
-				<t, s> = inferType(x, lib, envSubs(s, assumptions));
+				<t, s> = inferType(x, lib, envSubs(subs, assumptions));
 				subs = merge(subs,s);
 				types += [t];
 			}
-			typ = tupType(types);
+			typ = typeSubs(subs,tupType(types));
 			pop("<pprint(typ)>");
 			return <typ, subs>;
 		}
@@ -114,6 +126,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			S3 = merge(S2,T1);
 			S4 = merge(S3,unifyTypes(typeSubs(S3, xType), typeSubs(S3, yType)));
 			typ = typeSubs(S4, yType);
+			pop("<pprint(typ)>");
 			return <typ,S4>;
 		}
 		case and(x,y): {
@@ -123,6 +136,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			S2 = merge(S1,unifyTypes(typeSubs(S1,xType), boolean()));
 			S3 = merge(S2,unifyTypes(typeSubs(S2,yType), boolean()));
 			typ = boolean();
+			pop("<pprint(typ)>");
 			return <typ,S3>;
 		}
 		case or(x,y): {
@@ -132,6 +146,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			S2 = merge(S1,unifyTypes(typeSubs(S1,xType), boolean()));
 			S3 = merge(S2,unifyTypes(typeSubs(S2,yType), boolean()));
 			typ = boolean();
+			pop("<pprint(typ)>");
 			return <typ,S3>;
 		}
 		case application(x,y): {
@@ -149,13 +164,13 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 		case let(var,val,body): {
 			
 			// hack for recursive functions
-			f = fresh("letrec");
-			assumptions = assumptions + (var: forall({},{},{},typeVar(f)));
+			//f = fresh("letrec");
+			//assumptions = assumptions + (var: forall({},{},{},typeVar(f)));
 			
 			<t1, s1> = inferType(val, lib, assumptions);
 			// is deze nodig???
-			// as = envSubs(s1,assumptions);
-			as = assumptions;
+			 as = envSubs(s1,assumptions);
+			//as = assumptions;
 			assumedUnitVars = {y | x <- as, y <- unitVariables(as[x])};
 			assumedEntityVars = {y | x <- as, y <- entityVariables(as[x])};
 			assumedTypeVars = {y | x <- as, y <- typeVariables(as[x])};						
@@ -166,7 +181,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			bound = as + (var: scheme);			
 			<t2, s2> = inferType(body, lib, envSubs(s1,bound));
 			s12 = merge(s1,s2);
-			typ = t2;
+			typ = typeSubs(s1,t2);
 			pop("<pprint(typ)>");
 			return <typ, s12>;
 		}
