@@ -933,7 +933,7 @@ public void fm() {
                         end");                                
 	def("normalize", "lambda (quadruples, row)
 	                    [canonical(v) | v in quadruples, 
-	                                    (v1,sv1,v2,sv2) := quadruple,
+	                                    (v1,sv1,v2,sv2) := v,
 	                                    magnitude(v1, row, empty) = 0]");
 	def("minimize", "lambda (quadruples)
 	                   loopList([], 
