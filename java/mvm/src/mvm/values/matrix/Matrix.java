@@ -116,10 +116,6 @@ public class Matrix implements PacioliValue {
 	// Equality
 
 	public int hashCode() {
-		// It seems that the hashCode for numbers is not correct.
-		// Pacioli expression equal(singletonSet(1),singletonSet(1)) 
-		// gives false is the number's hashCode is used!
-		//return numbers.hashCode();
 		return numbers.hashCode();
 	}
 	
@@ -202,7 +198,6 @@ public class Matrix implements PacioliValue {
 		matrix.numbers.set(i, j, value.numbers.get(0,0));
 		return matrix;
 	}
-	
 
 	public PacioliValue set(Key row, Key column, Matrix value) throws IOException {
 		int i = row.index.ElementPos(row.names);
@@ -221,47 +216,55 @@ public class Matrix implements PacioliValue {
 		return matrix;
 	}
 
-	private List<PacioliValue> columnRange(int from, int to) throws IOException {
-		List<PacioliValue> columns = new ArrayList<PacioliValue>();
-		MatrixType extractedType = type.extractColumn();
-		Index index = new Index(new IndexType(),null,null);
-		for (int i=from; i < to; i++) {
-			Matrix matrix = new Matrix(extractedType, rowIndex, index);
-			matrix.numbers = numbers.getColumn(i);
-			columns.add(matrix);
-		}
-		return columns;
-	}
+//	private List<PacioliValue> columnRange(int from, int to) throws IOException {
+//		List<PacioliValue> columns = new ArrayList<PacioliValue>();
+//		MatrixType extractedType = type.extractColumn();
+//		Index index = new Index(new IndexType(),null,null);
+//		for (int i=from; i < to; i++) {
+//			Matrix matrix = new Matrix(extractedType, rowIndex, index);
+//			matrix.numbers = numbers.getColumn(i);
+//			columns.add(matrix);
+//		}
+//		return columns;
+//	}
 	
 	public PacioliValue column(Key key) throws IOException {
+		MatrixType extractedType = type.extractColumn();
 		int position = columnIndex.ElementPos(key.names);
-		return columnRange(position,position+1).get(0);	
+		Matrix matrix = new Matrix(extractedType, rowIndex, new Index());
+		matrix.numbers = numbers.getColumn(position);
+		return matrix;	
 	}
 	
-	public PacioliList columns() throws IOException {
-		return new PacioliList(columnRange(0, columnIndex.size()));	
-	}
+//	public PacioliList columns() throws IOException {
+//		return new PacioliList(columnRange(0, columnIndex.size()));	
+//	}
 
-	private List<PacioliValue> rowRange(int from, int to) throws IOException {
-		List<PacioliValue> rows = new ArrayList<PacioliValue>();
-		MatrixType extractedType = type.extractRow();
-		Index index = new Index(new IndexType(),null,null);
-		for (int i=from; i < to; i++) {
-			Matrix matrix = new Matrix(extractedType, index, columnIndex);
-			matrix.numbers = numbers.getRow(i);
-			rows.add(matrix);
-		}
-		return rows;
-	}
+//	private List<PacioliValue> rowRange(int from, int to) throws IOException {
+//		List<PacioliValue> rows = new ArrayList<PacioliValue>();
+//		MatrixType extractedType = type.extractRow();
+//		Index index = new Index(new IndexType(),null,null);
+//		for (int i=from; i < to; i++) {
+//			Matrix matrix = new Matrix(extractedType, index, columnIndex);
+//			matrix.numbers = numbers.getRow(i);
+//			rows.add(matrix);
+//		}
+//		return rows;
+//	}
 	
 	public PacioliValue row(Key key) throws IOException {
+		//int position = rowIndex.ElementPos(key.names);
+		//return rowRange(position,position+1).get(0);
+		MatrixType extractedType = type.extractRow();
 		int position = rowIndex.ElementPos(key.names);
-		return rowRange(position,position+1).get(0);	
+		Matrix matrix = new Matrix(extractedType, new Index(), columnIndex);
+		matrix.numbers = numbers.getRow(position);
+		return matrix;
 	}
 	
-	public PacioliList rows() throws IOException {
-		return new PacioliList(rowRange(0, rowIndex.size()));	
-	}
+//	public PacioliList rows() throws IOException {
+//		return new PacioliList(rowRange(0, rowIndex.size()));	
+//	}
 
 	////////////////////////////////////////////////////////////////////////////
 	// Reading and Writing
