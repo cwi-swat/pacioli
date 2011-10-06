@@ -16,6 +16,18 @@ public class MatrixType {
 		this.columnType = columnType;
 	}
 	
+	public MatrixType(Unit factor){
+		this.factor = factor;
+		this.rowType = new IndexType();
+		this.columnType = new IndexType();
+	}
+	
+	public MatrixType(){
+		this.factor = new PowerProduct();
+		this.rowType = new IndexType();
+		this.columnType = new IndexType();
+	}
+	
 	public Unit getFactor() {
 		return factor;
 	}

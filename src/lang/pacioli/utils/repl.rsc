@@ -914,16 +914,21 @@ public void test9() {
 public void fm() {
 	stdLib();
 	def("eliminate", "lambda(quadruples, row)
-                       [tuple[scaled1, support(scaled1), scaled2, support(scaled2)] |
-                        c in combis(quadruples),
-                        (v,w) := c,
-                        (v1,sv2,v2,sv2) := v,
-                        (w1,sw1,w2,sw2) := w,
-  					    alpha := magnitude(v1,row,empty), 
-  					    beta := magnitude(w1,row,empty),
-  					    alpha*beta less 0,
-  					    scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
-  					    scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]");  					    
+                       let combined = [tuple[scaled1, support(scaled1), scaled2, support(scaled2)] |
+                                       c in combis(quadruples),
+                                       (v,w) := c,
+                                       (v1,sv2,v2,sv2) := v,
+                                       (w1,sw1,w2,sw2) := w,
+  					                   alpha := magnitude(v1,row,empty), 
+  					                   beta := magnitude(w1,row,empty),
+  					                   alpha*beta less 0,
+  					                   scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+  					                   scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
+  					   in
+  					     [v | v in append(combined, quadruples),
+  					          (v1,sv2,v2,sv2) := v,
+  					          magnitude(v1, row, empty) = 0]
+  					   end");  					    
 	def("canonical", "lambda (quadruple)
 	                    let (v1,sv1,v2,sv2) = quadruple in
                           let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
@@ -931,11 +936,7 @@ public void fm() {
                             tuple[scale(c, v1),sv1,scale(c, v2),sv2]
                           end
                         end");                                
-	def("normalize", "lambda (quadruples, row)
-	                    [canonical(v) | v in quadruples, 
-	                                    (v1,sv1,v2,sv2) := v,
-	                                    magnitude(v1, row, empty) = 0]");
-	def("minimize", "lambda (quadruples)
+	def("filterMinimals", "lambda (quadruples)
 	                   loopList([], 
 	                            lambda (prev,quadruple)
 	                              let (n1,sn1,n2,sn2) = quadruple in
@@ -957,13 +958,10 @@ public void fm() {
 	                            quadruples)");
 	def("driver", "lambda(quadruples, row)
                      let eliminated = eliminate(quadruples,row) in
-	                   (*let normalized = [canonical(v) | v in append(eliminated, quadruples), getMagnitude(v,row) = 0] in*)
-	                   let normalized = normalize(append(eliminated, quadruples), row) in
-		                 let bases = minimize(normalized) in
-		                   let dummy = print(tuple[row, size(eliminated), size(normalized), size(bases)]) in
-  	                         bases
-  	                       end
-  		                 end
+                       let generators = filterMinimals([canonical(v) | v in eliminated]) in
+		                 let dummy = print(tuple[row, size(eliminated), size(generators)]) in
+  	                       generators
+  	                     end
 			           end
                      end");
 	def("fourierMotzkin", "lambda (matrix)

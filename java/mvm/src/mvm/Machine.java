@@ -165,19 +165,19 @@ public class Machine {
 	}
 	
 	public void run(String fileName, PrintStream out) throws IOException {
-		Tokenizer tokenizer = new Tokenizer(new FileReader(fileName), unitSystem);
+		Reader reader = new Reader(new FileReader(fileName), unitSystem);
 		if (verbose) {
 			out.format("-- Running file '%s'\n", fileName );
 		}
 		long before = System.currentTimeMillis();
-		runStream(tokenizer, out);
+		runStream(reader, out);
 		long after = System.currentTimeMillis();
 		if (verbose) {
 			out.format("-- Ready in %d ms\n", after - before);
 			out.println();
-			dumpTypes(System.out);
+			dumpTypes(out);
 			out.println();
-			dumpState(System.out);
+			dumpState(out);
 		}
 	}
 	
@@ -207,136 +207,112 @@ public class Machine {
 		}
 	}
 	
-	public List<Expression> readExpressionList(Tokenizer tokenizer) throws IOException{
+	public List<Expression> readExpressionList(Reader reader) throws IOException{
 		List<Expression> list = new ArrayList<Expression>();
-		int token = tokenizer.nextToken();
-		while (token != ')') {
-			tokenizer.pushBack();
-			list.add(readExpression(tokenizer));
-			token = tokenizer.nextToken();
-			if (token == ',') {
-				token = tokenizer.nextToken();
+		while (!reader.hasCharacter(')')) {
+			list.add(readExpression(reader));
+			if (reader.hasCharacter(',')) {
+				reader.readCharacter(',');
 			}
 		}
-		tokenizer.pushBack();
 		return list;
 	}
 	
-	public List<String> readStringList(Tokenizer tokenizer) throws IOException{
+	public List<String> readStringList(Reader reader) throws IOException{
 		List<String> list = new ArrayList<String>();
-		int token = tokenizer.nextToken();
-		while (token != ')') {
-			tokenizer.pushBack();
-			list.add(tokenizer.readIdentifier());
-			token = tokenizer.nextToken();
-			if (token == ',') {
-				token = tokenizer.nextToken();
+		while (!reader.hasCharacter(')')) {
+			list.add(reader.readIdentifier());
+			if (reader.hasCharacter(',')) {
+				reader.readCharacter(',');
 			}
 		}
-		tokenizer.pushBack();
 		return list;
 	}
 	
-	private Expression readExpression(Tokenizer tokenizer) throws IOException {
-		int token = tokenizer.nextToken(); 
-		switch (token) {
-		case Tokenizer.TT_WORD:
+	private Expression readExpression(Reader reader) throws IOException {
+		if (reader.hasNumber()) {
+			return new Const(new Matrix(reader.readNumber()));
+		} else if (reader.hasIdentifier()) {
 			
-			String command = tokenizer.sval();
-								
+			String command = reader.readIdentifier();
+			
 			if (command.equals("lambda")) {
 				
-				tokenizer.readCharacter('(');
-				List<String> vars = readStringList(tokenizer);
-				tokenizer.readCharacter(')');
-				Expression body = readExpression(tokenizer);
+				reader.readCharacter('(');
+				List<String> vars = readStringList(reader);
+				reader.readCharacter(')');
+				Expression body = readExpression(reader);
 				
 				return new Lambda(vars,body);
 				
 			} else if (command.equals("application")) {
-				tokenizer.readCharacter('(');
-				List<Expression> expressions = readExpressionList(tokenizer);
-				tokenizer.readCharacter(')');
+				reader.readCharacter('(');
+				List<Expression> expressions = readExpressionList(reader);
+				reader.readCharacter(')');
 				Expression fun = expressions.remove(0); 
 				return new Application(fun,expressions);
 				
 			} else if (command.equals("if")) {
 				
-				tokenizer.readCharacter('(');
-				Expression test = readExpression(tokenizer);
-				tokenizer.readCharacter(',');
-				Expression pos = readExpression(tokenizer);
-				tokenizer.readCharacter(',');
-				Expression neg = readExpression(tokenizer);
-				tokenizer.readCharacter(')'); 
+				reader.readCharacter('(');
+				Expression test = readExpression(reader);
+				reader.readCharacter(',');
+				Expression pos = readExpression(reader);
+				reader.readCharacter(',');
+				Expression neg = readExpression(reader);
+				reader.readCharacter(')'); 
 				return new Branch(test,pos,neg);
 				
 			} else if (command.equals("and")) {
 				
-				tokenizer.readCharacter('(');
-				Expression lhs = readExpression(tokenizer);
-				tokenizer.readCharacter(',');
-				Expression rhs = readExpression(tokenizer);
-				tokenizer.readCharacter(')'); 
+				reader.readCharacter('(');
+				Expression lhs = readExpression(reader);
+				reader.readCharacter(',');
+				Expression rhs = readExpression(reader);
+				reader.readCharacter(')'); 
 				return new And(lhs,rhs);
 				
 			} else if (command.equals("or")) {
 				
-				tokenizer.readCharacter('(');
-				Expression lhs = readExpression(tokenizer);
-				tokenizer.readCharacter(',');
-				Expression rhs = readExpression(tokenizer);
-				tokenizer.readCharacter(')'); 
+				reader.readCharacter('(');
+				Expression lhs = readExpression(reader);
+				reader.readCharacter(',');
+				Expression rhs = readExpression(reader);
+				reader.readCharacter(')'); 
 				return new Or(lhs,rhs);
 				
 			} else {
 				return new Variable(command);				
-			}			
-			
-		case Tokenizer.TT_NUMBER:
-			// todo: read optional unit
-			Unit factor = parseUnit("", "1"); 
-			IndexType rowType = parseIndexType("Empty");
-			IndexType columnType = parseIndexType("Empty");
-			MatrixType type = new MatrixType(factor, rowType, columnType);
-			
-			Index rowIndex = new Index(rowType, entities, indices);
-			Index columnIndex = new Index(columnType, entities, indices);
-			
-			Matrix matrix = new Matrix(type, rowIndex, columnIndex);
-			return new Const(matrix.putDouble(0,0,tokenizer.dval()));
-				
-		default:
-			throw new IOException(String.format("expected expression but found '%s'", (char) token));
+			}
+		} else {
+			throw new IOException(String.format("expected expression but found '%s'", reader.nextToken()));			
 		}
 	}
 	
-	private void runStream(Tokenizer tokenizer, PrintStream out) throws IOException {
+	private void runStream(Reader reader, PrintStream out) throws IOException {
 		try {
-			for(int token = tokenizer.nextToken(); 
-				token != Tokenizer.TT_EOF; 
-				token = tokenizer.nextToken()) {
-				switch (token) {
-				case Tokenizer.TT_WORD:
+			String command;
+			while (!reader.eof()) {
+				if (reader.hasIdentifier()) {
+
+					command = reader.readIdentifier();
 					
-					String command = tokenizer.sval();
-										
 					if (command.equals("log")) {
 						
-						String text = tokenizer.readString();
-						tokenizer.readSeparator();
+						String text = reader.readString();
+						reader.readSeparator();
 						
 						out.print(text);
 						
 					} else if (command.equals("skip")) {
 					
-						tokenizer.readSeparator();
+						reader.readSeparator();
 					
 					} else if (command.equals("dump")) {
 						
-						String source = tokenizer.readIdentifier();
-						String entityFile = tokenizer.readString();
-						String matrixFile = tokenizer.readString();
+						String source = reader.readIdentifier();
+						String entityFile = reader.readString();
+						String matrixFile = reader.readString();
 						
 						if (true) { //(verbose) {
 							out.format("dumping basis %s into %s and %s", source, entityFile, matrixFile);
@@ -378,12 +354,12 @@ public class Machine {
 						
 					} else if (command.equals("load")) {
 						
-						String destination = tokenizer.readIdentifier();
-						String text = tokenizer.readString();
-						String unit = tokenizer.readString();
-						String row = tokenizer.readString();
-						String column= tokenizer.readString();
-						tokenizer.readSeparator();
+						String destination = reader.readIdentifier();
+						String text = reader.readString();
+						String unit = reader.readString();
+						String row = reader.readString();
+						String column= reader.readString();
+						reader.readSeparator();
 						
 						Unit factor = parseUnit("", unit);
 						IndexType rowType = parseIndexType(row);
@@ -403,9 +379,9 @@ public class Machine {
 						
 					} else if (command.equals("entity")) {
 
-						String name = tokenizer.readIdentifier();
-						String source = tokenizer.readString();
-						tokenizer.readSeparator();
+						String name = reader.readIdentifier();
+						String source = reader.readString();
+						reader.readSeparator();
 						
 						if (verbose) {
 							out.format("-- Loading entity '%s' from source '%s'\n", name, source);
@@ -415,10 +391,10 @@ public class Machine {
 						
 					} else if (command.equals("index")) {
 						
-						String entityName = tokenizer.readIdentifier();
-						String name = tokenizer.readIdentifier();
-						String file = tokenizer.readString();
-						tokenizer.readSeparator();
+						String entityName = reader.readIdentifier();
+						String name = reader.readIdentifier();
+						String file = reader.readString();
+						reader.readSeparator();
 
 						String symbol = entityName + "." + name;
 
@@ -452,17 +428,17 @@ public class Machine {
 						
 					} else if (command.equals("set")) {
 						
-						String destination = tokenizer.readIdentifier();
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
+						String destination = reader.readIdentifier();
+						String source = reader.readIdentifier();
+						reader.readSeparator();
 						
 						store.put(destination, fetch(source));
 						
 					} else if (command.equals("eval")) {
 						
-						String destination = tokenizer.readIdentifier();
-						Expression exp = readExpression(tokenizer);
-						tokenizer.readSeparator();
+						String destination = reader.readIdentifier();
+						Expression exp = readExpression(reader);
+						reader.readSeparator();
 						
 						if (verbose) {
 							out.format("-- Evaluating %s\n", exp.pprint());
@@ -472,11 +448,11 @@ public class Machine {
 						
 					} else if (command.equals("conversion")) {
 						
-						String destination = tokenizer.readIdentifier();
-						String entity = tokenizer.readString();
-						String srcUnit = tokenizer.readString();
-						String dstUnit = tokenizer.readString();
-						tokenizer.readSeparator();
+						String destination = reader.readIdentifier();
+						String entity = reader.readString();
+						String srcUnit = reader.readString();
+						String dstUnit = reader.readString();
+						reader.readSeparator();
 						
 						Unit factor = parseUnit("", "1"); 
 						IndexType rowType = parseIndexType(entity + "." + dstUnit);
@@ -498,10 +474,10 @@ public class Machine {
 						
 					} else if (command.equals("projection")) {
 						
-						String destination = tokenizer.readIdentifier();
-						String row = tokenizer.readString();
-						String column = tokenizer.readString();
-						tokenizer.readSeparator();
+						String destination = reader.readIdentifier(); 
+						String row = reader.readString();
+						String column = reader.readString();
+						reader.readSeparator();
 						
 						IndexType rowType = parseIndexType(row);
 						IndexType columnType = parseIndexType(column);
@@ -522,8 +498,8 @@ public class Machine {
 						
 					} else if (command.equals("print")) {
 						
-						String source = tokenizer.readIdentifier();
-						tokenizer.readSeparator();
+						String source = reader.readIdentifier();
+						reader.readSeparator();
 						
 						if (!store.containsKey(source)) {
 							throw new IOException(String.format("name '%s' unknown", source));
@@ -533,10 +509,10 @@ public class Machine {
 						
 					} else if (command.equals("unit")) {
 
-						String name = tokenizer.readIdentifier();
-						String symbol = tokenizer.readString();
-						Unit unit = tokenizer.readUnit("");
-						tokenizer.readSeparator();
+						String name = reader.readIdentifier();
+						String symbol = reader.readString();
+						Unit unit = reader.readUnit("");
+						reader.readSeparator();
 						
 						if (verbose) {
 							out.format("-- Adding unit '%s' (%s) with %s = %s\n",
@@ -547,9 +523,9 @@ public class Machine {
 						
 					} else if (command.equals("baseunit")) {
 
-						String name = tokenizer.readIdentifier();
-						String symbol = tokenizer.readString();
-						tokenizer.readSeparator();
+						String name = reader.readIdentifier();
+						String symbol = reader.readString();
+						reader.readSeparator();
 						
 						if (verbose) {
 							out.format("-- Adding base unit '%s' (%s)\n", name, symbol );
@@ -560,8 +536,8 @@ public class Machine {
 						
 					} else if (command.equals("abort")) {
 
-						String reason = tokenizer.readString();
-						tokenizer.readSeparator();
+						String reason = reader.readString();
+						reader.readSeparator();
 
 						throw new IOException(reason);
 						
@@ -570,61 +546,52 @@ public class Machine {
 						throw new IOException(String.format("command '%s' unknown", command));
 					}
 					
-					break;
-					
-				case Tokenizer.TT_NUMBER:
-					throw new IOException("expected command but found number");
-					
-				default:
-					throw new IOException(String.format("expected command but found '%s'", (char) token));
+				} else {
+					throw new IOException(String.format("expected command but found '%s'", (char) reader.nextToken()));					
 				}
 			}
 		} catch (IOException e) {
-			throw new IOException(String.format("at line %d: %s", tokenizer.lineno(), e.getLocalizedMessage()));
+			throw new IOException(String.format("at line %d: %s", reader.lineno(), e.getLocalizedMessage()));
 		}
 	}
 	
 	public List<String> loadEntityFile(String fileName) throws IOException{
 		List<String> names = new ArrayList<String>();
-		Tokenizer tokenizer = new Tokenizer(new FileReader(fileName), unitSystem);
-		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
-			tokenizer.pushBack();
-			String name = tokenizer.readString();
-			tokenizer.readSeparator();
+		Reader reader = new Reader(new FileReader(fileName), unitSystem);
+		String name;
+		while (!reader.eof()) {
+			name = reader.readString();
+			reader.readSeparator();
 			names.add(name);
 		}
-		tokenizer.pushBack();
 		return names;
-		
 	}
 
 	public Map<String, Unit> loadUnitFile(String fileName) throws IOException {
-		Tokenizer tokenizer = new Tokenizer(new FileReader(fileName), unitSystem);
 		Map<String, Unit> map = new HashMap<String, Unit>();
-		while (tokenizer.nextToken() != Tokenizer.TT_EOF) {
-			tokenizer.pushBack();
-			String name = tokenizer.readString();
-			Unit unit = tokenizer.readUnit("");
-			tokenizer.readSeparator();
+		Reader reader = new Reader(new FileReader(fileName), unitSystem);
+		while (!reader.eof()) {
+			String name = reader.readString();
+			Unit unit = reader.readUnit("");
+			reader.readSeparator();
 			map.put(name, unit);
 		}
-		tokenizer.pushBack();
 		return map;
 	}
 	
 	private Unit parseUnit(String entity, String input) throws IOException{
-		Tokenizer tokenizer = new Tokenizer(new StringReader(input), unitSystem);
-		Unit unit = tokenizer.readUnit(entity);
-		if (tokenizer.nextToken() != Tokenizer.TT_EOF) {
+		Reader reader = new Reader(new StringReader(input), unitSystem);
+		Unit unit = reader.readUnit(entity);
+		if (!reader.eof()) {
 			throw new IOException(String.format("Trash after unit when reading '%s'", input));
 		}
 		return unit;
 	}
 	
 	private IndexType parseIndexType(String input) throws IOException{
-		Tokenizer tokenizer = new Tokenizer(new StringReader(input), unitSystem);
-		IndexType type = tokenizer.readIndexType();
-		if (tokenizer.nextToken() != Tokenizer.TT_EOF) {
+		Reader reader = new Reader(new StringReader(input), unitSystem);
+		IndexType type = reader.readIndexType();
+		if (!reader.eof()) {
 			throw new IOException(String.format("Trash after index type when reading '%s'", input));
 		}
 		return type;

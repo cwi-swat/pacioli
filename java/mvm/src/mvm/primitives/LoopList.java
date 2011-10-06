@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mvm.Environment;
 import mvm.values.Callable;
-import mvm.values.Closure;
 import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 
@@ -30,14 +28,8 @@ public class LoopList implements Callable {
 		Callable merge = (Callable) params.get(1);
 		List<PacioliValue> list = ((PacioliList) params.get(2)).items();
 		PacioliValue accu = zero;
-		List<PacioliValue> temp = new ArrayList<PacioliValue>();
 		for (PacioliValue value: list) {
-			//temp = new ArrayList<PacioliValue>();
-			temp.clear();
-			temp.add(accu);
-			temp.add(value);
-			accu = merge.apply(temp);
-			//accu = applyToTwo(merge,accu,value);
+			accu = applyToTwo(merge,accu,value);
 		}
 		return accu;
 	}

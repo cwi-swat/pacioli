@@ -16,4 +16,5 @@ public interface Unit {
 	public Unit flat();
 	public String pprint();
 	
+	public static final Unit ONE = new PowerProduct(); 
 }

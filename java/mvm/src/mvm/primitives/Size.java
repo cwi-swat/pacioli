@@ -22,6 +22,6 @@ public class Size implements Callable {
 			throw new IOException("first argument to function 'size' is not a list");
 		}
 		PacioliList x = (PacioliList) params.get(0);
-		return new Matrix((double) x.items().size());
+		return new Matrix(x.items().size());
 	}
 }

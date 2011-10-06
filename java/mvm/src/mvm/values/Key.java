@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mvm.values.matrix.Index;
-import mvm.values.matrix.IndexType;
 
 public class Key implements PacioliValue {
 
 	public List<String> names;
-	//private CompoundEntityType type;
 	public Index index;
 
 	public Key() throws IOException {
@@ -18,7 +16,6 @@ public class Key implements PacioliValue {
 		this.index = new Index();
 	}
 
-	//public Key(List<String> names, CompoundEntityType type) {
 	public Key(List<String> names, Index index) {
 		this.names = names;
 		this.index = index;
