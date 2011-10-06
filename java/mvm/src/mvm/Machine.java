@@ -285,7 +285,7 @@ public class Machine {
 				return new Variable(command);				
 			}
 		} else {
-			throw new IOException(String.format("expected expression but found '%s'", reader.nextToken()));			
+			throw new IOException(String.format("expected expression but found '%s'", reader.nextChar()));			
 		}
 	}
 	
@@ -547,7 +547,7 @@ public class Machine {
 					}
 					
 				} else {
-					throw new IOException(String.format("expected command but found '%s'", (char) reader.nextToken()));					
+					throw new IOException(String.format("expected command but found '%s'", reader.nextChar()));					
 				}
 			}
 		} catch (IOException e) {

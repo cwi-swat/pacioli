@@ -2,7 +2,6 @@ package mvm;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.StreamTokenizer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,25 +24,24 @@ public class Reader {
 	UnitSystem unitSystem;
 	
 	public Reader(java.io.Reader reader, UnitSystem system) {
-		// arg system wegwerken
-		tokenizer = new Tokenizer(reader, system);
+		tokenizer = new Tokenizer(reader);
 		unitSystem = system;
 	}
 	
 	public boolean hasIdentifier() throws IOException {
 		int token = tokenizer.nextToken();
 		tokenizer.pushBack();
-		return (token == StreamTokenizer.TT_WORD && !isNumeric((char) token));
+		return (token == Tokenizer.TT_WORD && !isNumeric((char) token));
 	}
 	
 	public String readIdentifier() throws IOException { 
-		if (tokenizer.nextToken() == StreamTokenizer.TT_WORD) {
+		if (tokenizer.nextToken() == Tokenizer.TT_WORD) {
 			String identifier = tokenizer.sval();
 			int token = tokenizer.nextToken();
 			while ('0' <= (char) token && (char) token <= '9') {
 				identifier += (char) token;
 				token = tokenizer.nextToken();
-				if (token == StreamTokenizer.TT_WORD) {
+				if (token == Tokenizer.TT_WORD) {
 					identifier += tokenizer.sval();
 					token = tokenizer.nextToken();
 				}
@@ -116,11 +114,11 @@ public class Reader {
 			return;
 		} else {
 			switch (token) {
-			case StreamTokenizer.TT_EOF: 
+			case Tokenizer.TT_EOF: 
 				return; // to allow omission of last ;
-			case StreamTokenizer.TT_NUMBER: 
+			case Tokenizer.TT_NUMBER: 
 				throw new EOFException(String.format("expected '%s' but found number1", character));
-			case StreamTokenizer.TT_WORD: 
+			case Tokenizer.TT_WORD: 
 				throw new EOFException(String.format("expected '%s' but found identifier", character));
 			default:
 				throw new EOFException(String.format("expected '%s' but found '%s'", character, (char) tokenizer.ttype));
@@ -135,7 +133,7 @@ public class Reader {
 	public IndexType readIndexType() throws IOException{
 		List<String> identifiers = readIdentifierList();
 		switch (tokenizer.nextToken()) {
-		case StreamTokenizer.TT_EOF:
+		case Tokenizer.TT_EOF:
 			if (identifiers.size() == 1 && identifiers.get(0).equals("Empty")) {
 				return new IndexType();
 			} else {
@@ -158,9 +156,9 @@ public class Reader {
 			} else {
 				throw new IOException("number of entities and units not equal");
 			}			
-		case StreamTokenizer.TT_NUMBER: 
+		case Tokenizer.TT_NUMBER: 
 			throw new IOException("expected '.' but found number2");
-		case StreamTokenizer.TT_WORD: 
+		case Tokenizer.TT_WORD: 
 			throw new IOException("expected '.' but found identifier");
 		default:
 			throw new IOException(String.format("expected '.' but found '%s'", (char) tokenizer.ttype));
@@ -249,10 +247,10 @@ public class Reader {
 		return (token == Tokenizer.TT_EOF);
 	}
 
-	public int nextToken() throws IOException {
-		return tokenizer.nextToken();
+	public char nextChar() throws IOException {
+		return (char) tokenizer.nextToken();
 	}
-
+	
 	public int lineno() {
 		return tokenizer.lineno();
 	}
