@@ -1,0 +1,68 @@
+let eliminate(quadruples, row) =
+  let combined = [tuple[scaled1, support(scaled1), scaled2, support(scaled2)] |
+                  c in combis(quadruples),
+                  (v,w) := c,
+                  (v1,sv2,v2,sv2) := v,
+                  (w1,sw1,w2,sw2) := w,
+                  alpha := magnitude(v1,row,empty), 
+                  beta := magnitude(w1,row,empty),
+                  alpha*beta less 0,
+                  scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+                  scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
+  in
+    [v | v in append(combined, quadruples),
+         (v1,sv2,v2,sv2) := v,
+         magnitude(v1, row, empty) = 0]
+  end in                          
+let canonical(quadruple) =
+  let (v1,sv1,v2,sv2) = quadruple in
+    let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
+                    gcd[magnitude(v2,i,j) | i,j from v2]) in
+      tuple[scale(c, v1),sv1,scale(c, v2),sv2]
+    end
+  end in                                
+let filterMinimals(quadruples) =
+  loopList([], 
+           lambda (prev,quadruple)
+             let (n1,sn1,n2,sn2) = quadruple in
+               let (bit,new) = loopList(tuple[true,[]], 
+                                        lambda (accu,p)
+                                          let (bit, new) = accu in
+                                            let (p1,sp1,p2,sp2) = p in
+                                              if sn1 leq sp1 && sn2 leq sp2 then
+                                                tuple[false, if bit then addMut(new,quadruple) else new end]
+                                              else
+                                                tuple[bit && not(sp1 leq sn1 && sp2 leq sn2), addMut(new,p)]
+                                              end    
+                                            end
+                                          end, 
+                                          prev)
+               in
+                 if bit then addMut(new,quadruple) else new end
+               end
+             end, 
+           quadruples) in
+let driver(quadruples, row) =
+  let eliminated = eliminate(quadruples,row) in
+    let generators = filterMinimals([canonical(v) | v in eliminated]) in
+      let dummy = print(tuple[row, size(eliminated), size(generators)]) in
+        generators
+      end
+    end
+  end in
+let fourierMotzkin(matrix) =
+  let quadruples = [tuple[p1,support(p1),p2,support(p2)] |
+                pair in zip(columns(matrix),columns(rightIdentity(matrix))),
+                (p1,p2) := pair] in
+    [p2 | p in loopList(quadruples, driver, rowDomain(matrix)), (p1,sp1,p2,sp2) := p]
+  end in
+ 
+(*  dump("fourierMotzkin(backward-forward)",
+     "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity",
+     "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv") *)
+  fourierMotzkin(backward-forward)
+end
+end
+end
+end
+end
