@@ -3,6 +3,8 @@ module lang::pacioli::ast::KernelPacioli
 import List;
 
 
+anno loc Expression@location;
+
 data Expression = variable(str name)
 				| const(real number)
 				| constInt(int integer)
@@ -50,6 +52,7 @@ data Expression = variable(str name)
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+	    //case e:letSuperLuxe(vars,val,body) => application(variable("apply"), tup([abstraction(vars,body), val]))[@location=e@location]
 	    case letSuperLuxe(vars,val,body) => application(variable("apply"), tup([abstraction(vars,body), val]))
 		case letLuxe(var,vars,val,body) => let(var,abstraction(vars,val),body)
 		case lis([]) => variable("emptyList")

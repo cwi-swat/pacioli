@@ -45,7 +45,7 @@ start syntax Expression = variable:Ident name
 	)
 	> letSuperLuxe: "let" "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
 	> letLuxe: "let" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
-	> let: "let" Ident var "=" Expression val "in" Expression body "end"
+	> @Foldable let: "let" Ident var "=" Expression val "in" Expression body "end"
 	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 

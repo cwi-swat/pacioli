@@ -562,6 +562,30 @@ public void parse (str exp) {
 	println(parsed);
 }
 
+public void compile(Expression exp) {
+	try {
+		stdLib();
+	
+		fullEnv = env();
+		
+		header = addLoads(prelude,fullEnv);
+		header = addEvals(header,glbReplRepo);
+		for (name <- glbReplRepo) {
+			<code,sch> = glbReplRepo[name];
+			fullEnv += (name:sch);
+		}
+		
+		<typ, _> = inferTypeAPI(exp, fullEnv);
+		println("<exp> :: <pprint(unfresh(typ))>");
+		code = compilePacioli(exp);
+		prog = "<header>;
+		   	   'eval result <code>; 
+	       	   'print result";		
+		writeFile(|project://Pacioli/cases/tmp.mvm|, [prog]);
+	} catch err: {
+		println(err);
+	}
+}
 
 public void compile(str exp) {
 	try {
