@@ -115,7 +115,8 @@ public Unit filterUnit(bool(Unit) fn, Unit unit) =
 public str pprint(Unit u) {
 	switch (u) {
 		case named(_,x,_): return x;
-		case unitVar(x): return "\'<x>";
+		//case unitVar(x): return "\'<x>";
+		case unitVar(x): return x;
 		case powerProduct(p, f): {
 			front = ((f == 1.0) ? [] : ["<f>"] |
 					 it + ["<pprint(x)><(p[x] == 1) ? "" : "^<p[x]>">"]	|

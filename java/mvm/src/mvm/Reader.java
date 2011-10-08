@@ -20,126 +20,168 @@ import units.UnitSystem;
 
 public class Reader {
 
-	Tokenizer tokenizer;
+	java.io.Reader reader;
 	UnitSystem unitSystem;
+	int buffer;
+	boolean bufferActive;
+	int lineNumber;
 	
 	public Reader(java.io.Reader reader, UnitSystem system) {
-		tokenizer = new Tokenizer(reader);
 		unitSystem = system;
+		this.reader = reader;
+		bufferActive = false;
+		lineNumber = 1;
+	}
+	
+	private int nextInt() throws IOException {
+		if (bufferActive) {
+			bufferActive = false;
+		} else {
+			int next = reader.read();
+			buffer = next;
+			if ((char) buffer == '\n') {
+				lineNumber += 1;
+			}
+		}
+		return buffer;
+	}
+	
+	char nextChar() throws IOException {
+		return (char) nextInt();
+	}
+	
+	private void pushBack() {
+		bufferActive = true;
+	}
+	
+	public void skipWhitespace() throws IOException {
+		if (!eof()) {
+			char next = nextChar();
+			while (Character.isWhitespace(next)) {
+				next = nextChar();
+			}
+			pushBack();
+		}
 	}
 	
 	public boolean hasIdentifier() throws IOException {
-		int token = tokenizer.nextToken();
-		tokenizer.pushBack();
-		return (token == Tokenizer.TT_WORD && !isNumeric((char) token));
+		char next = nextChar();
+		pushBack();
+		return Character.isLetter(next) || next == '_';
 	}
 	
 	public String readIdentifier() throws IOException { 
-		if (tokenizer.nextToken() == Tokenizer.TT_WORD) {
-			String identifier = tokenizer.sval();
-			int token = tokenizer.nextToken();
-			while ('0' <= (char) token && (char) token <= '9') {
-				identifier += (char) token;
-				token = tokenizer.nextToken();
-				if (token == Tokenizer.TT_WORD) {
-					identifier += tokenizer.sval();
-					token = tokenizer.nextToken();
-				}
+		skipWhitespace();
+		if (hasIdentifier()) {
+			String identifier = "";
+			char next = nextChar();
+			while (Character.isLetterOrDigit(next) || next == '_') {
+				identifier += next;
+				next = nextChar();
 			}
-			tokenizer.pushBack();
+			pushBack();
 			return identifier;
 		} else {
-			throw new EOFException(String.format("expected identifier but found '%s'", (char) tokenizer.ttype));
+			throw new EOFException(String.format("expected identifier but found '%s'", nextChar()));
 		}	
 	}
 	
 	public boolean hasNumber() throws IOException {
-		int token = tokenizer.nextToken();
-		tokenizer.pushBack();
-		return isNumeric((char) token);
-	}
-	
-	private boolean isNumeric(char ch) {
-		return ('0' <= ch && ch <= '9') || (ch == '-');
+		char next = nextChar();
+		pushBack();
+		return Character.isDigit(next) || next == '-';
 	}
 	
 	public BigFraction readNumber() throws IOException {
+		skipWhitespace();
 		if (hasNumber()) {
 			String num = "";
-			int token = tokenizer.nextToken();
-			while (isNumeric((char) token)) {
-				num += (char) token;
-				token = tokenizer.nextToken();
+			num += nextChar();
+			char next = nextChar();
+			while (Character.isDigit(next)) {
+				num += next;
+				next = nextChar();
 			}
-			if ((char) token == '.') {
+			if (next == '.') {
 				String denom = "";
-				token = tokenizer.nextToken();
-				while (isNumeric((char) token)) {
-					denom += (char) token;
-					token = tokenizer.nextToken();
+				next = nextChar();
+				while (Character.isDigit(next)) {
+					denom += next;
+					next = nextChar();
 				}
-				tokenizer.pushBack();
+				pushBack();
 				return new BigFraction(new BigInteger(num + denom), new BigInteger("10").pow(denom.length()));
 			}
-			tokenizer.pushBack();
+			pushBack();
 			return new BigFraction(new BigInteger(num));
 		} else {
-			throw new EOFException(String.format("expected number but found '%s'", (char) tokenizer.ttype));
+			throw new EOFException(String.format("expected number but found '%s'", nextChar()));
 		}
 	}
 	
 	public boolean hasString() throws IOException {
-		int token = tokenizer.nextToken();
-		tokenizer.pushBack();
-		return (token == '\"');
+		char next = nextChar();
+		pushBack();
+		return Character.isDigit(next) || next == '"';
 	}
 	
 	public String readString() throws IOException {
-		if (tokenizer.nextToken() == '\"') { 
-			return tokenizer.sval();
+		skipWhitespace();
+		char first = nextChar(); 
+		if (first == '"') {
+			String string = "";
+			char next = nextChar();
+			if (next == '\\') {
+				string += nextChar();
+				next = nextChar();
+			}	
+			while (next != '"') {
+				string += next;
+				next = nextChar();
+				if (next == '\\') {
+					string += nextChar();
+					next = nextChar();
+				}
+			}
+			return string;
 		} else {
-			throw new EOFException(String.format("expected string but found '%s'", (char) tokenizer.ttype));
+			throw new EOFException(String.format("expected string but found '%c'", first));
 		}
 	}
 
 	public boolean hasCharacter(char character) throws IOException {
-		int token = tokenizer.nextToken();
-		tokenizer.pushBack();
-		return (token == character);
+		char next = nextChar();
+		pushBack();
+		return next == character;
 	}
-	
+		
 	public void readCharacter(char character) throws IOException {
-		int token = tokenizer.nextToken();
-		if (token == character) {
+		skipWhitespace();
+		char next = nextChar();
+		if (next == character) {
 			return;
 		} else {
-			switch (token) {
-			case Tokenizer.TT_EOF: 
-				return; // to allow omission of last ;
-			case Tokenizer.TT_NUMBER: 
-				throw new EOFException(String.format("expected '%s' but found number1", character));
-			case Tokenizer.TT_WORD: 
-				throw new EOFException(String.format("expected '%s' but found identifier", character));
-			default:
-				throw new EOFException(String.format("expected '%s' but found '%s'", character, (char) tokenizer.ttype));
-			}
+			throw new EOFException(String.format("expected '%s' but found '%s'", character, next));
 		}
 	}
 	
 	public void readSeparator() throws IOException {
-		readCharacter(';');
+		skipWhitespace();
+		if (!eof()) {
+			readCharacter(';');
+		}
 	}
 		
 	public IndexType readIndexType() throws IOException{
 		List<String> identifiers = readIdentifierList();
-		switch (tokenizer.nextToken()) {
-		case Tokenizer.TT_EOF:
+		char next = nextChar();
+		if (eof()) {
 			if (identifiers.size() == 1 && identifiers.get(0).equals("Empty")) {
 				return new IndexType();
 			} else {
 				throw new EOFException("unexpected end of input while reading index type");
 			}
-		case '.': 
+		} else if (next == '.') {
 			List<Unit> units = readUnitList(identifiers);
 			List<EntityType> entities = new ArrayList<EntityType>();
 			for (String identifier: identifiers) {
@@ -155,23 +197,19 @@ public class Reader {
 				}
 			} else {
 				throw new IOException("number of entities and units not equal");
-			}			
-		case Tokenizer.TT_NUMBER: 
-			throw new IOException("expected '.' but found number2");
-		case Tokenizer.TT_WORD: 
-			throw new IOException("expected '.' but found identifier");
-		default:
-			throw new IOException(String.format("expected '.' but found '%s'", (char) tokenizer.ttype));
+			}
+		} else {
+			throw new IOException(String.format("expected '.' but found '%s'", next));
 		}
 	}
 	
 	public List<String> readIdentifierList() throws IOException{
 		List<String> identifiers = new ArrayList<String>();
 		identifiers.add(readIdentifier());
-		while (tokenizer.nextToken() == ',') {
+		while (nextChar() == ',') {
 			identifiers.add(readIdentifier());
 		}
-		tokenizer.pushBack();
+		pushBack();
 		return identifiers;
 	}
 	
@@ -183,19 +221,20 @@ public class Reader {
 			throw new IOException("to few entities for the units");
 		}
 		units.add(readUnit(entities.get(i) + "."));
-		while (tokenizer.nextToken() == ',') {
+		while (nextChar() == ',') {
 			i++;
 			if (i >= size) {
 				throw new IOException("to few entities for the units");
 			}	
 			units.add(readUnit(entities.get(i) + "."));
 		}
-		tokenizer.pushBack();
+		pushBack();
 		return units;
 	}
 
 	public Unit readUnit(String entity) throws IOException{
 		Unit first = readOneUnit(entity);
+		skipWhitespace();
 		if (hasCharacter('*')) {
 			readCharacter('*');
 			return first.multiply(readOneUnit(entity));
@@ -211,47 +250,62 @@ public class Reader {
 	}
 
 	public Unit readOneUnit(String entity) throws IOException{
+		skipWhitespace();
 		if (eof()) {
 			throw new IOException("unexpected end of input while reading unit");
 		} else if (hasCharacter('(')) {
 			readCharacter('(');
 			Unit unit = readUnit(entity);
+			skipWhitespace();
 			if (hasCharacter(')')) {
 				readCharacter(')');
 				return unit;
 			} else {
-				throw new IOException(String.format("expected closing parenthesis but found '%s'", (char) tokenizer.ttype));
+				throw new IOException(String.format("expected closing parenthesis but found '%s'", nextChar()));
 			}
 		} else if (hasNumber()) {
 			return new PowerProduct().multiply(readNumber());
 		} else if (hasIdentifier()) {
-			tokenizer.pushBack();
 			String identifier = readIdentifier();
+			skipWhitespace();
 			if (hasIdentifier()) {
 				String other = readIdentifier();
 				Prefix prefix = unitSystem.lookupPrefix(identifier);
 				NamedUnit unit = (NamedUnit) unitSystem.lookupUnit(entity+other); // cast in lookupUnit?
 				return new ScaledUnit(prefix, unit);
 			} else {
-				tokenizer.pushBack();
 				return unitSystem.lookupUnit(entity+identifier);
 			}
 		} else {
-			throw new IOException(String.format("expected unit but found '%s'", (char) tokenizer.ttype));
+			throw new IOException(String.format("expected unit but found '%s'", nextChar()));
 		}
 	}
 
 	public boolean eof() throws IOException {
-		int token = tokenizer.nextToken();
-		tokenizer.pushBack();
-		return (token == Tokenizer.TT_EOF);
+		int next = nextInt();
+		pushBack();
+		return (next < 0);
 	}
 
-	public char nextChar() throws IOException {
-		return (char) tokenizer.nextToken();
-	}
-	
 	public int lineno() {
-		return tokenizer.lineno();
+		return lineNumber;
+	}
+
+	public String nextChars() throws IOException {
+		int i = 0;
+		String next = "";
+		while (!eof() && i <= 5) {
+			i++;
+			if (hasNumber()) {
+				next += readNumber();
+			} else if (hasString()) {
+				next += "\"" + readString() + "\"";
+			} else if (hasIdentifier()) {
+				next += readIdentifier();
+			} else {
+				next += nextChar();
+			}
+		}
+		return next;
 	}
 }

@@ -1,0 +1,3 @@
+let flow = backward-forward in
+  [j | j in columnDomain(basis), col := column(basis,j), not(flow.col = 0)]
+end

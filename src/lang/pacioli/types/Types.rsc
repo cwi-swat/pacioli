@@ -60,7 +60,8 @@ public set[str] typeVariables(x) = {name | /typeVar(name) <- x};
 
 public str pprint(Type t) {
 	switch (t) {
-		case typeVar(x): return "\'<x>";
+		//case typeVar(x): return "\'<x>";
+		case typeVar(x): return x;
 		case matrix(a,pu0,qv0): {
 			fact = pprint(a);
 			row = pprint(pu0);
@@ -73,19 +74,22 @@ public str pprint(Type t) {
 			if (rows == "") {constr = "Vec";}
 			if (cols == "") {constr = "Vec";}
 			if (rows == "" && cols == "") {constr = "Num";} 	
-			return "<constr>\<<front><sep><rows><cols>\>";
+			return "<constr>(<front><sep><rows><cols>)";
 		}
+		case function(tupType([]),y): return "() -\> <pprint(y)>";
+		case function(tupType(x),y): return "(<intercalate(", ", [pprint(a) | a <- x])>) -\> <pprint(y)>";
 		case function(x,y): return "<pprint(x)> -\> <pprint(y)>";
-		case tupType([]): return "()";
-		case tupType(x): return "(<(pprint(head(x)) | it + ", " + pprint(y) | y <- tail(x))>)";
-		case listType(x): return "List\<<pprint(x)>\>";
-		case setType(x): return "Set\<<pprint(x)>\>";
+		case tupType(x): return "Tuple(<intercalate(", ", [pprint(a) | a <- x])>)";
+		//case tupType([]): return "\<\>";
+		//case tupType(x): return "\<<(pprint(head(x)) | it + ", " + pprint(y) | y <- tail(x))>\>";
+		case listType(x): return "List(<pprint(x)>)";
+		case setType(x): return "Set(<pprint(x)>)";
 		case boolean(): return "Boole";
 		case entity(x): return "<pprint(x)>";
+		default: throw "huh <t>";
 	}
 } 
 
-	
 private str pprintSimpleIndex(simple(name), Unit unit) {
 	return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
 }
@@ -107,7 +111,8 @@ public str serial (duo(EntityType entity, Unit unit)){
 public str pprint(duo(EntityType entity, Unit unit)) {
 
 	switch (entity) {
-		case entityVar(x): return "\'<x>.<pprint(unit)>";
+		//case entityVar(x): return "\'<x>.<pprint(unit)>";
+		case entityVar(x): return "<x>.<pprint(unit)>";
 		case compound([]): return "(empty).(1)";
 		default: {
 			if (entityVariables(entity) == {} && unitVariables(unit) == {} && compound(x) := entity) {
@@ -126,7 +131,8 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 
 public str pprint(EntityType t) {
 	switch (t) {
-		case entityVar(x): return "\'<x>";
+		//case entityVar(x): return "\'<x>";
+		case entityVar(x): return x;
 		case compound([]): return "Empty";
 		case compound(x): return ("<pprint(head(x))>" | "<it>*<pprint(y)>" | y <- tail(x)); 
 	}

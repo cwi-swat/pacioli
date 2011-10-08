@@ -369,6 +369,7 @@ public Environment env() {
   				  function(tupType([function(typeVar("a"), typeVar("b")),
   				  					typeVar("a")]), 
   				  		   typeVar("b"))),
+	"tuple": forall({},{},{"a"}, function(typeVar("a"), typeVar("a"))),
 	"zip": forall({},{},{"a", "b"},
   				  function(tupType([listType(typeVar("a")),
   									listType(typeVar("b"))]), 
@@ -389,13 +390,7 @@ public Environment env() {
   				  function(tupType([typeVar("b"),
   				  					function(tupType([typeVar("b"), typeVar("c")]), typeVar("b")),
   									listType(typeVar("c"))]), 
-  				  		   typeVar("b"))),  				  		   
-	"reduceListLazy": forall({},{},{"a", "b", "c"},
-  				  function(tupType([typeVar("b"),
-  				  					function(tupType([typeVar("a")]), function(tupType([]), typeVar("c"))),
-  				  					function(tupType([typeVar("b"), function(tupType([]), typeVar("c"))]), typeVar("b")),
-  									listType(typeVar("a"))]), 
-  				  		   typeVar("b"))),  				  		   
+  				  		   typeVar("b"))),  				  		     				  		   
 	"reduceSet": forall({},{},{"a", "b", "c"},
   				  function(tupType([typeVar("c"),
   				  					function(tupType([typeVar("a")]), typeVar("b")),
@@ -576,12 +571,17 @@ public void compile(Expression exp) {
 		}
 		
 		<typ, _> = inferTypeAPI(exp, fullEnv);
-		println("<exp> :: <pprint(unfresh(typ))>");
+		ty = unfresh(typ);
+		scheme = forall(unitVariables(ty),
+				        entityVariables(ty),
+				        typeVariables(ty),
+				        ty);
+		println("<exp> :: <pprint(scheme)>");
 		code = compilePacioli(exp);
 		prog = "<header>;
 		   	   'eval result <code>; 
 	       	   'print result";		
-		writeFile(|project://Pacioli/cases/tmp.mvm|, [prog]);
+		writeFile(|project://pacioli/cases/tmp.mvm|, [prog]);
 	} catch err: {
 		println(err);
 	}
@@ -615,7 +615,12 @@ public void compile(str exp) {
 		
 		parsed = parseImplodePacioli(exp);
 		<typ, _> = inferTypeAPI(parsed, fullEnv);
-		println("<exp> :: <pprint(unfresh(typ))>");
+		ty = unfresh(typ);
+		scheme = forall(unitVariables(ty),
+				        entityVariables(ty),
+				        typeVariables(ty),
+				        ty);
+		println("<exp> :: <pprint(scheme)>");
 		code = compilePacioli(parsed);
 		prog = "<header>;
 		   	   'eval result <code>; 
@@ -651,16 +656,17 @@ public void def(str name, str exp) {
 		glbReplRepo += (name: <parsed,scheme>);
 		glbReplRepoOrder -= name;
 		glbReplRepoOrder += name;
-		println("<name> :: <pprint(typ)>");
+		println("<name> :: <pprint(scheme)>");
 	} catch err: {
 		println(err);
 	}
 }
 
 public void compileFile (str name) {
+	stdLib();
 	lines = readFile(name);
 	if (lines == []) return;
-	exp = (head(lines) | it + x | x <- tail(lines));
+	exp = (head(lines) | it + "\n" + x  | x <- tail(lines));
 	return compile(exp);
 }
 
@@ -828,7 +834,7 @@ public void demo5() {
    let sums = [x+y | x in dice, y in dice] in
      let total = count[s | s in sums] in
 	   let cnt(n) = count[s | s in sums, s=n] in
-	     [tuple[i,cnt(i)/total] | i elt {x+y | x in dice, y in dice}]
+	     [tuple(i,cnt(i)/total) | i elt {x+y | x in dice, y in dice}]
 	   end
 	 end
    end
@@ -883,10 +889,10 @@ public void demo7() {
 	 						    append([append(a,x) | a in powers], powers),
 	 						  list) in
   let combis(list) = apply(lambda (x,y) x,
-                           reduceList(tuple[[],list],
+                           reduceList(tuple([],list),
 							  lambda(x) x,
 	 						  lambda(accu,x)
-	 						    apply(lambda (a,b) tuple[append([tuple[x,y] | y in tail(b)],a),tail(b)],accu),
+	 						    apply(lambda (a,b) tuple(append([tuple(x,y) | y in tail(b)],a),tail(b)),accu),
 	 						  list)) in
   combis([1,2,3])
   end
@@ -935,65 +941,69 @@ public void test9() {
 	println(size(c));
 }
 
+public void demo10() {
+	println("Functions and tuples in Pacioli");
+	compile("apply");
+	compile("tuple");
+	compile("identity");
+}
+
 public void fm() {
 	stdLib();
 	def("eliminate", "lambda(quadruples, row)
-                       let combined = [tuple[scaled1, support(scaled1), scaled2, support(scaled2)] |
-                                       c in combis(quadruples),
-                                       (v,w) := c,
-                                       (v1,sv2,v2,sv2) := v,
-                                       (w1,sw1,w2,sw2) := w,
-  					                   alpha := magnitude(v1,row,empty), 
-  					                   beta := magnitude(w1,row,empty),
-  					                   alpha*beta less 0,
-  					                   scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
-  					                   scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
+                       let combined = [tuple(scaled1, support(scaled1), scaled2, support(scaled2)) |
+                                         (v,w) in combis(quadruples),
+                                         (v1,sv1,v2,sv2) := v,
+                                         (w1,sw1,w2,sw2) := w,
+  					                     alpha := magnitude(v1,row,empty), 
+  					                     beta := magnitude(w1,row,empty),
+  					                     alpha*beta \< 0,
+  					                     scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+  					                     scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
   					   in
-  					     [v | v in append(combined, quadruples),
-  					          (v1,sv2,v2,sv2) := v,
-  					          magnitude(v1, row, empty) = 0]
+  					     [q | q in append(combined, quadruples),
+  					            (v1, support1, v2, support2) := q,
+  					            magnitude(v1, row, empty) = 0]
   					   end");  					    
 	def("canonical", "lambda (quadruple)
-	                    let (v1,sv1,v2,sv2) = quadruple in
+	                    let (v1, support1, v2, support2) = quadruple in
                           let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
                                           gcd[magnitude(v2,i,j) | i,j from v2]) in
-                            tuple[scale(c, v1),sv1,scale(c, v2),sv2]
+                            tuple(scale(c,v1), support1, scale(c,v2), support2)
                           end
-                        end");                                
+                        end");                
 	def("filterMinimals", "lambda (quadruples)
-	                   loopList([], 
-	                            lambda (prev,quadruple)
-	                              let (n1,sn1,n2,sn2) = quadruple in
-                                    let (bit,new) = loopList(tuple[true,[]], 
-	                                                         lambda (accu,p)
-	                                                           let (bit, new) = accu in
-	                                                             let (p1,sp1,p2,sp2) = p in
-	                                                               if sn1 leq sp1 && sn2 leq sp2 then
-	                                                                 tuple[false, if bit then addMut(new,quadruple) else new end]
-	                                                               else
-	                                                                 tuple[bit && not(sp1 leq sn1 && sp2 leq sn2), addMut(new,p)]
-	                                                               end    
-	                                                             end
-	                                                           end, 
-	                                                         prev) in
-	                                  if bit then addMut(new,quadruple) else new end
-                                    end
- 	                              end, 
-	                            quadruples)");
-	def("driver", "lambda(quadruples, row)
-                     let eliminated = eliminate(quadruples,row) in
-                       let generators = filterMinimals([canonical(v) | v in eliminated]) in
-		                 let dummy = print(tuple[row, size(eliminated), size(generators)]) in
-  	                       generators
-  	                     end
-			           end
-                     end");
-	def("fourierMotzkin", "lambda (matrix)
-	                         let quadruples = [tuple[p1,support(p1),p2,support(p2)] |
-	                                           pair in zip(columns(matrix),columns(rightIdentity(matrix))),
-	                                           (p1,p2) := pair] in
-                               [p2 | p in loopList(quadruples, driver, rowDomain(matrix)), (p1,sp1,p2,sp2) := p]
-                             end");
+                             [q | q in quadruples,
+                                  (q1,sq1,q2,sq2) := q,
+                                  all[not(sr1 \<= sq1 && sr2 \<= sq2) || (sq1 = sr1 && sq2 = sr2) |
+		                                (r1,sr1,r2,sr2) in quadruples]]");
+	def("filterMinimalsNested", "lambda (quadruples)
+                             [q | q in quadruples,
+                                  (q1,sq1,q2,sq2) := q,
+                                  all[sq1 = sr1 && sq2 = sr2 |
+		                                (r1,sr1,r2,sr2) in quadruples,
+		                                sr1 \<= sq1 && sr2 \<= sq2]]");
+    def("fourierMotzkin", "lambda (matrix)
+                             [v2 | (v1, support1, v2, support2) in 
+                                     loopList([tuple(v1, support(v1), v2, support(v2)) |
+	                                                 (v1,v2) in zip(columns(matrix), columns(rightIdentity(matrix)))],
+                                              lambda(quadruples, row)
+										        filterMinimals([canonical(v) | v in eliminate(quadruples, row)]),
+                                 			  rowDomain(matrix))]");
+	//def("driver", "lambda(quadruples, row)
+ //                    let eliminated = eliminate(quadruples,row) in
+ //                      let generators = filterMinimals([canonical(v) | v in eliminated]) in
+	//	                 let dummy = print(tuple(row, size(eliminated), size(generators))) in
+ // 	                       generators
+ // 	                     end
+	//		           end
+ //                    end");
+	//def("fourierMotzkin", "lambda (matrix)
+	//                         let quadruples = [tuple(p1,support(p1),p2,support(p2)) |
+	//                                           pair in zip(columns(matrix),columns(rightIdentity(matrix))),
+	//                                           (p1,p2) := pair] in
+ //                              [p2 | p in loopList(quadruples, driver, rowDomain(matrix)), (p1,sp1,p2,sp2) := p]
+ //                            end");
 	dump("fourierMotzkin(backward-forward)",
 	     "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity",
 	     "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv");
@@ -1001,10 +1011,10 @@ public void fm() {
 
 public void stdLib() {
 	def("combis", "lambda (list) 
-		             let (result, dummy) = loopList(tuple[[],list],
+		             let (result, dummy) = loopList(tuple([],list),
 							                        lambda(accu,x)
 							                          let (result,tails) = accu in
-	 						                            tuple[append([tuple[x,y] | y in tail(tails)], result), tail(tails)]
+	 						                            tuple(append([tuple(x,y) | y in tail(tails)], result), tail(tails))
 	 						                          end,
 	 						                        list) in
 	 		           result
@@ -1024,12 +1034,12 @@ public void fmAnalysis() {
 	def("value", "valuation*(isAsset-isLiability)");
 	def("legitProduction", "lambda (t) flow.(t*isLegit)");
 	def("illicitProduction", "lambda (t) flow.(t*isIllicit)");
-	compile("[tuple[con,illVal, legVal] |
+	compile("[tuple(con,illVal, legVal) |
 	            con in columnDomain(basis),
 	            t := column(basis,con),
 	            illVal := value.illicitProduction(t),
 	            legVal := value.legitProduction(t), 
-	            0 less illVal]");
+	            0 \< illVal]");
 	//compile("[j | j in columnDomain(basis), col := column(basis,j), not(flow.col = 0)]");
 }
 

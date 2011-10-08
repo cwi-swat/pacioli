@@ -27,6 +27,7 @@ data Expression = variable(str name)
  				// todo: interesting vec comprehension
  				//| vecComprehension(Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
+ 				| generatorLuxe(list[str] vars, Expression collection)
  				//| matrixGenerator(str variable, Expression collection)
 				| matrixGenerator(str row, str column, Expression collection)
 				| setGenerator(str variable, Expression collection)
@@ -46,6 +47,7 @@ data Expression = variable(str name)
  				| neg(Expression arg)
  				| and(Expression lhs,Expression rhs)
  				| or(Expression lhs,Expression rhs)
+ 				| implies(Expression lhs,Expression rhs)
  				| not(Expression arg)
  				| trans(Expression arg)
  				| joi(Expression lhs, Expression rhs);
@@ -79,6 +81,7 @@ public Expression normalize(Expression exp) {
 		case clos(x) => application(variable("closure"),tup([x]))
 		case kleene(x) => application(variable("kleene"),tup([x]))
 		case not(x) => application(variable("not"),tup([x]))
+		case implies(x, y) => normalize(or(application(variable("not"),tup([x])),y))
 		case sum(x, y) => application(variable("sum"),tup([x,y]))
 		case mul(x, y) => application(variable("multiply"),tup([x,y]))
 		case sub(x, y) => application(variable("sum"),tup([x,normalize(neg(y))]))
@@ -128,6 +131,10 @@ public Expression mergeBody (str kind, Expression x, Expression y) {
 	}
 }
 
+int glbcounter = 100;
+
+str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
+
 public Expression translateComprehensionRec(str kind, Expression zero, Expression merge, Expression header, list[Expression] parts) {
 	if (parts == []) {
 		return mergeBody(kind, zero, header);
@@ -137,6 +144,10 @@ public Expression translateComprehensionRec(str kind, Expression zero, Expressio
 		switch (first) {
 			case generator(var,exp):
 				return translateGenerator(kind, var, exp, zero, merge, header, parts);
+			case generatorLuxe(vars,exp): {
+				var = fresh("tup");
+				return translateComprehensionRec(kind, zero, merge, header, [generator(var,exp), bindLuxe(vars, variable(var))] + tail(parts));
+			}
 			case setGenerator(var,exp):
 				return translateSetGenerator(kind, var, exp, zero, merge, header, parts);				
 			case matrixGenerator(row,col,exp):

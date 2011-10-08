@@ -275,6 +275,7 @@ public class Matrix implements PacioliValue {
 		int columnWidth = columnIndex.width();
 		
 		Reader tokenizer = new Reader(new FileReader(source), null);
+		tokenizer.skipWhitespace();
 		while (!tokenizer.eof()) {
 			List<String> row = new ArrayList<String>();
 			List<String> column = new ArrayList<String>();
@@ -290,7 +291,11 @@ public class Matrix implements PacioliValue {
 			//double num = tokenizer.readNumber().doubleValue();
 			BigFraction num = tokenizer.readNumber();
 			numbers.set(rowIndex.ElementPos(row), columnIndex.ElementPos(column), num);
-			tokenizer.readSeparator();
+			tokenizer.skipWhitespace();
+			if (!tokenizer.eof()) {
+				tokenizer.readCharacter(';');
+			}
+			tokenizer.skipWhitespace();
 		}
 	}
 	

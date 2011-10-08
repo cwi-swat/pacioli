@@ -224,19 +224,24 @@ public class Machine {
 		}
 		return list;
 	}
+		
+	public void readCharacter(Reader reader, char character) throws IOException {
+		reader.skipWhitespace();
+		reader.readCharacter(character);
+	}
 	
 	private Expression readExpression(Reader reader) throws IOException {
+		reader.skipWhitespace();
 		if (reader.hasNumber()) {
 			return new Const(new Matrix(reader.readNumber()));
 		} else if (reader.hasIdentifier()) {
 			
 			String command = reader.readIdentifier();
-			
 			if (command.equals("lambda")) {
 				
-				reader.readCharacter('(');
+				readCharacter(reader, '(');
 				List<String> vars = readStringList(reader);
-				reader.readCharacter(')');
+				readCharacter(reader, ')');
 				Expression body = readExpression(reader);
 				
 				return new Lambda(vars,body);
@@ -281,13 +286,14 @@ public class Machine {
 				return new Variable(command);				
 			}
 		} else {
-			throw new IOException(String.format("expected expression but found '%s'", reader.nextChar()));			
+			throw new IOException(String.format("expected expression but found '%s'", reader.nextChars()));			
 		}
 	}
 	
 	private void runStream(Reader reader, PrintStream out) throws IOException {
 		try {
 			String command;
+			reader.skipWhitespace();
 			while (!reader.eof()) {
 				if (reader.hasIdentifier()) {
 
@@ -508,7 +514,7 @@ public class Machine {
 						String name = reader.readIdentifier();
 						String symbol = reader.readString();
 						Unit unit = reader.readUnit("");
-						reader.readSeparator();
+						readCharacter(reader, ';');
 						
 						if (verbose) {
 							out.format("-- Adding unit '%s' (%s) with %s = %s\n",
@@ -543,8 +549,12 @@ public class Machine {
 					}
 					
 				} else {
+					
 					throw new IOException(String.format("expected command but found '%s'", reader.nextChar()));					
 				}
+				
+				reader.skipWhitespace();
+				
 			}
 		} catch (IOException e) {
 			throw new IOException(String.format("at line %d: %s", reader.lineno(), e.getLocalizedMessage()));
@@ -555,9 +565,14 @@ public class Machine {
 		List<String> names = new ArrayList<String>();
 		Reader reader = new Reader(new FileReader(fileName), unitSystem);
 		String name;
+		reader.skipWhitespace();
 		while (!reader.eof()) {
 			name = reader.readString();
-			reader.readSeparator();
+			reader.skipWhitespace();
+			if (!reader.eof()) {
+				reader.readCharacter(';');
+			}
+			reader.skipWhitespace();
 			names.add(name);
 		}
 		return names;
@@ -566,10 +581,15 @@ public class Machine {
 	public Map<String, Unit> loadUnitFile(String fileName) throws IOException {
 		Map<String, Unit> map = new HashMap<String, Unit>();
 		Reader reader = new Reader(new FileReader(fileName), unitSystem);
+		reader.skipWhitespace();
 		while (!reader.eof()) {
 			String name = reader.readString();
 			Unit unit = reader.readUnit("");
-			reader.readSeparator();
+			reader.skipWhitespace();
+			if (!reader.eof()) {
+				reader.readCharacter(';');
+			}
+			reader.skipWhitespace();
 			map.put(name, unit);
 		}
 		return map;
