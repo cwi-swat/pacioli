@@ -765,6 +765,7 @@ public void demo2() {
 	compile("(lambda(price) price.P2^R^T * price.P2^R^T) (sales / amount^T)");
 	compile("(lambda(price) (price . P2^R^T)) (sales / amount^T)");
 	compile("(lambda(price) price.P2^R^T) (sales / amount^T)");
+	compile("sales.P1 / P2.amount");
 	
 	// Restaurant
 	compile("menu_price . menu_sales");
@@ -990,20 +991,6 @@ public void fm() {
                                               lambda(quadruples, row)
 										        filterMinimals([canonical(v) | v in eliminate(quadruples, row)]),
                                  			  rowDomain(matrix))]");
-	//def("driver", "lambda(quadruples, row)
- //                    let eliminated = eliminate(quadruples,row) in
- //                      let generators = filterMinimals([canonical(v) | v in eliminated]) in
-	//	                 let dummy = print(tuple(row, size(eliminated), size(generators))) in
- // 	                       generators
- // 	                     end
-	//		           end
- //                    end");
-	//def("fourierMotzkin", "lambda (matrix)
-	//                         let quadruples = [tuple(p1,support(p1),p2,support(p2)) |
-	//                                           pair in zip(columns(matrix),columns(rightIdentity(matrix))),
-	//                                           (p1,p2) := pair] in
- //                              [p2 | p in loopList(quadruples, driver, rowDomain(matrix)), (p1,sp1,p2,sp2) := p]
- //                            end");
 	dump("fourierMotzkin(backward-forward)",
 	     "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity",
 	     "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv");
