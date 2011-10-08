@@ -3,6 +3,8 @@ package mvm.values.matrix;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,15 +72,17 @@ public class Matrix implements PacioliValue {
 	
 	public String pprint() {
 		
+		int nrDecimals = 5;
+		
 		if (isZero()) {
 			return "0";
 		}
 		
 		if (type.rowOrder() == 0 && type.columnOrder() == 0) {
 			if (unitAt(0,0).equals(Unit.ONE)) {
-				return String.format("%s", numbers.get(0,0).bigDecimalValue());
+				return String.format("%s", numbers.get(0,0).bigDecimalValue(nrDecimals, BigDecimal.ROUND_HALF_EVEN));
 			} else {
-				return String.format("%s %s", numbers.get(0,0).bigDecimalValue(), unitAt(0,0).pprint());
+				return String.format("%s %s", numbers.get(0,0).bigDecimalValue(nrDecimals, BigDecimal.ROUND_HALF_EVEN), unitAt(0,0).pprint());
 			}				
 		} 
 		
@@ -97,9 +101,9 @@ public class Matrix implements PacioliValue {
 					idx.addAll(columnIndex.ElementAt(j));
 					unit = unitAt(i,j);
 					if (unit.equals(Unit.ONE)) {
-						output += String.format("\n %50s %20s", idx, num.bigDecimalValue());
+						output += String.format("\n %50s %20s", idx, num.bigDecimalValue(nrDecimals, BigDecimal.ROUND_HALF_EVEN));
 					} else {
-						output += String.format("\n %50s %20s %s", idx, num.bigDecimalValue(), unit.pprint());
+						output += String.format("\n %50s %20s %s", idx, num.bigDecimalValue(nrDecimals, BigDecimal.ROUND_HALF_EVEN), unit.pprint());
 					}
 				}
 			}

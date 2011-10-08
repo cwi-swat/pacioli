@@ -98,7 +98,7 @@ public Expression translateComprehension(str kind, Expression header, list[Expre
 	case "list":
 		return translateComprehensionRec(kind, variable("emptyList"), variable("addMut"), header, parts);
 	case "set":
-		return translateComprehensionRec(kind, variable("emptySet"), variable("addMut"), header, parts);		
+		return translateComprehensionRec(kind, variable("emptySet"), variable("adjoinMut"), header, parts);		
 	case "sum":
 		return translateComprehensionRec(kind, const(0.0), variable("whocares"), header, parts);
 	case "count":

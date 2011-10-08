@@ -576,7 +576,7 @@ public void compile(Expression exp) {
 				        entityVariables(ty),
 				        typeVariables(ty),
 				        ty);
-		println("<exp> :: <pprint(scheme)>");
+		println("<pprint(exp)> :: <pprint(scheme)>");
 		code = compilePacioli(exp);
 		prog = "<header>;
 		   	   'eval result <code>; 

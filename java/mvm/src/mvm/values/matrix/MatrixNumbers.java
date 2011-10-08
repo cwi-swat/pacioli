@@ -21,6 +21,26 @@ public class MatrixNumbers {
 		this.numbers = numbers;
 	}
 	
+	public int hashCode() {
+		return numbers.hashCode();
+	}
+	
+	public boolean equals(Object other) {
+		if (other == this) {
+			return true;
+		}
+		if (! (other instanceof MatrixNumbers)) {
+			return false;
+		}
+		MatrixNumbers otherMatrixNumbers = (MatrixNumbers) other;
+		if (this.isZero() && otherMatrixNumbers.isZero()) {
+			return true;
+		} else {
+			return this.numbers.equals(otherMatrixNumbers.numbers);
+		}
+	}
+
+	
 	public void set(int i, int j, int num) {
 		numbers.setEntry(i, j, new BigFraction(num));
 	}
