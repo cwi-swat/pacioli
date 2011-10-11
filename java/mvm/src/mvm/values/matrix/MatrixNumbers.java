@@ -4,14 +4,14 @@ import java.math.BigInteger;
 
 import org.apache.commons.math.fraction.BigFraction;
 import org.apache.commons.math.fraction.BigFractionField;
-import org.apache.commons.math.linear.AbstractRealMatrix;
+import org.apache.commons.math.linear.FieldLUDecomposition;
+import org.apache.commons.math.linear.FieldLUDecompositionImpl;
 import org.apache.commons.math.linear.FieldMatrix;
 import org.apache.commons.math.linear.SparseFieldMatrix;
 
 public class MatrixNumbers {
 	
 	private FieldMatrix<BigFraction> numbers;
-	//private FieldMatrix<BigReal> numbers;
 	
 	public MatrixNumbers(int nrRows, int nrColumns) {
 		numbers = new SparseFieldMatrix<BigFraction>(BigFractionField.getInstance(), nrRows, nrColumns);
@@ -50,8 +50,8 @@ public class MatrixNumbers {
 	}
 
 	public void set(int i, int j, BigFraction num) {
-	numbers.setEntry(i, j, num);
-}
+		numbers.setEntry(i, j, num);
+	}
 
 //	public void set(int i, int j, BigDecimal num) {
 //		numbers.setEntry(i, j, new BigFraction(num));
@@ -152,15 +152,14 @@ public class MatrixNumbers {
 
 	public MatrixNumbers closure() {
 		MatrixNumbers ident = identityNumbers(nrRows());
-		MatrixNumbers nums = new MatrixNumbers((FieldMatrix<BigFraction>) ((AbstractRealMatrix) ident.numbers.subtract(numbers)).inverse());
-		nums.numbers = nums.numbers.subtract(ident.numbers);
-		return nums;
+		FieldLUDecomposition<BigFraction> decomposition = new FieldLUDecompositionImpl<BigFraction>(ident.numbers.subtract(numbers));
+		return new MatrixNumbers(decomposition.getSolver().getInverse().subtract(ident.numbers));
 	}
 
 	public MatrixNumbers kleene() {
 		MatrixNumbers ident = identityNumbers(nrRows());
-		MatrixNumbers nums = new MatrixNumbers((FieldMatrix<BigFraction>) ((AbstractRealMatrix) ident.numbers.subtract(numbers)).inverse());
-		return nums;
+		FieldLUDecomposition<BigFraction> decomposition = new FieldLUDecompositionImpl<BigFraction>(ident.numbers.subtract(numbers));
+		return new MatrixNumbers(decomposition.getSolver().getInverse());
 	}
 
 	public BigFraction total() {

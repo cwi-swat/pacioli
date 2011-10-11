@@ -58,9 +58,10 @@ public class PacioliSet implements PacioliValue {
 	}
 
 	public PacioliValue adjoinMut(PacioliValue y) {
-		if (!items.contains(y)) {
-			items.add(y);
-		}
+//		if (!items.contains(y)) {
+//			items.add(y);
+//		}
+		items.add(y);
 		return this;		
 	}
 }

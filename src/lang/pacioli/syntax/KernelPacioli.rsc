@@ -42,13 +42,19 @@ start syntax Expression = variable:Ident name
 		assoc and: Expression "&&" Expression
 	  | assoc or: Expression "||" Expression
 	)
-	> letSuperLuxe: "let" "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
-	> letLuxe: "let" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
-	> @Foldable let: "let" Ident var "=" Expression val "in" Expression body "end"
+	> llet: "let" {LetBinding ","}+ bindings "in" Expression body "end"
+	> letSuperLuxe: "oldlet" "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
+	> letLuxe: "oldlet" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
+	> @Foldable let: "oldlet" Ident var "=" Expression val "in" Expression body "end"
 	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
 syntax Args = tup: "(" {Expression ","}* items ")";
+
+syntax LetBinding 
+	= simpleBinding: Ident var "=" Expression val
+	| functionBinding: Ident var "(" {Ident ","}* vars ")" "=" Expression val
+	| tupleBinding: "(" {Ident ","}* vars ")" "=" Expression val;
 
 syntax ComprehensionTerm 
 	= generator: Ident name "in" Expression exp

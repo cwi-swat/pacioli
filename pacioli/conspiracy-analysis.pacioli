@@ -1,24 +1,18 @@
-let leftBang(matrix) = sum[c | c in columns(support(leftIdentity(matrix)))] in
- let rightBang(matrix) = sum[r | r in rows(support(rightIdentity(matrix)))] in
-  let flow = backward-forward in
-   let isReal = rightBang(isJournal)-isJournal in
-    let isLiability = rightBang(isAsset)-isAsset in
-     let isIllicit = leftBang(isLegit)-isLegit in
-      let value = valuation*(isAsset-isLiability) in
-       let legitProduction(t) = flow.(t*isLegit) in
-        let illicitProduction(t) = flow.(t*isIllicit) in
-          [tuple(conspiracy, illicitValue, legitValue) |
+let 
+	leftBang(matrix) = sum[c | c in columns(support(leftIdentity(matrix)))],
+	rightBang(matrix) = sum[r | r in rows(support(rightIdentity(matrix)))],
+  	flow = backward-forward,
+	isReal = rightBang(isJournal)-isJournal,
+	isLiability = rightBang(isAsset)-isAsset,
+	isIllicit = leftBang(isLegit)-isLegit,
+	value = valuation*(isAsset-isLiability),
+	legitProduction(t) = flow.(t*isLegit),
+	illicitProduction(t) = flow.(t*isIllicit)
+in
+	[tuple(conspiracy, illicitValue, legitValue) |
 	          conspiracy in columnDomain(basis),
 	          transition := column(basis,conspiracy),
 	          illicitValue := value.illicitProduction(transition),
 	          legitValue := value.legitProduction(transition), 
 	          0 < illicitValue]
-        end
-       end
-      end
-     end
-    end
-   end
-  end
- end
 end

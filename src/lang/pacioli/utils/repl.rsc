@@ -55,9 +55,9 @@ str prelude = "baseunit dollar \"$\";
 			  'entity Place \"<glbCasesDirectory>case4/place.entity\";
 			  'entity Transition \"<glbCasesDirectory>case4/transition.entity\";
 			  'index Place unit \"<glbCasesDirectory>case4/place.unit\";
+			  'entity Conspiracy \"<glbCasesDirectory>case4/conspiracy.entity\";
 			  'entity File \"<glbCasesDirectory>case5/file.entity\";
-			  'entity Module \"<glbCasesDirectory>case5/module.entity\";
-			  'entity Conspiracy \"<glbCasesDirectory>case4/conspiracy.entity\"";
+			  'entity Module \"<glbCasesDirectory>case5/module.entity\"";
 
 
 map[str,str] fileLoc = 

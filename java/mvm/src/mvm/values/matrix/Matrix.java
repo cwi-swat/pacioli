@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,9 +183,11 @@ public class Matrix implements PacioliValue {
 		return new PacioliList(keys);
 	}
 
-	// Moet de unit niet mee?
 	public PacioliValue get(Key row, Key column) throws IOException {
-		return new Matrix(numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		MatrixType extractedType = type.extractRow().extractColumn();
+		Matrix matrix = new Matrix(extractedType, new Index(), new Index());
+		matrix.numbers.set(0, 0, numbers.get(rowIndex.ElementPos(row.names), columnIndex.ElementPos(column.names)));
+		return matrix;
 	}
 
 	// Kan weg!?
@@ -219,18 +220,6 @@ public class Matrix implements PacioliValue {
 		matrix.numbers.set(i, j, numbers.get(i,j));
 		return matrix;
 	}
-
-//	private List<PacioliValue> columnRange(int from, int to) throws IOException {
-//		List<PacioliValue> columns = new ArrayList<PacioliValue>();
-//		MatrixType extractedType = type.extractColumn();
-//		Index index = new Index(new IndexType(),null,null);
-//		for (int i=from; i < to; i++) {
-//			Matrix matrix = new Matrix(extractedType, rowIndex, index);
-//			matrix.numbers = numbers.getColumn(i);
-//			columns.add(matrix);
-//		}
-//		return columns;
-//	}
 	
 	public PacioliValue column(Key key) throws IOException {
 		MatrixType extractedType = type.extractColumn();
@@ -240,25 +229,7 @@ public class Matrix implements PacioliValue {
 		return matrix;	
 	}
 	
-//	public PacioliList columns() throws IOException {
-//		return new PacioliList(columnRange(0, columnIndex.size()));	
-//	}
-
-//	private List<PacioliValue> rowRange(int from, int to) throws IOException {
-//		List<PacioliValue> rows = new ArrayList<PacioliValue>();
-//		MatrixType extractedType = type.extractRow();
-//		Index index = new Index(new IndexType(),null,null);
-//		for (int i=from; i < to; i++) {
-//			Matrix matrix = new Matrix(extractedType, index, columnIndex);
-//			matrix.numbers = numbers.getRow(i);
-//			rows.add(matrix);
-//		}
-//		return rows;
-//	}
-	
 	public PacioliValue row(Key key) throws IOException {
-		//int position = rowIndex.ElementPos(key.names);
-		//return rowRange(position,position+1).get(0);
 		MatrixType extractedType = type.extractRow();
 		int position = rowIndex.ElementPos(key.names);
 		Matrix matrix = new Matrix(extractedType, new Index(), columnIndex);
@@ -266,10 +237,6 @@ public class Matrix implements PacioliValue {
 		return matrix;
 	}
 	
-//	public PacioliList rows() throws IOException {
-//		return new PacioliList(rowRange(0, rowIndex.size()));	
-//	}
-
 	////////////////////////////////////////////////////////////////////////////
 	// Reading and Writing
 

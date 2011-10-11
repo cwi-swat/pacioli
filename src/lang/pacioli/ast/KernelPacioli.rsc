@@ -5,6 +5,7 @@ import List;
 
 anno loc Expression@location;
 
+
 data Expression = variable(str name)
 				| const(real number)
 				| constInt(int integer)
@@ -13,6 +14,7 @@ data Expression = variable(str name)
 				| tup(list[Expression] items)
 				| abstraction(list[str] vars, Expression body)
  				| application(Expression fn, Expression arg)
+ 				| llet(list[Binding] bindings, Expression body)
  				| let(str var, Expression val, Expression body)
  				| letLuxe(str var, list[str] vars, Expression val, Expression body)
  				| letSuperLuxe(list[str] vars, Expression val, Expression body)
@@ -52,8 +54,27 @@ data Expression = variable(str name)
  				| trans(Expression arg)
  				| joi(Expression lhs, Expression rhs);
 
+data Binding
+	= simpleBinding(str var, Expression val)
+	| functionBinding(str fn, list[str] args, Expression body)
+	| tupleBinding(list[str] vars, Expression val);
+	
+private Expression oneLet(Binding binding, Expression body) {
+	switch (binding) {
+	case simpleBinding(var, val): 
+		return let(var,val,body);
+	case functionBinding(var, vars, val): 
+		return let(var, abstraction(vars,val), body);
+	case tupleBinding(vars, val): 
+		return application(variable("apply"), tup([abstraction(vars,body), val]));
+	}
+}
+
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+		case variable("_") => variable(fresh("_"))
+		case llet([], body) => body
+		case llet(xs, body) => oneLet(head(xs), normalize(llet(tail(xs), body)))
 	    //case e:letSuperLuxe(vars,val,body) => application(variable("apply"), tup([abstraction(vars,body), val]))[@location=e@location]
 	    case letSuperLuxe(vars,val,body) => application(variable("apply"), tup([abstraction(vars,body), val]))
 		case letLuxe(var,vars,val,body) => let(var,abstraction(vars,val),body)

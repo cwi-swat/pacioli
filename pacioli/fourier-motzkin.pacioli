@@ -1,39 +1,58 @@
-let eliminate(quadruples, row) =
-  let combined = [tuple(scaled1, support(scaled1), scaled2, support(scaled2)) |
-                      (v,w) in combis(quadruples),
-                      (v1,sv1,v2,sv2) := v,
-                      (w1,sw1,w2,sw2) := w,
-                      alpha := magnitude(v1,row,empty), 
-                      beta := magnitude(w1,row,empty),
-                      alpha*beta < 0,
-                      scaled1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
-                      scaled2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
-  in
-    [q | q in append(combined, quadruples), (v1, support1, v2, support2) := q, magnitude(v1, row, empty) = 0]
-  end
-in  					    
- let canonical(quadruple) =
-   let (v1, support1, v2, support2) = quadruple in
-     let c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1],
-                     gcd[magnitude(v2,i,j) | i,j from v2]) in
-       tuple(scale(c,v1), support1, scale(c,v2), support2)
-     end
-   end
- in                                
-  let filterMinimals(quadruples) =
-    [q | q in quadruples,
-         (q1,sq1,q2,sq2) := q,
-         all[(sr1<=sq1 && sr2<=sq2) ==> (sq1=sr1 && sq2=sr2) | (r1,sr1,r2,sr2) in quadruples]]
-  in
-   let fourierMotzkin(matrix) =
-     [v2 | (v1, support1, v2, support2) in 
-               loopList([tuple(v1, support(v1), v2, support(v2)) |
-                             (v1,v2) in zip(columns(matrix), columns(rightIdentity(matrix)))],
-                        lambda(quadruples, row) filterMinimals([canonical(v) | v in eliminate(quadruples, row)]),
-                        rowDomain(matrix))]
-   in
-     fourierMotzkin(backward-forward)
-   end
-  end
- end
+let
+ 
+ (* This demo of Fourier Motzkin's algorithm to compute the nullifiers of an integer
+    matrix is an adaptation of Martinez and Silva's algorithm from 'A Simple and
+    Fast Algorithm to Obtain all Invariants of a Generalised Petri Net' (1982).
+    
+    In the algorithm a matrix |A I| is constructed. This matrix grows and shrinks 
+    in the row dimension when a column from A is eliminated. When it ends with 
+    matrix |B C| the rows in C are the nullifiers.
+   
+	The main data structure in this implementation is a list of quadruples (v,w,sv,sw). 
+	This version does not create matrix |A I| but creates pairs (v,w) of rows v from A and
+	w from I, and operates on these pairs instead of the matrix. Because the support is 
+	often needed these are added to get quadruples (v, w, support(v), support(w)).
+   
+	Also the rows and columns are switched with respect to Martinez and Silva.
+	
+	Paul Griffioen 2011 *)
+ 
+ eliminate(quadruples, row) =
+	let combined = [tuple(s1, s2, support(s1), support(s2)) |
+						(v,w) in combis(quadruples),
+						(v1, v2, _, _) := v,
+						(w1, w2, _, _) := w,
+						alpha := magnitude(v1, row, empty), 
+						beta := magnitude(w1, row, empty),
+						alpha * beta < 0,
+						s1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+						s2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
+	in
+		[q | q in append(combined, quadruples), 
+			 (v1, _, _, _) := q, 
+			 magnitude(v1, row, empty) = 0]
+	end,
+	
+ canonical(quadruple) =
+	let (v1, v2, support1, support2) = quadruple,
+	    c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j from v1], gcd[magnitude(v2,i,j) | i,j from v2])
+	in
+		tuple(scale(c,v1), scale(c,v2), support1, support2)
+	end,
+	
+ minimize(quadruples) =
+	[q | q in quadruples, (_, _, qsupport1, qsupport2) := q,
+         all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
+             r in quadruples, (_, _, rsupport1, rsupport2) := r]],
+
+ fourierMotzkin(matrix) =
+ 	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
+ 		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in column_pairs],
+ 		step(quadruples, row) = minimize([canonical(v) | v in eliminate(quadruples, row)]) 
+ 	in 
+		{w | (_, w, _, _) in loopList(quadruples, step, rowDomain(matrix))}
+	end
+	
+in
+	fourierMotzkin(backward-forward)
 end
