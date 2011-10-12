@@ -8,9 +8,9 @@ import mvm.values.PacioliValue;
 
 public class Branch implements Expression {
 
-	private Expression test;
-	private Expression positive;
-	private Expression negative;
+	private final Expression test;
+	private final Expression positive;
+	private final Expression negative;
 
 	public Branch(Expression test, Expression pos, Expression neg) {
 		this.test = test;

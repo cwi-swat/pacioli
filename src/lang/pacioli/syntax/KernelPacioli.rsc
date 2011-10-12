@@ -4,6 +4,7 @@ extend lang::pacioli::syntax::Lexical;
 
 
 start syntax Expression = variable:Ident name
+	| bang: Ident ent "!" Ident unit
 	| const: Number number
 	| constInt: Integer integer
 	| bracket "(" Expression nested ")"
@@ -13,7 +14,7 @@ start syntax Expression = variable:Ident name
 	| allComprehension: "all" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| countComprehension: "count" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| sumComprehension: "sum" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| vecComprehension: "\<" Expression head "|" {ComprehensionTerm ","}* rest "\>"
+	| vecComprehension: "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
 	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
 	| gcdComprehension: "gcd" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
@@ -23,6 +24,7 @@ start syntax Expression = variable:Ident name
 	> trans:  Expression "^T"
 	> clos:  Expression "+"
 	> kleene:  Expression "*"
+	> assoc per: Expression "per" Expression
 	> assoc joi: Expression "." Expression
 	> assoc mul: Expression "*" Expression
 	> left div: Expression "/" Expression

@@ -89,6 +89,11 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 				throw "Variable \'<x>\' uknown";
 			}
 		}
+		case bang(x,y): {
+			typ = matrix(uno(), duo(compound([simple(x)]), named(y, y, self())), duo(compound([]),uno()));
+			pop("<pprint(typ)>");
+			return <typ, ident>;
+		}
 		case const(0.0): {
 			typ = matrix(unitVar(fresh("u")),duo(entityVar(fresh("E")),unitVar(fresh("u"))),duo(entityVar(fresh("E")),unitVar(fresh("u")))); // todo
 			pop("<pprint(typ)>");

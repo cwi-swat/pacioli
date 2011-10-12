@@ -8,9 +8,9 @@ import mvm.expressions.Expression;
 
 public class Closure implements Callable {
 
-	public List<String> arguments;
-	public Expression code;
-	public Environment environment;
+	public final List<String> arguments;
+	public final Expression code;
+	public final Environment environment;
 	
 	public Closure(List<String> args, Expression expression, Environment env) {
 		arguments = args;

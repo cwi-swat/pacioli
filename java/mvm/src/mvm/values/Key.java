@@ -8,8 +8,8 @@ import mvm.values.matrix.Index;
 
 public class Key implements PacioliValue {
 
-	public List<String> names;
-	public Index index;
+	public final List<String> names;
+	public final Index index;
 
 	public Key() throws IOException {
 		this.names = new ArrayList<String>();

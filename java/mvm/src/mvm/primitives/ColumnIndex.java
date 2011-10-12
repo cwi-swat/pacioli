@@ -7,21 +7,21 @@ import mvm.values.Callable;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Matrix;
 
-public class LeftIdentity implements Callable {
+public class ColumnIndex implements Callable {
 
 	public String pprint() {
-		return "|leftIdentity|";
+		return "|columnIndex|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
 		if (params.size() != 1) {
-			throw new IOException("function 'leftIdentity' expects one argument");
+			throw new IOException("function 'columnIndex' expects one argument");
 		}
 		if (!(params.get(0) instanceof Matrix)) {
-			throw new IOException("argument to function 'leftIdentity' is not a matrix");
+			throw new IOException("argument to function 'columnIndex' is not a matrix");
 		}
-		Matrix x = (Matrix) params.get(0);
-		return x.leftIdentity();
+		Matrix matrix = (Matrix) params.get(0);
+		return matrix.columnIndex();
 	}
 
 }

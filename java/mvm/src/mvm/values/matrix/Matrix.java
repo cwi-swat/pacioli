@@ -14,12 +14,13 @@ import mvm.values.PacioliValue;
 
 import org.apache.commons.math.fraction.BigFraction;
 
+import units.PowerProduct;
 import units.Unit;
 
 
 public class Matrix implements PacioliValue {
 
-	private MatrixType type;
+	public MatrixType type;
 	private Index rowIndex;
 	private Index columnIndex;
 	private MatrixNumbers numbers;
@@ -61,6 +62,13 @@ public class Matrix implements PacioliValue {
 
 	public Matrix(MatrixType type, Index rowIndex, Index columnIndex){
 		this.type = type;
+		this.rowIndex = rowIndex;
+		this.columnIndex = columnIndex;
+		numbers = new MatrixNumbers(rowIndex.size(), columnIndex.size());
+	}
+
+	public Matrix(Unit unit, Index rowIndex, Index columnIndex) throws IOException{
+		type = new MatrixType(unit, rowIndex.type, columnIndex.type);
 		this.rowIndex = rowIndex;
 		this.columnIndex = columnIndex;
 		numbers = new MatrixNumbers(rowIndex.size(), columnIndex.size());
@@ -163,7 +171,14 @@ public class Matrix implements PacioliValue {
 	public boolean isZero() {
 		return numbers.isZero();
 	}
-
+	
+	public PacioliValue setMut(Key row, Key column, Matrix value) throws IOException {
+		int i = row.index.ElementPos(row.names);
+		int j = column.index.ElementPos(column.names);
+		numbers.set(i, j, value.numbers.get(0,0));
+		return this;
+	}
+	
 	////////////////////////////////////////////////////////////////////////////
 	// Matrix manipulation
 	
@@ -418,6 +433,16 @@ public class Matrix implements PacioliValue {
 		}
 	}
 
+	public Matrix ones() throws IOException {
+		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
+		for (int i=0; i < rowIndex.size(); i++) {
+			for (int j=0; j < columnIndex.size(); j++) {
+				matrix.numbers.set(i, j, 1);	
+			}
+		}	
+		return matrix;
+	}
+	
 	public PacioliValue scale(Matrix other) throws IOException {
 		if (type.singleton()) {
 			Matrix matrix = new Matrix(type.scale(other.type), other.rowIndex, other.columnIndex);
@@ -503,5 +528,13 @@ public class Matrix implements PacioliValue {
 								   columnIndex.multiply(columnIndex.reciprocal()));
 		matrix.numbers = numbers.support();
 		return matrix;
+	}
+	
+	public Matrix rowIndex() throws IOException {
+		return new Matrix(new PowerProduct(), rowIndex, new Index()).ones();
+	}
+	
+	public Matrix columnIndex() throws IOException {
+		return new Matrix(new PowerProduct(), columnIndex, new Index()).ones();
 	}
 }

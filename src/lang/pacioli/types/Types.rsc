@@ -91,7 +91,7 @@ public str pprint(Type t) {
 } 
 
 private str pprintSimpleIndex(simple(name), Unit unit) {
-	return "<name><(unit == uno()) ? "" : ".<pprint(unit)>">";
+	return "<name><(unit == uno()) ? "" : "!<pprint(unit)>">";
 }
 
 private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {
@@ -112,7 +112,14 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 
 	switch (entity) {
 		//case entityVar(x): return "\'<x>.<pprint(unit)>";
-		case entityVar(x): return "<x>.<pprint(unit)>";
+		case entityVar(x): {
+			temp = pprint(unit);
+			if (temp == "1") {
+				return x;
+			} else {
+				return "<x>!<temp>";
+			}
+		}
 		case compound([]): return "(empty).(1)";
 		default: {
 			if (entityVariables(entity) == {} && unitVariables(unit) == {} && compound(x) := entity) {
@@ -123,7 +130,12 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 					return ("<head(simpleIndices)>" | "<it>*<y>" | y <- tail(simpleIndices));
 				} 
 			} else {
-				return "(<pprint(entity)>).(<pprint(unit)>)";
+				temp = pprint(unit);
+				if (temp == "1") {
+					return pprint(entity);
+				} else {
+					return "(<pprint(entity)>)!(<temp>)";
+				}
 			}
 		}
 	}

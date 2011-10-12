@@ -165,6 +165,13 @@ public Environment env() {
    "root": forall({},{},{}, matrix(uno(), duo(compound([Module]), uno()),empty)),
    "emptyList": forall({},{},{"a"},listType(typeVar("a"))),   
    "empty": forall({},{},{}, entity(compound([]))),
+   "matrixFromTuples": forall({"a"},{"P", "Q"},{},
+  				  function(tupType([setType(tupType([entity(entityVar("P")),
+  				                                      entity(entityVar("Q")),
+  				                                      matrix(unitVar("a"), empty, empty)]))]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), uno()),
+  				  				  duo(entityVar("Q"), uno())))),
    "join": forall({"a", "b", "u", "v", "w"},{"P", "Q", "R"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -341,6 +348,27 @@ public Environment env() {
 				           matrix(uno(), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("P"), unitVar("u"))))),
+	"unitMatrix": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v"))))),
+	"rowIndex": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(uno(), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  empty))),
+	"columnIndex": forall({"a", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  				  duo(entityVar("P"), unitVar("u")),
+  				  				  duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(uno(),
+  				  				  duo(entityVar("Q"), unitVar("v")), 
+				           		  empty))),  				  				  
    "reciprocal": forall({"a", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), 
   				  				  duo(entityVar("P"), unitVar("u")),
@@ -1008,6 +1036,12 @@ public void stdLib() {
 	 		         end");
 	def("columns", "lambda (matrix) [column(matrix,j) | j in columnDomain(matrix)]");
 	def("rows", "lambda (matrix) [row(matrix,i) | i in rowDomain(matrix)]");
+	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j from mat\>");
+	// Hier wordt de unit factor vergeten!!!
+	def("unitMatrix", "lambda (mat) rowIndex(mat) per columnIndex(mat)");
+	def("support", "lambda (x) \<i,j -\> 1 | i,j from x, 0 \< magnitude(x,i,j)\>");
+	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
+	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
 }
 
 public void fmAnalysis() {

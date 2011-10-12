@@ -9,7 +9,7 @@ import mvm.values.matrix.Matrix;
 
 public class Const implements Expression {
 
-	private Matrix matrix;
+	private final Matrix matrix;
 
 	public Const(Matrix matrix) {
 		this.matrix = matrix;

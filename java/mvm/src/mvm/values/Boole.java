@@ -3,7 +3,7 @@ package mvm.values;
 
 public class Boole implements PacioliValue {
 
-	private boolean value;
+	private final boolean value;
 
 	public Boole(boolean value) {
 		this.value = value;

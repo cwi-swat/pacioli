@@ -8,8 +8,8 @@ import mvm.values.PacioliValue;
 
 public class Lambda implements Expression {
 
-	private List<String> arguments;
-	private Expression expression;
+	private final List<String> arguments;
+	private final Expression expression;
 
 	public Lambda(List<String> args, Expression body) {
 		arguments = args;

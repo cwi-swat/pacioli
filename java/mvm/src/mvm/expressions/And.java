@@ -8,8 +8,8 @@ import mvm.values.PacioliValue;
 
 public class And implements Expression {
 
-	private Expression lhs;
-	private Expression rhs;
+	private final Expression lhs;
+	private final Expression rhs;
 
 	public And(Expression lhs, Expression rhs) {
 		this.lhs = lhs;

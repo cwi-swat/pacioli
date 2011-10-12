@@ -34,6 +34,9 @@ public str compileExpression(Expression exp) {
 		case or(x,y): {
 			return "or(<compileExpression(x)>,<compileExpression(y)>)";
 		}
+		case bang(x,y): {
+			return "bang(<x>.<y>)";
+		}
 		case tup([]): {
 			return "application(tuple,empty)";
 		}

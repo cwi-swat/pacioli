@@ -13,6 +13,7 @@ import java.util.Map;
 
 import mvm.expressions.And;
 import mvm.expressions.Application;
+import mvm.expressions.Bang;
 import mvm.expressions.Branch;
 import mvm.expressions.Const;
 import mvm.expressions.Expression;
@@ -26,6 +27,7 @@ import mvm.primitives.Append;
 import mvm.primitives.Apply;
 import mvm.primitives.Column;
 import mvm.primitives.ColumnDomain;
+import mvm.primitives.ColumnIndex;
 import mvm.primitives.Div;
 import mvm.primitives.Equal;
 import mvm.primitives.Gcd;
@@ -36,12 +38,12 @@ import mvm.primitives.IndexLess;
 import mvm.primitives.Isolate;
 import mvm.primitives.Join;
 import mvm.primitives.Kleene;
-import mvm.primitives.LeftIdentity;
 import mvm.primitives.Less;
 import mvm.primitives.LessEq;
 import mvm.primitives.LoopList;
 import mvm.primitives.LoopMatrix;
 import mvm.primitives.Magnitude;
+import mvm.primitives.MatrixFromTuples;
 import mvm.primitives.Mod;
 import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
@@ -54,9 +56,9 @@ import mvm.primitives.Reduce;
 import mvm.primitives.ReduceList;
 import mvm.primitives.ReduceMatrix;
 import mvm.primitives.ReduceSet;
-import mvm.primitives.RightIdentity;
 import mvm.primitives.Row;
 import mvm.primitives.RowDomain;
+import mvm.primitives.RowIndex;
 import mvm.primitives.Scale;
 import mvm.primitives.Set;
 import mvm.primitives.SingletonList;
@@ -104,6 +106,9 @@ public class Machine {
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
 		
+		store.put("rowIndex", new RowIndex());
+		store.put("columnIndex", new ColumnIndex());
+		store.put("matrixFromTuples", new MatrixFromTuples());
 		store.put("gcd", new Gcd());
 		store.put("support", new Support());
 		store.put("size", new Size());
@@ -145,8 +150,6 @@ public class Machine {
 		store.put("indexLess", new IndexLess());
 		store.put("closure", new PosSeries());
 		store.put("kleene", new Kleene());
-		store.put("leftIdentity", new LeftIdentity());
-		store.put("rightIdentity", new RightIdentity());
 		store.put("singletonSet", new SingletonSet());
 		store.put("union", new Union());					
 		store.put("not", new Not());
@@ -281,6 +284,19 @@ public class Machine {
 				Expression rhs = readExpression(reader);
 				reader.readCharacter(')'); 
 				return new Or(lhs,rhs);
+				
+			} else if (command.equals("bang")) {
+				
+				reader.readCharacter('(');
+				IndexType indexType = reader.readIndexType();
+//				String entity = reader.readIdentifier();
+//				reader.readCharacter(',');
+//				String unit = reader.readIdentifier();
+				reader.readCharacter(')'); 
+				
+				Index index = new Index(indexType, entities, indices);
+				
+				return new Bang(index);
 				
 			} else {
 				return new Variable(command);				

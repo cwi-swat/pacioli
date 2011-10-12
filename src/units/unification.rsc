@@ -45,7 +45,7 @@ public UnitBinding unifyUnits(Unit u1, Unit u2) {
     		if (size(bases(nonVars)) == 0) {
       			return ();
       		} else {
-      			error = "unit failure: <pprint(u1)> vs <pprint(u2)>";
+      			error = "unit failure: <pprint(u1)> vs <pprint(u2)> <u1> <u2>";
       			throw error;
       		}
     	} else {

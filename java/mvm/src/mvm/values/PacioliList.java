@@ -6,7 +6,7 @@ import java.util.List;
 
 public class PacioliList implements PacioliValue {
 
-	private List<PacioliValue> items;
+	private final List<PacioliValue> items;
 
 	public PacioliList() {
 		items = new ArrayList<PacioliValue>();

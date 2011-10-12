@@ -9,7 +9,7 @@ import java.util.Set;
 public class PacioliSet implements PacioliValue {
 
 
-	private Set<PacioliValue> items;
+	private final Set<PacioliValue> items;
 	
 	public PacioliSet() {
 		items = new HashSet<PacioliValue>();

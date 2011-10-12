@@ -46,11 +46,13 @@ let
              r in quadruples, (_, _, rsupport1, rsupport2) := r]],
 
  fourierMotzkin(matrix) =
- 	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
+ 	let magnitudes = magnitudeMatrix(matrix),
+ 	    units = columnIndex(matrix),
+ 	    column_pairs = zip(columns(magnitudes), columns(rightIdentity(magnitudes))),
  		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in column_pairs],
  		step(quadruples, row) = minimize([canonical(v) | v in eliminate(quadruples, row)]) 
  	in 
-		{w | (_, w, _, _) in loopList(quadruples, step, rowDomain(matrix))}
+		{w*units | (_, w, _, _) in loopList(quadruples, step, rowDomain(matrix))}
 	end
 	
 in

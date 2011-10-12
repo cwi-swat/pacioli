@@ -7,6 +7,7 @@ anno loc Expression@location;
 
 
 data Expression = variable(str name)
+				| bang(str ent, str unit)
 				| const(real number)
 				| constInt(int integer)
 				| setConstr(list[Expression] items)
@@ -27,7 +28,7 @@ data Expression = variable(str name)
  				| setComprehension(Expression head, list[Expression] rest)
  				| gcdComprehension(Expression head, list[Expression] rest)
  				// todo: interesting vec comprehension
- 				//| vecComprehension(Expression head, list[Expression] rest)
+ 				| vecComprehension(str row, str column, Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
  				| generatorLuxe(list[str] vars, Expression collection)
  				//| matrixGenerator(str variable, Expression collection)
@@ -52,6 +53,7 @@ data Expression = variable(str name)
  				| implies(Expression lhs,Expression rhs)
  				| not(Expression arg)
  				| trans(Expression arg)
+ 				| per(Expression lhs, Expression rhs)
  				| joi(Expression lhs, Expression rhs);
 
 data Binding
@@ -72,6 +74,12 @@ private Expression oneLet(Binding binding, Expression body) {
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+		case vecComprehension(row,column,x,y) => 
+		normalize(
+				application(variable("matrixFromTuples"), 
+							tup([setComprehension(application(variable("tuple"), 
+																tup([variable(row), variable(column), x])),
+								 				  y)])))
 		case variable("_") => variable(fresh("_"))
 		case llet([], body) => body
 		case llet(xs, body) => oneLet(head(xs), normalize(llet(tail(xs), body)))
@@ -108,6 +116,10 @@ public Expression normalize(Expression exp) {
 		case sub(x, y) => application(variable("sum"),tup([x,normalize(neg(y))]))
 		case div(x, y) => application(variable("multiply"),tup([x,normalize(reci(y))]))
 		case joi(x, y) => application(variable("join"),tup([x,y]))
+		case per(x, y) => application(variable("join"),
+		                              tup([x, application(variable("reciprocal"),
+		                                                  tup([application(variable("transpose"),
+		                                                                   tup([y]))]))]))
 		case neg(x) => application(variable("negative"),tup([x]))
 		case trans(x) => application(variable("transpose"),tup([x]))
 		case reci(x) => application(variable("reciprocal"),tup([x]))
@@ -218,6 +230,7 @@ Expression translateMatrixGenerator(str kind, str row, str col, Expression exp, 
 public str pprint(Expression exp) {
 	switch(exp) {
 		case variable(x): return "<x>";
+		case bang(x,y): return "<x>!<y>";
 		case const(x): return "<x>";
 		case tup([]): return "()";
 		case tup(items): return "(<(pprint(head(items)) | it + ", " + pprint(x) | x <- tail(items))>)";

@@ -10,8 +10,8 @@ import mvm.values.PacioliValue;
 
 public class Application implements Expression {
 
-	private Expression function;
-	private List<Expression> arguments;
+	private final Expression function;
+	private final List<Expression> arguments;
 
 	public Application(Expression fun, List<Expression> args) {
 		function = fun;

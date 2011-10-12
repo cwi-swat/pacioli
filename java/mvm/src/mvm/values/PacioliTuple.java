@@ -4,7 +4,7 @@ import java.util.List;
 
 public class PacioliTuple implements PacioliValue {
 
-	private List<PacioliValue> items;
+	private final List<PacioliValue> items;
 
 	public PacioliTuple(List<PacioliValue> items) {
 		this.items = items;

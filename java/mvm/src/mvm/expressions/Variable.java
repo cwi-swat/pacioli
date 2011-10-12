@@ -7,7 +7,7 @@ import mvm.values.PacioliValue;
 
 public class Variable implements Expression {
 
-	private String name;
+	private final String name;
 	
 	public Variable(String name) {
 		this.name = name;

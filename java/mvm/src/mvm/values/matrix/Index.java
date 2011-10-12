@@ -13,7 +13,7 @@ import units.PowerProduct;
 
 public class Index {
 
-	private IndexType type;
+	IndexType type;
 	private List<Entity> entities;
 	private List<Unit[]> units;
 	private Map<List<String>, Integer> positions;
@@ -37,6 +37,19 @@ public class Index {
 		entities = entityList(entityCallback);
 		positions = positionsMap();
 		units = unitArrayList(unitCallback);
+	}
+	
+	public Index homogeneousIndex() {
+		Unit one = new PowerProduct();
+		List<Unit[]> newList = new ArrayList<Unit[]>();
+		for (Unit[] array: units) {
+			Unit[] newUnits = new Unit[array.length];
+			for (int i=0; i< array.length; i++) {
+				newUnits[i] = one;
+			}
+			newList.add(newUnits);
+		}
+		return new Index(homogeneousIndexType(), entities, newList, positions);
 	}
 	
 	public IndexType homogeneousIndexType() {
