@@ -70,6 +70,7 @@ import mvm.primitives.Total;
 import mvm.primitives.Transpose;
 import mvm.primitives.Tuple;
 import mvm.primitives.Union;
+import mvm.primitives.UnitFactor;
 import mvm.primitives.Zip;
 import mvm.values.Boole;
 import mvm.values.PacioliList;
@@ -105,6 +106,7 @@ public class Machine {
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
 		
+		store.put("unitFactor", new UnitFactor());
 		store.put("rowIndex", new RowIndex());
 		store.put("columnIndex", new ColumnIndex());
 		store.put("matrixFromTuples", new MatrixFromTuples());

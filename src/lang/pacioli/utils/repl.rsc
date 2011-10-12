@@ -182,7 +182,12 @@ public Environment env() {
 				           matrix(multiply(unitVar("a"), unitVar("b")), 
   				  				  duo(entityVar("P"), unitVar("u")),
   				  				  duo(entityVar("R"), unitVar("w"))))),
-   "scale": forall({"a", "b", "u", "v"},{"P", "Q"},{},
+	"unitFactor": forall({"a", "b", "u", "v"},{"P", "Q"},{},
+  				  function(tupType([matrix(unitVar("a"), 
+  				  					   duo(entityVar("P"), unitVar("u")),
+  				  					   duo(entityVar("Q"), unitVar("v")))]),
+				           matrix(unitVar("a"), empty, empty))),
+	"scale": forall({"a", "b", "u", "v"},{"P", "Q"},{},
   				  function(tupType([matrix(unitVar("a"), empty, empty),
   				  				matrix(unitVar("b"), 
   				  					   duo(entityVar("P"), unitVar("u")),
@@ -991,8 +996,7 @@ public void stdLib() {
 	def("columns", "lambda (matrix) [column(matrix,j) | j in columnDomain(matrix)]");
 	def("rows", "lambda (matrix) [row(matrix,i) | i in rowDomain(matrix)]");
 	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j from mat\>");
-	// Hier wordt de unit factor vergeten!!!
-	def("unitMatrix", "lambda (mat) rowIndex(mat) per columnIndex(mat)");
+	def("unitMatrix", "lambda (mat) scale(unitFactor(mat), rowIndex(mat) per columnIndex(mat))");
 	def("support", "lambda (x) \<i,j -\> 1 | i,j from x, 0 \< magnitude(x,i,j)\>");
 	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
 	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
