@@ -65,7 +65,6 @@ import mvm.primitives.SingletonList;
 import mvm.primitives.SingletonSet;
 import mvm.primitives.Size;
 import mvm.primitives.Sum;
-import mvm.primitives.Support;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
 import mvm.primitives.Transpose;
@@ -110,7 +109,6 @@ public class Machine {
 		store.put("columnIndex", new ColumnIndex());
 		store.put("matrixFromTuples", new MatrixFromTuples());
 		store.put("gcd", new Gcd());
-		store.put("support", new Support());
 		store.put("size", new Size());
 		store.put("print", new Print());
 		store.put("tuple", new Tuple());
