@@ -54,5 +54,5 @@ let
 	end
 	
 in
-	fourierMotzkin(*backward-forward*)
+	fourierMotzkin(backward-forward)
 end

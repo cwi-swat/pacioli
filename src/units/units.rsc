@@ -48,14 +48,22 @@ data Prefix
   
 public set[Unit] bases(powerProduct(Powers ps, real _)) = ps.units;
   
-public int power(powerProduct(powers, _), Unit base) = powers[base] ? 0;
-public int power(Unit u, u) = 1;
+//public int power(powerProduct(powers, _), Unit base) = powers[base] ? 0;
+//public int power(Unit u, u) = 1;
+//public default int power(Unit _, Unit _) = 0;
+
+public int power(Unit u, Unit base) {
+	if (u is powerProduct) {
+		return (base in u.powers) ? u.powers[base] : 0;
+	} else {
+		return (u==base) ? 1 : 0;
+	}
+}
 
 public real factor(powerProduct(_, x), Unit base) = x;
   
 public default set[Unit] bases(Unit u) = {u};
 
-public default int power(Unit _, Unit _) = 0;
 
 public default real factor(Unit _) = 1.0;
 
