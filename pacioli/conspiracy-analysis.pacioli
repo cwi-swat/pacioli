@@ -1,10 +1,9 @@
 let 
-	leftBang(matrix) = sum[c | c in columns(support(leftIdentity(matrix)))],
-	rightBang(matrix) = sum[r | r in rows(support(rightIdentity(matrix)))],
+    logNot(x) = unitMatrix(x) - x,
   	flow = backward-forward,
-	isReal = rightBang(isJournal)-isJournal,
-	isLiability = rightBang(isAsset)-isAsset,
-	isIllicit = leftBang(isLegit)-isLegit,
+	isReal = logNot(isJournal),
+	isLiability = logNot(isAsset),
+	isIllicit = logNot(isLegit),
 	value = valuation*(isAsset-isLiability),
 	legitProduction(t) = flow.(t*isLegit),
 	illicitProduction(t) = flow.(t*isIllicit)

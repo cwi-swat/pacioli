@@ -17,6 +17,7 @@ import lang::pacioli::utils::Implode;
 // Hardwired Data Schema 
 
 str glbCasesDirectory = "/home/paul/data/code/cwi/pacioli/cases/";
+//str glbCasesDirectory = "D:/code/cwi/pacioli/cases/";
 
 str prelude = "baseunit dollar \"$\";
 			  'baseunit euro \"�\";
@@ -563,7 +564,7 @@ public void compile(Expression exp) {
 				        entityVariables(ty),
 				        typeVariables(ty),
 				        ty);
-		println("<pprint(exp)> :: <pprint(scheme)>");
+		println("<pprint(exp)>\n  :: <pprint(scheme)>");
 		code = compilePacioli(exp);
 		prog = "<header>;
 		   	   'eval result <code>; 
@@ -607,7 +608,7 @@ public void compile(str exp) {
 				        entityVariables(ty),
 				        typeVariables(ty),
 				        ty);
-		println("<exp> :: <pprint(scheme)>");
+		println("<exp>\n  :: <pprint(scheme)>");
 		code = compilePacioli(parsed);
 		prog = "<header>;
 		   	   'eval result <code>; 
@@ -988,18 +989,18 @@ public void stdLib() {
 		             let (result, dummy) = loopList(tuple([],list),
 							                        lambda(accu,x)
 							                          let (result,tails) = accu in
-	 						                            tuple(append([tuple(x,y) | y in tail(tails)], result), tail(tails))
+	 						                            tuple(append([tuple(x,y) | y in list tail(tails)], result), tail(tails))
 	 						                          end,
 	 						                        list) in
 	 		           result
 	 		         end");
-	def("columns", "lambda (matrix) [column(matrix,j) | j in columnDomain(matrix)]");
-	def("rows", "lambda (matrix) [row(matrix,i) | i in rowDomain(matrix)]");
-	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j from mat\>");
+	def("columns", "lambda (matrix) [column(matrix,j) | j in list columnDomain(matrix)]");
+	def("rows", "lambda (matrix) [row(matrix,i) | i in list rowDomain(matrix)]");
+	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j in matrix mat\>");
 	def("unitMatrix", "lambda (mat) scale(unitFactor(mat), rowIndex(mat) per columnIndex(mat))");
-	def("support", "lambda (x) \<i,j -\> 1 | i,j from x, 0 \< magnitude(x,i,j)\>");
-	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
-	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
+	def("support", "lambda (x) \<i,j -\> 1 | i,j in matrix x, 0 \< magnitude(x,i,j)\>");
+	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in list rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
+	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in list columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
 }
 
 public void fmAnalysis() {

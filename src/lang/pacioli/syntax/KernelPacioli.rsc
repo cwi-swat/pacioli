@@ -59,11 +59,11 @@ syntax LetBinding
 	| tupleBinding: "(" {Ident ","}* vars ")" "=" Expression val;
 
 syntax ComprehensionTerm 
-	= generator: Ident name "in" Expression exp
+	= generator: Ident name "in" "list" Expression exp
 	//| matrixGenerator: Ident entry "from" Expression exp
-	| generatorLuxe: "(" {Ident ","}* vars ")" "in" Expression exp
-	| setGenerator: Ident name "elt" Expression exp
-	| matrixGenerator: Ident row "," Ident col "from" Expression exp
+	| generatorLuxe: "(" {Ident ","}* vars ")" "in" "list" Expression exp
+	| setGenerator: Ident name "in" "set" Expression exp
+	| matrixGenerator: Ident row "," Ident col "in" "matrix" Expression exp
 	| bind: Ident name ":=" Expression exp 
 	| bindLuxe: "(" {Ident ","}* vars ")" ":=" Expression exp
 	| filt: Expression exp;

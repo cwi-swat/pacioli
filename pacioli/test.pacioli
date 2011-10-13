@@ -1,3 +1,1 @@
-let support(x) = <i,j -> 1 | i,j from x, 0 < magnitude(x,i,j)> in
-	support
-end
+<i,j -> 1 | i,j in matrix bom, indexLess(i,j) || i = j>

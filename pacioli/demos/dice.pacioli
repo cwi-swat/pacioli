@@ -1,9 +1,7 @@
-let dice = [1,2,3,4,5,6] in
-   let sums = [x+y | x in dice, y in dice] in
-     let total = count[s | s in sums] in
-	   let cnt(n) = count[s | s in sums, s=n] in
-	     {tuple(i, cnt(i)/total) | i elt {x+y | x in dice, y in dice}}
-	   end
-	 end
-   end
- end
+let dice = [1,2,3,4,5,6],
+    sums = [x+y | x in list dice, y in list dice],
+    total = count[s | s in list sums],
+	cnt(n) = count[s | s in list sums, s=n]
+in
+	{tuple(i, cnt(i)/total) | i in set {x+y | x in list dice, y in list dice}}
+end
