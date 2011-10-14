@@ -1,6 +1,6 @@
 let dice = [1,2,3,4,5,6],
     sums = [x+y | x in list dice, y in list dice],
-    total = count[s | s in list sums],
+    total = size(sums),
 	cnt(n) = count[s | s in list sums, s=n]
 in
 	{tuple(i, cnt(i)/total) | i in set {x+y | x in list dice, y in list dice}}

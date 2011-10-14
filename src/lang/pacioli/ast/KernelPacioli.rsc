@@ -27,13 +27,12 @@ data Expression = variable(str name)
  				| sumComprehension(Expression head, list[Expression] rest)
  				| setComprehension(Expression head, list[Expression] rest)
  				| gcdComprehension(Expression head, list[Expression] rest)
- 				// todo: interesting vec comprehension
  				| vecComprehension(str row, str column, Expression head, list[Expression] rest)
  				| generator(str variable, Expression collection)
  				| generatorLuxe(list[str] vars, Expression collection)
- 				//| matrixGenerator(str variable, Expression collection)
 				| matrixGenerator(str row, str column, Expression collection)
 				| setGenerator(str variable, Expression collection)
+				| entityGenerator(str variable, str ent)
  				| bind(str variable, Expression exp)
  				| bindLuxe(list[str] vars, Expression exp)
  				| filt(Expression exp)
@@ -74,6 +73,8 @@ private Expression oneLet(Binding binding, Expression body) {
 
 public Expression normalize(Expression exp) {
 	return innermost visit(exp) {
+		case entityGenerator(var,ent) =>
+			normalize(generator(var, application(variable("rowDomain"), tup([bang(ent,"1")]))))
 		case vecComprehension(row,column,x,y) => 
 		normalize(
 				application(variable("matrixFromTuples"), 
@@ -182,7 +183,7 @@ public Expression translateComprehensionRec(str kind, Expression zero, Expressio
 				return translateComprehensionRec(kind, zero, merge, header, [generator(var,exp), bindLuxe(vars, variable(var))] + tail(parts));
 			}
 			case setGenerator(var,exp):
-				return translateSetGenerator(kind, var, exp, zero, merge, header, parts);				
+				return translateSetGenerator(kind, var, exp, zero, merge, header, parts);
 			case matrixGenerator(row,col,exp):
 				return translateMatrixGenerator(kind, row, col, exp, zero, merge, header, parts);
 			case filt(exp): 
@@ -204,7 +205,6 @@ public Expression translateComprehensionRec(str kind, Expression zero, Expressio
 Expression translateGenerator(str kind, str var, Expression exp, Expression zero, Expression merge, Expression header, list[Expression] parts) {
 	return application(variable("loopList"), 
 					   tup([zero,
-						    //variable("identity"),
 						    abstraction(["accu",var], 
   	                                    translateComprehensionRec(kind, variable("accu"), merge, header, tail(parts))), 
 					        exp]));

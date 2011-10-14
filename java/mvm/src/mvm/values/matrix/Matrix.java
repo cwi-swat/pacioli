@@ -382,7 +382,11 @@ public class Matrix implements PacioliValue {
 	}
 
 	public Matrix multiply(Matrix other) throws IOException{
-		if (type.multiplyable(other.type)) {
+		if (other.isZero()) {
+			return other;
+		} else if (this.isZero()) {
+			return this;
+		} else if (type.multiplyable(other.type)) {
 			Matrix matrix = new Matrix(type.multiply(other.type), rowIndex.multiply(other.rowIndex), columnIndex.multiply(other.columnIndex));
 			matrix.numbers = numbers.multiply(other.numbers);
 			return matrix;

@@ -19,7 +19,7 @@ import lang::pacioli::utils::Implode;
 str glbCasesDirectory = "/home/paul/data/code/cwi/pacioli/cases/";
 //str glbCasesDirectory = "D:/code/cwi/pacioli/cases/";
 
-str prelude = "baseunit dollar \"$\";
+str prelude() = "baseunit dollar \"$\";
 			  'baseunit euro \"�\";
 			  'baseunit each \"each\";
 			  'baseunit bag \"bag\";
@@ -471,7 +471,7 @@ public str addLoads(str prelude, Environment env) {
 	text = prelude;
 	for (name <- env) {
 		if (forall({},{},{},matrix(f,r,c)) := env[name] && name in fileLoc) {
-			text += ";\nload <name> \"<glbCasesDirectory><fileLoc[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"";
+			text = text + ";\nload <name> \"<glbCasesDirectory><fileLoc[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"";
 		}
 	}
 	return text;
@@ -547,11 +547,11 @@ public void parse (str exp) {
 
 public void compile(Expression exp) {
 	try {
-		stdLib();
+		//stdLib();
 	
 		fullEnv = env();
 		
-		header = addLoads(prelude,fullEnv);
+		header = addLoads(prelude(),fullEnv);
 		header = addEvals(header,glbReplRepo);
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
@@ -578,7 +578,7 @@ public void compile(Expression exp) {
 public void compile(str exp) {
 	try {
 		fullEnv = env();
-		header = addLoads(prelude,fullEnv);
+		header = addLoads(prelude(),fullEnv);
 		header = addEvals(header,glbReplRepo);
 		
 		//// Two passes to support some dependencies
@@ -661,7 +661,7 @@ public void compileFile (str name) {
 public void dump(str exp, str entityFile, str matrixFile) {
 	try {
 		fullEnv = env();
-		header = addLoads(prelude,fullEnv);
+		header = addLoads(prelude(),fullEnv);
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
 			fullEnv += (name:sch);

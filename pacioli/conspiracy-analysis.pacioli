@@ -1,17 +1,22 @@
-let 
-    logNot(x) = unitMatrix(x) - x,
+let
+	logNot(x) = unitMatrix(x) - x,
   	flow = backward-forward,
 	isReal = logNot(isJournal),
 	isLiability = logNot(isAsset),
 	isIllicit = logNot(isLegit),
-	value = valuation*(isAsset-isLiability),
-	legitProduction(t) = flow.(t*isLegit),
-	illicitProduction(t) = flow.(t*isIllicit)
+	posValue = valuation*isAsset,
+	negValue = valuation*isLiability
 in
-	[tuple(conspiracy, illicitValue, legitValue) |
-	          conspiracy in columnDomain(basis),
-	          transition := column(basis,conspiracy),
-	          illicitValue := value.illicitProduction(transition),
-	          legitValue := value.legitProduction(transition), 
-	          0 < illicitValue]
+	let tuples = [tuple(conspiracy,
+						posValue.licitProduction,
+						negValue.licitProduction,
+						posValue.illicitProduction,
+						negValue.illicitProduction) |
+					conspiracy in entity Conspiracy,
+					semiflow := column(basis,conspiracy),
+					illicitProduction := flow.(semiflow*isIllicit),
+					licitProduction := flow.(semiflow*isLegit)]
+	in
+		[c | (c, licPos, licNeg, illPos, illNeg) in list tuples, 0 < illPos-illNeg]
+	end
 end

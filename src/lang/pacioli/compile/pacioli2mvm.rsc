@@ -4,6 +4,8 @@ import IO;
 import List;
 
 import lang::pacioli::ast::KernelPacioli;
+import lang::pacioli::types::Types;
+import units::units;
 
 
 int glbcounter = 0;
@@ -35,6 +37,7 @@ public str compileExpression(Expression exp) {
 			return "or(<compileExpression(x)>,<compileExpression(y)>)";
 		}
 		case bang(x,y): {
+			//println("bang(<serial(duo(compound([simple(x)]), named(y, y, self())))>)");
 			return "bang(<x>.<y>)";
 		}
 		case tup([]): {

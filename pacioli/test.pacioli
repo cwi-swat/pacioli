@@ -1,1 +1,3 @@
-<i,j -> 1 | i,j in matrix bom, indexLess(i,j) || i = j>
+let positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)> in
+	positives(valuation.head(columns(basis)))
+end

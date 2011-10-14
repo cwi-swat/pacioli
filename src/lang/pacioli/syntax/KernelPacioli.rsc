@@ -45,9 +45,6 @@ start syntax Expression = variable:Ident name
 	  | assoc or: Expression "||" Expression
 	)
 	> llet: "let" {LetBinding ","}+ bindings "in" Expression body "end"
-	> letSuperLuxe: "oldlet" "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
-	> letLuxe: "oldlet" Ident var "(" {Ident ","}* vars ")" "=" Expression val "in" Expression body "end"
-	> @Foldable let: "oldlet" Ident var "=" Expression val "in" Expression body "end"
 	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
 	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
 
@@ -60,9 +57,9 @@ syntax LetBinding
 
 syntax ComprehensionTerm 
 	= generator: Ident name "in" "list" Expression exp
-	//| matrixGenerator: Ident entry "from" Expression exp
 	| generatorLuxe: "(" {Ident ","}* vars ")" "in" "list" Expression exp
 	| setGenerator: Ident name "in" "set" Expression exp
+	| entityGenerator: Ident name "in" "entity" Ident ent
 	| matrixGenerator: Ident row "," Ident col "in" "matrix" Expression exp
 	| bind: Ident name ":=" Expression exp 
 	| bindLuxe: "(" {Ident ","}* vars ")" ":=" Expression exp
