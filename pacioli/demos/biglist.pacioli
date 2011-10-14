@@ -1,0 +1,7 @@
+let nums = [0,1,2,3,4,5],
+	a = [[x,y] | x in list nums, y in list nums],
+	b = [[x,y] | x in list a, y in list a],
+	c = [[x,y] | x in list b, y in list b]
+in
+	size(c)
+end

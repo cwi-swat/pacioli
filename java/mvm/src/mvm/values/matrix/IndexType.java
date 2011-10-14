@@ -99,7 +99,7 @@ public class IndexType {
 	
 	public String pprint() {
 		if (width() == 0) {
-			return "Empty";
+			return "One";
 		} else {
 			String output = "";
 			String sep = "";
@@ -112,7 +112,7 @@ public class IndexType {
 				if (unit.equals(one)) {
 					output += sep + type.pprint();
 				} else {
-					output += sep + type.pprint() + "." + unit.pprint();
+					output += sep + type.pprint() + "!" + unit.pprint();
 				}
 				sep = " * ";
 			}

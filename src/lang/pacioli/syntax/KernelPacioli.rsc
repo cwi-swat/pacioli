@@ -65,6 +65,6 @@ syntax ComprehensionTerm
 	| bindLuxe: "(" {Ident ","}* vars ")" ":=" Expression exp
 	| filt: Expression exp;
  
-//keyword Keywords="lambda";
+//keyword Keywords="zero";
 
  

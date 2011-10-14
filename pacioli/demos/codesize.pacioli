@@ -3,5 +3,5 @@ let agg_matrix = owner.parent*,
     modules = columnDomain(owner),
     bytesPerLine = agg(fileSize)/agg(lines)
 in
-    {tuple(m, get(bytesPerLine, empty, m)) | m in modules} 
+    {tuple(m, get(bytesPerLine, zero, m)) | m in list modules} 
 end

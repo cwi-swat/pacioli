@@ -109,17 +109,17 @@ public class MatrixType {
 		
 		// Dit kan beter :)
 		String tail= "";
-		if (! columnString.equals("Empty")) {
+		if (! columnString.equals("One")) {
 			tail = " per " + columnString; 
 		}
-		if (! rowString.equals("Empty")) {
+		if (! rowString.equals("One")) {
 			tail = rowString + tail; 
 		}
 		if (factor.equals(one) && tail == "") {
 			return "1";
 		} else if (factor.equals(one)) {
 			return tail;
-		} else if (rowString.equals("Empty")) {
+		} else if (rowString.equals("One")) {
 			return factorString + tail;
 		} else {
 			return factorString + " x " + tail;

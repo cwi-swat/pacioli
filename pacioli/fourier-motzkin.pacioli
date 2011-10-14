@@ -22,15 +22,15 @@ let
 						(v,w) in list combis(quadruples),
 						(v1, v2, _, _) := v,
 						(w1, w2, _, _) := w,
-						alpha := magnitude(v1, row, empty), 
-						beta := magnitude(w1, row, empty),
+						alpha := magnitude(v1, row, zero), 
+						beta := magnitude(w1, row, zero),
 						alpha * beta < 0,
 						s1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
 						s2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
 	in
 		[q | q in list append(combined, quadruples), 
 			 (v1, _, _, _) := q, 
-			 magnitude(v1, row, empty) = 0]
+			 magnitude(v1, row, zero) = 0]
 	end,
 	
  canonical(quadruple) =
@@ -50,7 +50,7 @@ let
  		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
  		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
  	in 
-		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
+		[w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))]
 	end
 	
 in

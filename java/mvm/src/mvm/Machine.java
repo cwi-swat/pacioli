@@ -414,7 +414,7 @@ public class Machine {
 						String file = reader.readString();
 						reader.readSeparator();
 
-						String symbol = entityName + "." + name;
+						String symbol = entityName + "!" + name;
 
 						Entity entity;
 						if (entities.containsKey(entityName)) {
@@ -473,8 +473,8 @@ public class Machine {
 						reader.readSeparator();
 						
 						Unit factor = parseUnit("", "1"); 
-						IndexType rowType = parseIndexType(entity + "." + dstUnit);
-						IndexType columnType = parseIndexType(entity + "." + srcUnit);
+						IndexType rowType = parseIndexType(entity + "!" + dstUnit);
+						IndexType columnType = parseIndexType(entity + "!" + srcUnit);
 						MatrixType type = new MatrixType(factor, rowType, columnType);
 						
 						Index rowIndex = new Index(rowType, entities, indices);

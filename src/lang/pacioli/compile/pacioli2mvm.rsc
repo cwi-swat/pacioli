@@ -38,7 +38,7 @@ public str compileExpression(Expression exp) {
 		}
 		case bang(x,y): {
 			//println("bang(<serial(duo(compound([simple(x)]), named(y, y, self())))>)");
-			return "bang(<x>.<y>)";
+			return "bang(<x>!<y>)";
 		}
 		case tup([]): {
 			return "application(tuple,empty)";

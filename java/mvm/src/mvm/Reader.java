@@ -176,12 +176,12 @@ public class Reader {
 		List<String> identifiers = readIdentifierList();
 		char next = nextChar();
 		if (eof()) {
-			if (identifiers.size() == 1 && identifiers.get(0).equals("Empty")) {
+			if (identifiers.size() == 1 && identifiers.get(0).equals("One")) {
 				return new IndexType();
 			} else {
 				throw new EOFException("unexpected end of input while reading index type");
 			}
-		} else if (next == '.') {
+		} else if (next == '!') {
 			List<Unit> units = readUnitList(identifiers);
 			List<EntityType> entities = new ArrayList<EntityType>();
 			for (String identifier: identifiers) {
@@ -199,7 +199,7 @@ public class Reader {
 				throw new IOException("number of entities and units not equal");
 			}
 		} else {
-			throw new IOException(String.format("expected '.' but found '%s'", next));
+			throw new IOException(String.format("expected '!' but found '%s'", next));
 		}
 	}
 	
@@ -220,13 +220,13 @@ public class Reader {
 		if (i >= size) {
 			throw new IOException("to few entities for the units");
 		}
-		units.add(readUnit(entities.get(i) + "."));
+		units.add(readUnit(entities.get(i) + "!"));
 		while (nextChar() == ',') {
 			i++;
 			if (i >= size) {
 				throw new IOException("to few entities for the units");
 			}	
-			units.add(readUnit(entities.get(i) + "."));
+			units.add(readUnit(entities.get(i) + "!"));
 		}
 		pushBack();
 		return units;

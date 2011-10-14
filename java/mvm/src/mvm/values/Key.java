@@ -23,7 +23,7 @@ public class Key implements PacioliValue {
 	
 	public String pprint() {
 		if (names.size() == 0) {
-			return "empty";
+			return "zero";
 		}
 		String text = "";
 		String sep = ""; 

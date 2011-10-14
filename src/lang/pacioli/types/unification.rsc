@@ -111,7 +111,6 @@ public EntityBinding mergeEntities(EntityBinding bindingX, EntityBinding binding
 }
 
 public Type typeSubs(Substitution s, Type typ) {
-	//println("typeSubs  <pprint(typ)>  <s>");
 	substitution(bu,be,bt) = s;
 	switch (typ) {
 		case typeVar(x): {

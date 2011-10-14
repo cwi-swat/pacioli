@@ -173,9 +173,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			//assumptions = assumptions + (var: forall({},{},{},typeVar(f)));
 			
 			<t1, s1> = inferType(val, lib, assumptions);
-			// is deze nodig???
-			 as = envSubs(s1,assumptions);
-			//as = assumptions;
+			as = envSubs(s1,assumptions);
 			assumedUnitVars = {y | x <- as, y <- unitVariables(as[x])};
 			assumedEntityVars = {y | x <- as, y <- entityVariables(as[x])};
 			assumedTypeVars = {y | x <- as, y <- typeVariables(as[x])};						

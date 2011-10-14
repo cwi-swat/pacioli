@@ -53,7 +53,7 @@ public class Environment {
 			return new PacioliSet();
 		}
 		
-		if (name.equals("empty")) {
+		if (name.equals("zero")) {
 			return new Key();
 		}
 		

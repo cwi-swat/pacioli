@@ -152,7 +152,7 @@ public str serial(Unit u) {
 		case named(x,_,_): return x;
 		//case unitVar(x): return "\'<x>";
 		case powerProduct(p, f): {
-			front = ("<f>" |
+			front = ((f == 1.0) ? "1" : "<f>" |
 					 it + "*<serial(x)>^<p[x]>" |
 					 x <- p);
 			return "<front>";				  
