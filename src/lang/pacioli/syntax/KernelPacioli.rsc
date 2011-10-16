@@ -8,16 +8,17 @@ start syntax Expression = variable:Ident name
 	| const: Number number
 	| constInt: Integer integer
 	| bracket "(" Expression nested ")"
-	| lis: "[" {Expression ","}* items "]"
-	| setConstr: "{" {Expression ","}* items "}"
-	> someComprehension: "some" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| allComprehension: "all" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| countComprehension: "count" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| sumComprehension: "sum" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| vecComprehension: "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
+	| litList: "[" {Expression ","}* items "]"
+	| litSet: "{" {Expression ","}* items "}"
+	
+	> listComprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
-	| gcdComprehension: "gcd" "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
-	| comprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| vecComprehension: "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
+	| opListComprehension: Ident op "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
+	| opSetComprehension: Ident op "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
+	| opVecComprehension: Ident op "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
+	
+	
 	| right application: Expression fn Args args
 	> neg: "-" Expression
 	> reci: Expression "^R"
@@ -56,9 +57,10 @@ syntax LetBinding
 	| tupleBinding: "(" {Ident ","}* vars ")" "=" Expression val;
 
 syntax ComprehensionTerm 
-	= generator: Ident name "in" "list" Expression exp
-	| generatorLuxe: "(" {Ident ","}* vars ")" "in" "list" Expression exp
+	= listGenerator: Ident name "in" "list" Expression exp
+	| listGeneratorLuxe: "(" {Ident ","}* vars ")" "in" "list" Expression exp
 	| setGenerator: Ident name "in" "set" Expression exp
+	| setGeneratorLuxe: "(" {Ident ","}* vars ")" "in" "set" Expression exp
 	| entityGenerator: Ident name "in" "entity" Ident ent
 	| matrixGenerator: Ident row "," Ident col "in" "matrix" Expression exp
 	| bind: Ident name ":=" Expression exp 

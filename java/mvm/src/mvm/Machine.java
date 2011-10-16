@@ -61,9 +61,10 @@ import mvm.primitives.RowDomain;
 import mvm.primitives.RowIndex;
 import mvm.primitives.Scale;
 import mvm.primitives.Set;
+import mvm.primitives.SetSize;
 import mvm.primitives.SingletonList;
 import mvm.primitives.SingletonSet;
-import mvm.primitives.Size;
+import mvm.primitives.ListSize;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
@@ -111,7 +112,8 @@ public class Machine {
 		store.put("columnIndex", new ColumnIndex());
 		store.put("matrixFromTuples", new MatrixFromTuples());
 		store.put("gcd", new Gcd());
-		store.put("size", new Size());
+		store.put("listSize", new ListSize());
+		store.put("setSize", new SetSize());
 		store.put("print", new Print());
 		store.put("tuple", new Tuple());
 		store.put("apply", new Apply());
@@ -171,8 +173,9 @@ public class Machine {
 		long before = System.currentTimeMillis();
 		runStream(reader, out);
 		long after = System.currentTimeMillis();
+		out.format("-- Ready in %d ms\n", after - before);
 		if (verbose) {
-			out.format("-- Ready in %d ms\n", after - before);
+			//out.format("-- Ready in %d ms\n", after - before);
 			out.println();
 			dumpTypes(out);
 			out.println();

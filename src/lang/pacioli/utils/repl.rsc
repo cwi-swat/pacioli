@@ -177,7 +177,7 @@ public void def(str name, str exp) {
 		<typ, s> = inferTypeAPI(full, fullEnv);
 		typ = unfresh(typ);
  		// to make sure it compiles later on		
-		compilePacioli(full);
+		//compilePacioli(full);
 		scheme = forall(unitVariables(typ),
 				entityVariables(typ),
 				typeVariables(typ),
@@ -209,7 +209,7 @@ public void stdLib() {
 	def("rows", "lambda (matrix) [row(matrix,i) | i in list rowDomain(matrix)]");
 	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j in matrix mat\>");
 	def("unitMatrix", "lambda (mat) scale(unitFactor(mat), rowIndex(mat) per columnIndex(mat))");
-	def("support", "lambda (x) \<i,j -\> 1 | i,j in matrix x, 0 \< magnitude(x,i,j)\>");
+	def("support", "lambda (x) \<i,j -\> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)\>");
 	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in list rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
 	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in list columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
 }

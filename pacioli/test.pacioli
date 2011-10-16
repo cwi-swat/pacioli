@@ -1,3 +1,4 @@
 let positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)> in
-	positives(valuation.head(columns(basis)))
+	(*positives(valuation.head(columns(basis)))*)
+	count<x,y -> m | x in entity Product, y in entity Product, m := magnitude(bom,x,y),  0 < m>
 end

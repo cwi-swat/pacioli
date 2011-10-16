@@ -8,18 +8,18 @@ import mvm.values.PacioliList;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Matrix;
 
-public class Size implements Callable {
+public class ListSize implements Callable {
 
 	public String pprint() {
-		return "|size|";
+		return "|listSize|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
 		if (params.size() != 1) {
-			throw new IOException("function 'size' expects one argument");
+			throw new IOException("function 'listSize' expects one argument");
 		}
 		if (!(params.get(0) instanceof PacioliList)) {
-			throw new IOException("first argument to function 'size' is not a list");
+			throw new IOException("first argument to function 'listSize' is not a list");
 		}
 		PacioliList x = (PacioliList) params.get(0);
 		return new Matrix(x.items().size());

@@ -50,9 +50,9 @@ let
  		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
  		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
  	in 
-		[w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))]
+		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
 	end
 	
 in
-	fourierMotzkin(backward-forward)
+	setSize(fourierMotzkin(backward-forward))
 end
