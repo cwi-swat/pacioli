@@ -2,10 +2,12 @@ module lang::pacioli::utils::repl
 
 import List;
 import IO;
+import util::Prompt;
 
 import units::units;
 
 import lang::pacioli::ast::KernelPacioli;
+import lang::pacioli::ast::SchemaPacioli;
 import lang::pacioli::types::inference;
 import lang::pacioli::compile::pacioli2mvm;
 import lang::pacioli::compile::pacioli2java;
@@ -13,6 +15,7 @@ import lang::pacioli::types::Types;
 import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::dictionary;
+import lang::pacioli::utils::implodeSchema;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Repl utilities
@@ -63,18 +66,37 @@ public str addEvals(str prelude, Repo repo) {
 }		
 
 ////////////////////////////////////////////////////////////////////////////////
-// IDE hook
+// IDE hooks
+
+Environment glbImports = ();
+
+public void importSchema(Schema schema) {
+	environment = translateSchema(schema);
+	println("IMPORT");
+	//println("IMPORT str <translated>");
+	for (name <- environment) {
+		println("<name> :: <pprint(environment[name])>");
+		glbImports += (name: environment[name]);
+	}
+	//for (name <- glbImports) {
+	//	println("<name> :: <pprint(glbImports[name])>");
+	//}
+}
 
 public void compile(Expression exp) {
 	try {
-		fullEnv = env();
+		fullEnv = ();
 		
-		header = addLoads(prelude(),fullEnv);
-		header = addEvals(header,glbReplRepo);
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
 			fullEnv += (name:sch);
 		}
+		for (name <- glbImports) {
+			fullEnv += (name:glbImports[name]);
+		}
+		header = addLoads(prelude(),fullEnv);
+		header = addEvals(header,glbReplRepo);
+		
 		<typ, _> = inferTypeAPI(exp, fullEnv);
 		ty = unfresh(typ);
 		scheme = forall(unitVariables(ty),
@@ -95,32 +117,39 @@ public void compile(Expression exp) {
 ////////////////////////////////////////////////////////////////////////////////
 // Some commands
 
+public void importSchema(str schema) {
+	parsed = parseImplodeSchema(schema);
+	importSchema(parsed);
+}
+
 public void ls () {
-	Environment env = env();
+	Environment env = ();
+	for (name <- glbReplRepo) {
+		<code,sch> = glbReplRepo[name];
+		env += (name:sch);
+	}
+	for (name <- glbImports) {
+			env += (name:glbImports[name]);
+		}
 	for (name <- env) {
 		if (!isFunction(env[name])) {
 			println("<name> :: <pprint(env[name])>");
 		}
 	}
-	for (name <- glbReplRepo) {
-		<code,sch> = glbReplRepo[name];
-		if (!isFunction(sch)) {
-			println("<name> :: <pprint(sch)>");
-		}
-	}
 }
 
 public void functions () {
-	Environment env = env();
+	Environment env = ();
+	for (name <- glbReplRepo) {
+		<code,sch> = glbReplRepo[name];
+		env += (name:sch);
+	}
+	for (name <- glbImports) {
+			env += (name:glbImports[name]);
+		}
 	for (name <- env) {
 		if (isFunction(env[name])) {
 			println("<name> :: <pprint(env[name])>");
-		}
-	}
-	for (name <- glbReplRepo) {
-		<code,sch> = glbReplRepo[name];
-		if (isFunction(sch)) {
-			println("<name> :: <pprint(sch)>");
 		}
 	}
 }
@@ -131,17 +160,25 @@ public void parse (str exp) {
 	println(parsed);
 }
 
+//public void parseSchema (str exp) {
+//	parsed = parseImplodeSchema(exp);
+//	println(pprint(parsed));
+//	println(parsed);
+//}
 
 public void compile(str exp) {
 	try {
-		fullEnv = env();
-		header = addLoads(prelude(),fullEnv);
-		header = addEvals(header,glbReplRepo);
+		fullEnv = ();
 		
 		for (name <- glbReplRepo) {
 			<code,sch> = glbReplRepo[name];
 			fullEnv += (name:sch);
 		}
+		for (name <- glbImports) {
+			fullEnv += (name:glbImports[name]);
+		}
+		header = addLoads(prelude(),fullEnv);
+		header = addEvals(header,glbReplRepo);
 		
 		parsed = parseImplodePacioli(exp);
 		<typ, _> = inferTypeAPI(parsed, fullEnv);
@@ -165,10 +202,13 @@ public void def(str name, str exp) {
 	try {
 		parsed = parseImplodePacioli(exp);
 		full = parsed;
-		fullEnv = env();
+		fullEnv = ();
 		for (n <- glbReplRepo) {
 			<code,sch> = glbReplRepo[n];
 			fullEnv += (n:sch);
+		}
+		for (n <- glbImports) {
+			fullEnv += (n:glbImports[n]);
 		}
 		// hack for recursive functions
 		f = fresh("def");

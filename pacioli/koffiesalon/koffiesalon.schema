@@ -1,0 +1,5 @@
+bom :: forall: Mat(1.0 * Product!bom_unit per Product!bom_unit);
+conv :: forall: Mat(1.0 * Product!trade_unit per Product!bom_unit);
+output :: forall: Mat(1.0 * Product!trade_unit per One);
+purchase_price :: forall: Mat(dollar * One per Product!trade_unit);
+sales_price :: forall: Mat(dollar * One per Product!trade_unit)

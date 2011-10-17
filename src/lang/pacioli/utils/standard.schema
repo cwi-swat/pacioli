@@ -1,0 +1,78 @@
+tuple :: forall a: a -> a;
+identity :: forall a: (a) -> a;
+apply :: forall b, a: (a -> b, a) -> b;
+
+print :: forall a: (a) -> a;
+
+equal :: forall a: (a, a) -> Boole;
+
+less :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v), Mat(a * P!u per Q!v)) -> Boole;
+lessEq :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v), Mat(a * P!u per Q!v)) -> Boole;
+
+(* Matrix Shape *)
+zero :: forall: Entity(One);
+indexLess :: forall P: (Entity(P), Entity(P)) -> Boole;
+matrixFromTuples :: forall a, P, Q: (Set(Tuple(Entity(P), Entity(Q), Num(a)))) -> Mat(a * P per Q);
+unitFactor :: forall a, b, u, v, P, Q: (Mat(a * P!u per Q!v)) -> Num(a);
+rowIndex :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v)) -> Mat(1.0 * P!u per One);
+columnIndex :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v)) -> Mat(1.0 * Q!v per One);
+rowDomain :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v)) -> List(Entity(P));
+columnDomain :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v)) -> List(Q);
+row :: forall v, Q, a, P: (Mat(a * P per Q!v), P) -> Mat(a * One per Q!v);
+column :: forall v, Q, a, P: (Mat(a * P!v per Q), Entity(Q)) -> Mat(a * P!v per One);
+
+(* Matrix Iteration *)
+reduceMatrix :: forall v, u, c, b, a, Q, P: (c, (P, Q) -> b, (c, b) -> c, Mat(a * P!u per Q!v)) -> c;
+loopMatrix :: forall a,b,u,v,P,Q: (a, (a, Entity(P), Entity(Q)) -> a, Mat(b * P!u per Q!v)) -> a;
+
+(* Matrix getters and setters *)
+put :: forall a, Q, P: (Mat(a * P per Q), P, Q, Num(a)) -> Mat(a * P per Q);
+set :: forall a, Q, P: (P, Q, Num(a)) -> Mat(a * P per Q);
+get :: forall a, P, Q: (Mat(a * P per Q), Entity(P), Entity(Q)) -> Num(a);
+magnitude :: forall a, u, v, P, Q: (Mat(a * P!u per Q!v), Entity(P), Entity(Q)) -> Num(1.0);
+isolate :: forall a, u, v, P, Q: (Mat(a * P!u per Q!v), Entity(P), Entity(Q)) -> Mat(a * P!u per Q!v);
+
+(* Linear Algebra Operations*)
+sum :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v), Mat(a * P!u per Q!v)) -> Mat(a * P!u per Q!v);
+negative :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(a * P!u per Q!v);
+multiply :: forall z, w, v, u, b, Q, a, P: (Mat(a * P!u per Q!v), Mat(b * P!w per Q!z)) -> Mat(a*b * P!(u*w) per Q!(v*z));
+reciprocal :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(a^-1 * P!u^-1 per Q!v^-1);
+join :: forall a, b, u, v, w, P, Q, R: (Mat(a * P!u per Q!v), Mat(b * Q!v per R!w)) -> Mat(a*b * P!u per R!w);
+transpose :: forall a, u, v, P, Q: (Mat(a * P!u per Q!v)) -> Mat(a * Q!v^-1 per P!u^-1);
+scale :: forall a, b, u, v, P, Q: (Num(a), Mat(b * P!u per Q!v)) -> Mat(a*b * P!u per Q!v);
+total :: forall a, Q, P: (Mat(a * P per Q)) -> Num(a);
+kleene :: forall P,u: (Mat(1.0 * P!u per P!u)) -> Mat(1.0 * P!u per P!u);
+closure :: forall u, P: (Mat(1.0 * P!u per P!u)) -> Mat(1.0 * P!u per P!u);
+
+(* Numerical *)
+div :: forall: (Num(1.0), Num(1.0)) -> Num(1.0);
+mod :: forall: (Num(1.0), Num(1.0)) -> Num(1.0);
+gcd :: forall: (Num(1.0), Num(1.0)) -> Num(1.0);
+sqrt :: forall a: (Num(a^2)) -> Num(a);
+abs :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v)) -> Mat(a * P!u per Q!v);
+
+(* Logical *)
+true :: forall: Boole;
+false :: forall: Boole;
+not :: forall: (Boole) -> Boole;
+
+(* Lists *)
+emptyList :: forall a: List(a);
+singletonList :: forall a: (a) -> List(a);
+head :: forall a: (List(a)) -> a;
+tail :: forall a: (List(a)) -> List(a);
+listSize :: forall a: (List(a)) -> Num(1.0);
+addMut :: forall a: (List(a), a) -> List(a);
+append :: forall a: (List(a), List(a)) -> List(a);
+reduceList :: forall c, b, a: (b, (a) -> c, (b, c) -> b, List(a)) -> b;
+loopList :: forall c, b, a: (b, (b, c) -> b, List(c)) -> b;
+zip :: forall b, a: (List(a), List(b)) -> List(Tuple(a, b));
+reduce :: forall b, a: (b, (a) -> b, (b, b) -> b, List(a)) -> b;
+
+(* Sets *)
+emptySet :: forall a: Set(a);
+singletonSet :: forall a: (a) -> Set(a);
+setSize :: forall a: (Set(a)) -> Num(1.0);
+union :: forall a: (Set(a), Set(a)) -> Set(a);
+reduceSet :: forall c, b, a: (c, (a) -> b, (c, b) -> c, Set(a)) -> c;
+adjoinMut :: forall a: (Set(a), a) -> Set(a)

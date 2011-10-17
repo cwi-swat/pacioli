@@ -1,0 +1,5 @@
+owner :: forall: Mat(1.0 * File per Module);
+parent :: forall: Mat(1.0 * Module per Module);
+lines :: forall: Mat(loc * One per File);
+fileSize :: forall: Mat(byte * One per File);
+root :: forall: Mat(1.0 * Module per One)

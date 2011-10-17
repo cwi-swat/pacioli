@@ -92,7 +92,7 @@ public str pprint(duo(EntityType entity, Unit unit)) {
 	switch (entity) {
 		case entityVar(x): return pprintSimpleIndex(simple(x),unit);
 		case compound([]): return "One";
-		case compound(x): return intercalate("*", [pprintSimpleIndex(ent,un) | <ent,un> <- indexList(x,unit)]);
+		case compound(x): return intercalate(",", [pprintSimpleIndex(ent,un) | <ent,un> <- indexList(x,unit)]);
 	}
 } 
 
@@ -100,7 +100,7 @@ public str pprint(EntityType t) {
 	switch (t) {
 		case entityVar(x): return x;
 		case compound([]): return "One";
-		case compound(x): return intercalate("*", [pprint(e) | e <- x]);
+		case compound(x): return intercalate(",", [pprint(e) | e <- x]);
 	}
 }
 

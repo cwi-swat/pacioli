@@ -68,24 +68,6 @@ public void demo3() {
 	// Lie algebras
 	compile("lambda(x,y) x.y-y.x");
 	
-	// Netting problem
-	compile("lambda(x) bom.x");
-	compile("(lambda(x) x . output) (conv . bom . conv^R^T)");
-	compile("(lambda(x) closure(x)) (conv.bom.conv^R^T)");
-	compile("(lambda(x) closure(x) . output) (conv . bom . conv^R^T)");
-	compile("(lambda(f) closure(f(bom)) . output) (lambda (x) conv . x . conv^R^T)");
-	
-	// Salesdata
-	compile("sales / amount^T");
-	compile("(lambda(price) (price . P2^R^T) * (price . P2^R^T)) (sales / amount^T)");
-	compile("(lambda(price) price.P2^R^T * price.P2^R^T) (sales / amount^T)");
-	compile("(lambda(price) (price . P2^R^T)) (sales / amount^T)");
-	compile("(lambda(price) price.P2^R^T) (sales / amount^T)");
-	compile("sales.P1 / P2.amount");
-	
-	// Restaurant
-	compile("menu_price . menu_sales");
-	compile("menu_price * menu_sales^T");
 }
 
 public void demo4() {
@@ -127,5 +109,3 @@ public void demo4() {
 	compile("[lambda (x,y) if (x=y) then x else y end, join, sum, multiply]");
 	
 }
-
-

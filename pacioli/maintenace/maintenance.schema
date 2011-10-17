@@ -1,0 +1,7 @@
+forward :: forall: Mat(1.0 * Place!unit per Transition);
+backward :: forall: Mat(1.0 * Place!unit per Transition);
+valuation :: forall: Mat(dollar * One per Place!unit);
+basis :: forall: Mat(1.0 * Transition per Conspiracy);
+isAsset :: forall: Mat(1.0 * One per Place);
+isLegit :: forall: Mat(1.0 * Transition per One);
+isJournal :: forall: Mat(1.0 *  One per Place)

@@ -1,0 +1,6 @@
+sales :: forall: Mat(dollar * One per Commodity,Year,Region);
+amount :: forall: Mat(1.0 * Commodity!unit,Year,Region per One);
+P3 :: forall: Mat(1.0 * Year per Commodity!unit,Year,Region);
+P2 :: forall: Mat(1.0 * Commodity!unit,Year per Commodity!unit,Year,Region);
+P1 :: forall: Mat(1.0 * Commodity,Year,Region per Commodity,Year);
+P0 :: forall: Mat(1.0 * Commodity,Year,Region per Commodity)

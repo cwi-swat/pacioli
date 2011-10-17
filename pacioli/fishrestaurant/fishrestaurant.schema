@@ -1,0 +1,6 @@
+semi_bom :: forall: Mat(1.0 * Ingredient!unit per Menu);
+stock1 :: forall: Mat(1.0 * Ingredient!unit per One);
+stock2 :: forall: Mat(1.0 * Ingredient!unit per One);
+menu_sales :: forall: Mat(1.0 * Menu per One);
+ingredient_price :: forall: Mat(dollar * One per Ingredient!unit);
+menu_price :: forall: Mat(dollar * One per Menu)
