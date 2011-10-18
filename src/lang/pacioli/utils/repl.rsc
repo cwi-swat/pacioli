@@ -279,4 +279,6 @@ public void stdLib() {
 	def("support", "lambda (x) \<i,j -\> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)\>");
 	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in list rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
 	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in list columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
+	def("positives", "lambda (x) x * \<i,j -\> 1 | i,j in matrix x, 0 \< magnitude(x,i,j)\>");
+	def("negatives", "lambda (x) x * \<i,j -\> 1 | i,j in matrix x, magnitude(x,i,j) \< 0\>");
 }

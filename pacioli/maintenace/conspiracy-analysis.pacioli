@@ -4,19 +4,20 @@ let
 	isReal = logNot(isJournal),
 	isLiability = logNot(isAsset),
 	isIllicit = logNot(isLicit),
-	posValue = valuation*isAsset,
-	negValue = valuation*isLiability
+	sign = isAsset - isLiability,
+	pos(x) = positives(sign^T*x),
+	neg(x) = negatives(sign^T*x)
 in
 	let tuples = [tuple(conspiracy,
-						posValue.licitProduction,
-						negValue.licitProduction,
-						posValue.illicitProduction,
-						negValue.illicitProduction) |
+						valuation.pos(licitProduction),
+						valuation.neg(licitProduction),
+						valuation.pos(illicitProduction),
+						valuation.neg(illicitProduction)) |
 					conspiracy in entity Conspiracy,
 					semiflow := column(basis,conspiracy),
 					illicitProduction := flow.(semiflow*isIllicit),
 					licitProduction := flow.(semiflow*isLicit)]
 	in
-		[c | (c, licPos, licNeg, illPos, illNeg) in list tuples, 0 < illPos-illNeg]
+		[t | t in list tuples, (c, licPos, licNeg, illPos, illNeg) := t, 0 < illPos]
 	end
 end
