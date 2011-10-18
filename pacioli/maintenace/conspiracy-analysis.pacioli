@@ -3,7 +3,7 @@ let
   	flow = backward-forward,
 	isReal = logNot(isJournal),
 	isLiability = logNot(isAsset),
-	isIllicit = logNot(isLegit),
+	isIllicit = logNot(isLicit),
 	posValue = valuation*isAsset,
 	negValue = valuation*isLiability
 in
@@ -15,7 +15,7 @@ in
 					conspiracy in entity Conspiracy,
 					semiflow := column(basis,conspiracy),
 					illicitProduction := flow.(semiflow*isIllicit),
-					licitProduction := flow.(semiflow*isLegit)]
+					licitProduction := flow.(semiflow*isLicit)]
 	in
 		[c | (c, licPos, licNeg, illPos, illNeg) in list tuples, 0 < illPos-illNeg]
 	end
