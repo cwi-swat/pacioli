@@ -1,3 +1,16 @@
+Entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
+Entity Transition "/home/paul/data/code/cwi/pacioli/cases/case4/transition.entity";
+Index Place unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
+Entity Conspiracy "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity";
+
+Quantity forward "/home/paul/data/code/cwi/pacioli/cases/case4/forward.csv";
+Quantity backward "/home/paul/data/code/cwi/pacioli/cases/case4/backward.csv";
+Quantity valuation "/home/paul/data/code/cwi/pacioli/cases/case4/valuation.csv";
+Quantity basis "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv";
+Quantity isAsset "/home/paul/data/code/cwi/pacioli/cases/case4/isAsset.csv";
+Quantity isLegit "/home/paul/data/code/cwi/pacioli/cases/case4/isLegit.csv";
+Quantity isJournal "/home/paul/data/code/cwi/pacioli/cases/case4/isJournal.csv";
+
 forward :: forall: Mat(1.0 * Place!unit per Transition);
 backward :: forall: Mat(1.0 * Place!unit per Transition);
 valuation :: forall: Mat(dollar * One per Place!unit);

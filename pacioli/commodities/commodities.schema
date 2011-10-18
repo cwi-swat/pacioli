@@ -1,3 +1,15 @@
+Entity Commodity "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.entity";
+Entity Year "/home/paul/data/code/cwi/pacioli/cases/case2/year.entity";
+Entity Region "/home/paul/data/code/cwi/pacioli/cases/case2/region.entity";
+Index Commodity unit "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.unit";
+
+Quantity sales "/home/paul/data/code/cwi/pacioli/cases/case2/sales.csv";
+Quantity amount "/home/paul/data/code/cwi/pacioli/cases/case2/amount.csv";
+
+Projection P0 Commodity,Year,Region  per Commodity;
+Projection P1 Commodity,Year,Region per Commodity,Year;
+Projection P2 Commodity!unit,Year per Commodity!unit,Year,Region;
+
 sales :: forall: Mat(dollar * One per Commodity,Year,Region);
 amount :: forall: Mat(1.0 * Commodity!unit,Year,Region per One);
 P3 :: forall: Mat(1.0 * Year per Commodity!unit,Year,Region);

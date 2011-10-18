@@ -1,3 +1,12 @@
+Entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";
+Entity Module "/home/paul/data/code/cwi/pacioli/cases/case5/module.entity";
+
+Quantity owner "/home/paul/data/code/cwi/pacioli/cases/case5/owner.csv";
+Quantity parent "/home/paul/data/code/cwi/pacioli/cases/case5/parent.csv";
+Quantity lines "/home/paul/data/code/cwi/pacioli/cases/case5/lines.csv";
+Quantity fileSize "/home/paul/data/code/cwi/pacioli/cases/case5/fileSize.csv";
+Quantity root "/home/paul/data/code/cwi/pacioli/cases/case5/root.csv";
+
 owner :: forall: Mat(1.0 * File per Module);
 parent :: forall: Mat(1.0 * Module per Module);
 lines :: forall: Mat(loc * One per File);

@@ -40,29 +40,24 @@ public void registerPacioli() {
 	registerContributions(SCHEMA_LANG, contribs);
 }
 
-//public void registerSchema() {
-//	registerLanguage(PACIOLI_LANG, "pacioli", parsePacioli);
-//	registerLanguage(PACIOLI_LANG, "schema", parseSchema);
-//	contribs = {
-//		popup(
-//			menu(PACIOLI_LANG,[
-//	    		action("Compile", compilePacioliFile),
-//	    		action("Import", compileSchemaFile)
-//		    ])
-//	  	)
-//  };
-//  registerContributions(PACIOLI_LANG, contribs);
-//}
-
 public void compilePacioliFile(lang::pacioli::syntax::KernelPacioli::Expression exp, loc l) {
-  ast = normalize(implode(exp));
-  compile(ast);
-  alert("compilation done");
+	try {
+		ast = normalize(implode(exp));
+		compile(ast);
+		alert("compilation done");
+	} catch err: {
+		println(err);
+		alert("Error while compiling Pacioli expression. See console for more information.");
+	}
 }
 
 public void compileSchemaFile(lang::pacioli::syntax::SchemaPacioli::Schema exp, loc l) {
-	ast = normalizeSchema(implodeSchema(exp));
-	//ast = exp;
-	importSchema(ast);
- 	alert("schema imported");
+	try {
+		ast = normalizeSchema(implodeSchema(exp));
+		importSchema(ast);
+ 		alert("schema imported");
+ 	} catch err: {
+		println(err);
+		alert("Error while imporint schema. See console for more information.");
+	}
 }

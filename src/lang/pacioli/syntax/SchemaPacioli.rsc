@@ -5,7 +5,13 @@ extend lang::pacioli::syntax::Lexical;
 
 start syntax Schema = schema: {SchemaElement ";"}* elements;
 
-syntax SchemaElement = typeDeclaration: Ident name "::" SchemeNode scheme;
+syntax SchemaElement
+	= typeDeclaration: Ident name "::" SchemeNode scheme
+	| quantityDeclaration: "Quantity" Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
+	| entityDeclaration: "Entity" Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
+	| indexDeclaration: "Index" Ident ent Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
+	| projection: "Projection" Ident name {IndexNode ","}+ rowIndex "per" {IndexNode ","}+ columnIndex
+	| conversion: "Conversion" Ident name Ident ent Ident to Ident from;
 
 syntax SchemeNode
 	= schemeNode: "forall" {Ident ","}* vars ":" TypeNode t;

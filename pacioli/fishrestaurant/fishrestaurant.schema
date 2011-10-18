@@ -1,3 +1,7 @@
+Entity Ingredient "/home/paul/data/code/cwi/pacioli/cases/case3/ingredient.entity";
+Entity Menu "/home/paul/data/code/cwi/pacioli/cases/case3/menu.entity";
+Index Ingredient unit "/home/paul/data/code/cwi/pacioli/cases/case3/ingredient.unit";
+
 semi_bom :: forall: Mat(1.0 * Ingredient!unit per Menu);
 stock1 :: forall: Mat(1.0 * Ingredient!unit per One);
 stock2 :: forall: Mat(1.0 * Ingredient!unit per One);

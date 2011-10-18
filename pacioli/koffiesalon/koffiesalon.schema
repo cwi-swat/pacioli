@@ -1,5 +1,15 @@
+Entity Product "/home/paul/data/code/cwi/pacioli/cases/case1/product.entity";
+Index Product bom_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.bom_unit";
+Index Product trade_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.trade_unit";
+
+Quantity bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv";
+Quantity output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv";
+Quantity purchase_price "/home/paul/data/code/cwi/pacioli/cases/case1/purchase_price.csv"; 
+Quantity sales_price "/home/paul/data/code/cwi/pacioli/cases/case1/sales_price.csv";
+
+Conversion conv Product trade_unit bom_unit;
+
 bom :: forall: Mat(1.0 * Product!bom_unit per Product!bom_unit);
-conv :: forall: Mat(1.0 * Product!trade_unit per Product!bom_unit);
 output :: forall: Mat(1.0 * Product!trade_unit per One);
 purchase_price :: forall: Mat(dollar * One per Product!trade_unit);
 sales_price :: forall: Mat(dollar * One per Product!trade_unit)

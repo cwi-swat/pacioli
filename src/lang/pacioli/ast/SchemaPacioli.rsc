@@ -10,7 +10,13 @@ import lang::pacioli::types::Types;
 
 data Schema = schema(list[SchemaElement] elements);
 
-data SchemaElement = typeDeclaration(str name, SchemeNode scheme);
+data SchemaElement
+	= typeDeclaration(str name, SchemeNode scheme)
+	| quantityDeclaration(str name, list[str] path, str ext)
+	| entityDeclaration(str name, list[str] path, str ext)
+	| indexDeclaration(str ent, str name, list[str] path, str ext)
+	| projection(str name, list[IndexNode] rowIndex, list[IndexNode] columnIndex)
+	| conversion(str name, str ent, str to, str from);
 
 data SchemeNode = schemeNode(list[str] vars, TypeNode t);
 
@@ -41,10 +47,35 @@ data UnitNode
 public Schema normalizeSchema(Schema x) = x;
 
 ////////////////////////////////////////////////////////////////////////////////
+// Fetch entities and indices
+
+public map[str, str] fetchFileLocations(schema(elements)) {
+	return (name: "/" + intercalate("/", path) + "." + ext | quantityDeclaration(name, path, ext) <- elements);
+}
+
+public map[str, str] fetchEntities(schema(elements)) {
+	return (name: "/" + intercalate("/", path) + "." + ext | entityDeclaration(name, path, ext) <- elements);
+}
+
+public map[str, tuple[IndexType,IndexType]] fetchProjections(schema(elements)) {
+	return (name: <translateIndexNodes(rowIndex, []), translateIndexNodes(columnIndex, [])> | projection(name, rowIndex, columnIndex) <- elements);
+}
+
+public map[str, tuple[str,str,str]] fetchConversions(schema(elements)) {
+	return (name: <ent, to, from> | conversion(name, ent, to, from) <- elements);
+}
+
+public map[str, tuple[str,str,str]] fetchIndices(schema(elements)) {
+	return (full: <ent, name, "/" + intercalate("/", path) + "." + ext> | 
+					indexDeclaration(ent, name, path, ext) <- elements, 
+					full := ent + "!" + name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Translation to Type
 
 public map[str, Scheme] translateSchema(schema(elements)) {
-	return (name: scheme | element <- elements, <name,scheme> := translateSchemaElement(element));
+	return (name: scheme | element <- elements, typeDeclaration(_,_) := element, <name,scheme> := translateSchemaElement(element));
 }
 
 public tuple[str, Scheme] translateSchemaElement(SchemaElement element) {
@@ -86,7 +117,6 @@ public Type translateEntity(x, list[str] vars) {
 	}
 }
 
-// todo: units
 public Type translateMatrix(x,y,z, list[str] vars) {
 	return matrix(translateUnitNode(x, vars), translateIndexNodes(y, vars), translateIndexNodes(z, vars));
 }
@@ -103,7 +133,6 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	}
 }
 
-// todo: units
 Unit indexNodeUnit(IndexNode indexNode, list[str] vars) {
 	switch (indexNode) {
 	case halfDuoNode(ent): return uno();
