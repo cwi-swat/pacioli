@@ -7,9 +7,9 @@ start syntax Schema = schema: {SchemaElement ";"}* elements;
 
 syntax SchemaElement
 	= typeDeclaration: Ident name "::" SchemeNode scheme
-	| quantityDeclaration: "Quantity" Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
-	| entityDeclaration: "Entity" Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
-	| indexDeclaration: "Index" Ident ent Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
+	| quantityDeclaration: "Quantity" Ident name StringConstant path
+	| entityDeclaration: "Entity" Ident name StringConstant path
+	| indexDeclaration: "Index" Ident ent Ident name StringConstant path
 	| projection: "Projection" Ident name {IndexNode ","}+ rowIndex "per" {IndexNode ","}+ columnIndex
 	| conversion: "Conversion" Ident name Ident ent Ident to Ident from
 	| baseUnitDeclaration: "Base" "unit" Ident name ":" StringConstant symbol

@@ -1,3 +1,4 @@
+Base unit dollar: "$";
 Unit litre: "l" = (deci metre)^3;
 Unit pound: "lb" = 0.45359237 * kilo gram;
 Unit ounce: "oz" = pound * 16.0^-1;
@@ -11,13 +12,9 @@ Index Commodity unit "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.uni
 Quantity sales "/home/paul/data/code/cwi/pacioli/cases/case2/sales.csv";
 Quantity amount "/home/paul/data/code/cwi/pacioli/cases/case2/amount.csv";
 
-Projection P0 Commodity,Year,Region  per Commodity;
+Projection P0 Commodity,Year,Region per Commodity;
 Projection P1 Commodity,Year,Region per Commodity,Year;
 Projection P2 Commodity!unit,Year per Commodity!unit,Year,Region;
 
 sales :: forall: Mat(dollar * One per Commodity,Year,Region);
-amount :: forall: Mat(1.0 * Commodity!unit,Year,Region per One);
-P3 :: forall: Mat(1.0 * Year per Commodity!unit,Year,Region);
-P2 :: forall: Mat(1.0 * Commodity!unit,Year per Commodity!unit,Year,Region);
-P1 :: forall: Mat(1.0 * Commodity,Year,Region per Commodity,Year);
-P0 :: forall: Mat(1.0 * Commodity,Year,Region per Commodity)
+amount :: forall: Mat(1.0 * Commodity!unit,Year,Region per One)

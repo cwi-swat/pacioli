@@ -68,7 +68,7 @@ public str addUnits(str prelude, BaseUnitRepo bases, UnitRepo units) {
 }
 
 public str addEntities(str prelude, EntityRepo repo) {
-	return intercalate(";\n", ["entity <name> \"<repo[name]>\"" | name <- repo]);
+	return intercalate(";\n", ["entity <name> <repo[name]>" | name <- repo]);
 }
 
 public str addProjections(str prelude, ProjectionRepo repo) {
@@ -82,12 +82,12 @@ public str addConversions(str prelude, ConversionRepo repo) {
 }
 
 public str addIndices(str prelude, IndexRepo repo) {
-	return intercalate(";\n", ["index <ent> <idx> \"<path>\"" |
+	return intercalate(";\n", ["index <ent> <idx> <path>" |
 										name <- repo, <ent,idx,path> := repo[name]]);
 }
 
 public str addLoads(str prelude, Environment env) {
-	return intercalate(";\n", ["load <name> \"<glbFileLocations[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
+	return intercalate(";\n", ["load <name> <glbFileLocations[name]> \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
 								name <- env,
 								name in glbFileLocations,
 								forall({},{},{},matrix(f,r,c)) := env[name]]);
@@ -126,18 +126,18 @@ public void importSchema(Schema schema) {
 	}
 	locations = fetchFileLocations(schema);
 	for (name <- locations) {
-		println("Quantity <name> \"<locations[name]>\"");
+		println("Quantity <name> <locations[name]>");
 		glbFileLocations[name] = locations[name];
 	}
 	entities = fetchEntities(schema);
 	for (name <- entities) {
-		println("Entity <name> \"<entities[name]>\"");
+		println("Entity <name> <entities[name]>");
 		glbEntities[name] = entities[name];
 	}
 	indices = fetchIndices(schema);
 	for (name <- indices) {
 		<ent,idx,path> = indices[name];
-		println("Index <ent> <idx> \"<path>\"");
+		println("Index <ent> <idx> <path>");
 		glbIndices[name] = indices[name];
 	}
 	projections = fetchProjections(schema);
@@ -145,6 +145,8 @@ public void importSchema(Schema schema) {
 		<row,column> = projections[name];
 		println("Projection <name> <row> <column>");
 		glbProjections[name] = projections[name];
+		matrixType = matrix(uno(), row, column);
+		glbImports[name] = forall({},{},{},matrixType);
 	}
 	conversions = fetchConversions(schema);
 	for (name <- conversions) {

@@ -12,9 +12,9 @@ data Schema = schema(list[SchemaElement] elements);
 
 data SchemaElement
 	= typeDeclaration(str name, SchemeNode scheme)
-	| quantityDeclaration(str name, list[str] path, str ext)
-	| entityDeclaration(str name, list[str] path, str ext)
-	| indexDeclaration(str ent, str name, list[str] path, str ext)
+	| quantityDeclaration(str name, str path)
+	| entityDeclaration(str name, str path)
+	| indexDeclaration(str ent, str name, str path)
 	| projection(str name, list[IndexNode] rowIndex, list[IndexNode] columnIndex)
 	| conversion(str name, str ent, str to, str from)
 	| baseUnitDeclaration(str name, str symbol)
@@ -61,11 +61,11 @@ public map[str, tuple[str, Unit]] fetchUnits(schema(elements)) {
 }
 
 public map[str, str] fetchFileLocations(schema(elements)) {
-	return (name: "/" + intercalate("/", path) + "." + ext | quantityDeclaration(name, path, ext) <- elements);
+	return (name: path | quantityDeclaration(name, path) <- elements);
 }
 
 public map[str, str] fetchEntities(schema(elements)) {
-	return (name: "/" + intercalate("/", path) + "." + ext | entityDeclaration(name, path, ext) <- elements);
+	return (name: path | entityDeclaration(name, path) <- elements);
 }
 
 public map[str, tuple[IndexType,IndexType]] fetchProjections(schema(elements)) {
@@ -77,8 +77,8 @@ public map[str, tuple[str,str,str]] fetchConversions(schema(elements)) {
 }
 
 public map[str, tuple[str,str,str]] fetchIndices(schema(elements)) {
-	return (full: <ent, name, "/" + intercalate("/", path) + "." + ext> | 
-					indexDeclaration(ent, name, path, ext) <- elements, 
+	return (full: <ent, name, path> | 
+					indexDeclaration(ent, name, path) <- elements, 
 					full := ent + "!" + name);
 }
 
@@ -138,7 +138,7 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	case unitNum(x): return powerProduct((),x);
 	case unitBrack(x): return translateUnitNode(x, vars);
 	// todo: factor wegwerken uit prefix()
-	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 1.0));
+	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 123.0));
 	case unitRaiseNode(x,y): return raise(translateUnitNode(x, vars), y);
 	case unitNegRaiseNode(x,y): return raise(translateUnitNode(x, vars), -y);
 	case unitMultNode(x,y): return multiply(translateUnitNode(x, vars), translateUnitNode(y, vars));
