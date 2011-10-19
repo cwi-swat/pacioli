@@ -1,3 +1,8 @@
+Unit litre: "l" = (deci metre)^3;
+Unit pound: "lb" = 0.45359237 * kilo gram;
+Unit ounce: "oz" = pound * 16.0^-1;
+Unit barrel: "bbl" = 117.347765 * litre;
+
 Entity Commodity "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.entity";
 Entity Year "/home/paul/data/code/cwi/pacioli/cases/case2/year.entity";
 Entity Region "/home/paul/data/code/cwi/pacioli/cases/case2/region.entity";

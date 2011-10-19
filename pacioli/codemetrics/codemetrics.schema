@@ -1,3 +1,6 @@
+Base unit bit: "bit";
+Unit byte: "byte" = 8.0 * bit;
+			  
 Entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";
 Entity Module "/home/paul/data/code/cwi/pacioli/cases/case5/module.entity";
 

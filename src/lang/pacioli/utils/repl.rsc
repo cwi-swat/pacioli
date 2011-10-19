@@ -2,7 +2,6 @@ module lang::pacioli::utils::repl
 
 import List;
 import IO;
-import util::Prompt;
 
 import units::units;
 
@@ -10,11 +9,9 @@ import lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::ast::SchemaPacioli;
 import lang::pacioli::types::inference;
 import lang::pacioli::compile::pacioli2mvm;
-import lang::pacioli::compile::pacioli2java;
 import lang::pacioli::types::Types;
 import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
-import lang::pacioli::utils::dictionary;
 import lang::pacioli::utils::implodeSchema;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,19 +23,17 @@ alias ProjectionRepo = map[str,tuple[IndexType,IndexType]];
 alias ConversionRepo = map[str,tuple[str,str,str]];
 alias IndexRepo = map[str,tuple[str,str,str]];
 alias FileLocations = map[str,str];
+alias BaseUnitRepo = map[str,str];
+alias UnitRepo = map[str,tuple[str,Unit]];
   			  
+BaseUnitRepo glbBaseUnitRepo = ();
+UnitRepo glbUnitRepo = ();
 Repo glbReplRepo = ();
-
 Environment glbImports = ();
-
 EntityRepo glbEntities = ();
-
 ProjectionRepo glbProjections = ();
-
 ConversionRepo glbConversions = ();
-
 FileLocations glbFileLocations = ();
-
 IndexRepo glbIndices = ();
 
 list[str] glbReplRepoOrder = [];
@@ -66,67 +61,46 @@ public bool isFunction(forall(_,_,_, Type t)) {
 	}
 }
 
+public str addUnits(str prelude, BaseUnitRepo bases, UnitRepo units) {
+	baseStrings = ["baseunit <name> <bases[name]>" | name <- bases];
+	unitStrings = ["unit <name> <symbol> <serial(unit)>" | name <- units, <symbol, unit> := units[name]];
+	return intercalate(";\n", baseStrings + unitStrings); 
+}
+
 public str addEntities(str prelude, EntityRepo repo) {
-	text = prelude;
-	for (name <- repo) {
-		text = text + ";\nentity <name> \"<repo[name]>\"";
-	}
-	return text;
+	return intercalate(";\n", ["entity <name> \"<repo[name]>\"" | name <- repo]);
 }
 
 public str addProjections(str prelude, ProjectionRepo repo) {
-	text = prelude;
-	for (name <- repo) {
-		<row,column> = repo[name];
-		text = text + ";\nprojection <name> \"<serial(row)>\" \"<serial(column)>\"";
-	}
-	return text;
+	return intercalate(";\n", ["projection <name> \"<serial(row)>\" \"<serial(column)>\"" |
+										name <- repo, <row,column> := repo[name]]);
 }
 
 public str addConversions(str prelude, ConversionRepo repo) {
-	text = prelude;
-	for (name <- repo) {
-		<ent,to,from> = repo[name];
-		text = text + ";\nconversion <name> \"<ent>\" \"<from>\" \"<to>\"";
-	}
-	return text;
+	return intercalate(";\n", ["conversion <name> \"<ent>\" \"<from>\" \"<to>\"" |
+										name <- repo, <ent,to,from> := repo[name]]);
 }
 
 public str addIndices(str prelude, IndexRepo repo) {
-	text = prelude;
-	for (name <- repo) {
-		<ent,idx,path> = repo[name];
-		text = text + ";\nindex <ent> <idx> \"<path>\"";
-	}
-	return text;
+	return intercalate(";\n", ["index <ent> <idx> \"<path>\"" |
+										name <- repo, <ent,idx,path> := repo[name]]);
 }
 
 public str addLoads(str prelude, Environment env) {
-	text = prelude;
-	for (name <- env) {
-		if (forall({},{},{},matrix(f,r,c)) := env[name] && name in glbFileLocations) {
-			text = text + ";\nload <name> \"<glbFileLocations[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"";
-		}
-	}
-	return text;
+	return intercalate(";\n", ["load <name> \"<glbFileLocations[name]>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
+								name <- env,
+								name in glbFileLocations,
+								forall({},{},{},matrix(f,r,c)) := env[name]]);
 }
 
 public str addEvals(str prelude, Repo repo) {
-	text = prelude;
-	// Two passes to support some dependencies
-	for (name <- glbReplRepoOrder) {
-		<code,sch> = repo[name];
-		if (isFunction(sch)) {
-			text += ";\neval <name> <compilePacioli(code)>";
-		}
-	}
-	for (name <- glbReplRepoOrder) {
-		<code,sch> = repo[name];
-		if (!isFunction(sch)) {
-			text += ";\neval <name> <compilePacioli(code)>";
-		}
-	}
-	return text;
+	funs = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, 
+												   <code,sch> := repo[name], 
+												   isFunction(sch)];
+	nonfuns = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, 
+													  <code,sch> := repo[name], 
+													  !isFunction(sch)];
+	return intercalate(";\n", funs + nonfuns);
 }		
 
 Scheme inferScheme(Expression exp, Environment env) {
@@ -139,6 +113,17 @@ Scheme inferScheme(Expression exp, Environment env) {
 // IDE hooks
 
 public void importSchema(Schema schema) {
+	baseUnits = fetchBaseUnits(schema);
+	for (name <- baseUnits) {
+		println("Base unit <name>: <baseUnits[name]>");
+		glbBaseUnitRepo[name] = baseUnits[name];
+	}
+	units = fetchUnits(schema);
+	for (name <- units) {
+		<symbol, unit> = units[name];
+		println("Unit <name>: <symbol> = <pprint(unit)>");
+		glbUnitRepo[name] = units[name];
+	}
 	locations = fetchFileLocations(schema);
 	for (name <- locations) {
 		println("Quantity <name> \"<locations[name]>\"");
@@ -167,7 +152,6 @@ public void importSchema(Schema schema) {
 		println("Conversion <name> <ent> <from> <to>");
 		matrixType = matrix(uno(), duo(compound([simple(ent)]), named(to,to,self())), duo(compound([simple(ent)]), named(from,from,self())));
 		glbConversions[name] = conversions[name];
-		//glbImports[name] = matrixType;
 		glbImports[name] = forall({},{},{},matrixType);
 	}
 	environment = translateSchema(schema);
@@ -183,15 +167,15 @@ public void compile(Expression exp) {
 	scheme = inferScheme(exp, fullEnv);
 	println("<pprint(exp)>\n  :: <pprint(scheme)>");
 	
-	header = prelude();
-	header = addEntities(header, glbEntities);
-	header = addIndices(header, glbIndices);
-	//header += prelude2();
-	header = addLoads(header,fullEnv);
-	header = addProjections(header,glbProjections);
-	header = addConversions(header,glbConversions);
-	header = addEvals(header,glbReplRepo);
-	prog = "<header>;
+	header = "";
+	preludeStrings = [addUnits(header, glbBaseUnitRepo, glbUnitRepo),
+					  addEntities(header, glbEntities),
+					  addIndices(header, glbIndices),
+					  addLoads(header,fullEnv),
+					  addProjections(header,glbProjections),
+					  addConversions(header,glbConversions),
+					  addEvals(header,glbReplRepo)];
+	prog = "<intercalate(";\n", preludeStrings - [""])>;
 	   	   'eval result <compilePacioli(exp)>; 
        	   'print result";
        	   

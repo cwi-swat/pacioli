@@ -60,7 +60,8 @@ public int power(Unit u, Unit base) {
 	}
 }
 
-public real factor(powerProduct(_, x), Unit base) = x;
+//public real factor(powerProduct(_, x), Unit base) = x;
+public real factor(powerProduct(_, x)) = x;
   
 public default set[Unit] bases(Unit u) = {u};
 
@@ -123,6 +124,7 @@ public Unit filterUnit(bool(Unit) fn, Unit unit) =
 public str pprint(Unit u) {
 	switch (u) {
 		case named(_,x,_): return x;
+		case scaled(x,prefix(p,f)): return "(<p> <pprint(x)>)";
 		//case unitVar(x): return "\'<x>";
 		case unitVar(x): return x;
 		case powerProduct(p, f): {
@@ -150,6 +152,7 @@ public str pprint(Unit u) {
 public str serial(Unit u) {
 	switch (u) {
 		case named(x,_,_): return x;
+		case scaled(x,prefix(p,f)): return "(<p> <serial(x)>)";
 		//case unitVar(x): return "\'<x>";
 		case powerProduct(p, f): {
 			front = ((f == 1.0) ? "1" : "<f>" |

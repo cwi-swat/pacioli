@@ -16,8 +16,10 @@ data SchemaElement
 	| entityDeclaration(str name, list[str] path, str ext)
 	| indexDeclaration(str ent, str name, list[str] path, str ext)
 	| projection(str name, list[IndexNode] rowIndex, list[IndexNode] columnIndex)
-	| conversion(str name, str ent, str to, str from);
-
+	| conversion(str name, str ent, str to, str from)
+	| baseUnitDeclaration(str name, str symbol)
+	| unitDeclaration(str name, str symbol, UnitNode unit);
+	
 data SchemeNode = schemeNode(list[str] vars, TypeNode t);
 
 data TypeNode 
@@ -37,6 +39,7 @@ data UnitNode
 	= unitRef(str name)
 	| unitNum(real number)
 	| unitBrack(UnitNode x)
+	| unitScaled(str prefix, UnitNode x)
 	| unitRaiseNode(UnitNode x, int integer)
 	| unitNegRaiseNode(UnitNode x, int integer)
 	| unitMultNode(UnitNode x, UnitNode y);
@@ -48,6 +51,14 @@ public Schema normalizeSchema(Schema x) = x;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Fetch entities and indices
+
+public map[str, str] fetchBaseUnits(schema(elements)) {
+	return (name: symbol | baseUnitDeclaration(name, symbol) <- elements);
+}
+
+public map[str, tuple[str, Unit]] fetchUnits(schema(elements)) {
+	return (name: <symbol, translateUnitNode(unit, [])> | unitDeclaration(name, symbol, unit) <- elements);
+}
 
 public map[str, str] fetchFileLocations(schema(elements)) {
 	return (name: "/" + intercalate("/", path) + "." + ext | quantityDeclaration(name, path, ext) <- elements);
@@ -126,6 +137,8 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	case unitRef(x): return (x in vars) ? unitVar(x) : named(x,x,self());
 	case unitNum(x): return powerProduct((),x);
 	case unitBrack(x): return translateUnitNode(x, vars);
+	// todo: factor wegwerken uit prefix()
+	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 1.0));
 	case unitRaiseNode(x,y): return raise(translateUnitNode(x, vars), y);
 	case unitNegRaiseNode(x,y): return raise(translateUnitNode(x, vars), -y);
 	case unitMultNode(x,y): return multiply(translateUnitNode(x, vars), translateUnitNode(y, vars));

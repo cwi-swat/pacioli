@@ -237,10 +237,11 @@ public class Reader {
 		skipWhitespace();
 		if (hasCharacter('*')) {
 			readCharacter('*');
-			return first.multiply(readOneUnit(entity));
+			//return first.multiply(readOneUnit(entity));
+			return first.multiply(readUnit(entity));
 		} else if (hasCharacter('/')) {
 			readCharacter('/');
-			return first.multiply(readOneUnit(entity).raise(-1));
+			return first.multiply(readUnit(entity).raise(-1));
 		} else if (hasCharacter('^')) {
 			readCharacter('^');
 			return first.raise(readNumber().intValue());

@@ -11,7 +11,9 @@ syntax SchemaElement
 	| entityDeclaration: "Entity" Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
 	| indexDeclaration: "Index" Ident ent Ident name "\"/" {Ident "/"}+ path "." Ident ext "\""
 	| projection: "Projection" Ident name {IndexNode ","}+ rowIndex "per" {IndexNode ","}+ columnIndex
-	| conversion: "Conversion" Ident name Ident ent Ident to Ident from;
+	| conversion: "Conversion" Ident name Ident ent Ident to Ident from
+	| baseUnitDeclaration: "Base" "unit" Ident name ":" StringConstant symbol
+	| unitDeclaration: "Unit" Ident name ":" StringConstant symbol "=" UnitNode unit;
 
 syntax SchemeNode
 	= schemeNode: "forall" {Ident ","}* vars ":" TypeNode t;
@@ -32,8 +34,9 @@ syntax IndexNode = halfDuoNode: Ident ent | duoNode: Ident ent "!" UnitNode unit
 syntax UnitNode
 	= unitRef: Ident name
 	| unitNum: Number number
+	| unitScaled: Ident prefix UnitNode x
 	| unitBrack: "(" UnitNode x ")"
-	| unitRaiseNode: UnitNode x "^" Integer integer
 	| unitNegRaiseNode: UnitNode x "^" "-" Integer integer
-	| unitMultNode: UnitNode x "*" UnitNode y;
+	> unitRaiseNode: UnitNode x "^" Integer integer
+	> unitMultNode: UnitNode x "*" UnitNode y;
 

@@ -1,3 +1,9 @@
+Base unit dollar: "$";
+Base unit box: "box";
+Unit each: "each" = 1.0;
+Unit hour: "hr" = 3600.0*second;
+Unit litre: "l" = (deci metre)^3;
+
 Entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
 Entity Transition "/home/paul/data/code/cwi/pacioli/cases/case4/transition.entity";
 Index Place unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
