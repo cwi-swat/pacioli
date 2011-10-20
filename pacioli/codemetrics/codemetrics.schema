@@ -1,3 +1,4 @@
+Base unit loc: "loc";
 Base unit bit: "bit";
 Unit byte: "byte" = 8.0 * bit;
 			  

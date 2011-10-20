@@ -5,8 +5,8 @@ let
 	isLiability = logNot(isAsset),
 	isIllicit = logNot(isLicit),
 	sign = isAsset - isLiability,
-	pos(x) = positives(sign^T*x),
-	neg(x) = negatives(sign^T*x)
+	pos(x) = positives(sign*x),
+	neg(x) = negatives(sign*x)
 in
 	let tuples = [tuple(conspiracy,
 						valuation.pos(licitProduction),

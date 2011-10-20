@@ -1,7 +1,7 @@
 let agg_matrix = owner.parent*,
     agg(x) = x.agg_matrix,
     modules = columnDomain(owner),
-    bytesPerLine = agg(fileSize)/agg(lines)
+    density = agg(fileSize)/agg(lines)
 in
-    {tuple(m, get(bytesPerLine, zero, m)) | m in list modules} 
+    {tuple(m, get(density, zero, m)) | m in list modules} 
 end
