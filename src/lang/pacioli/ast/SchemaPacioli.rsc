@@ -1,6 +1,7 @@
 module lang::pacioli::ast::SchemaPacioli
 
 import List;
+import String;
 
 import units::units;
 import lang::pacioli::types::Types;
@@ -18,7 +19,8 @@ data SchemaElement
 	| projection(str name, list[IndexNode] rowIndex, list[IndexNode] columnIndex)
 	| conversion(str name, str ent, str to, str from)
 	| baseUnitDeclaration(str name, str symbol)
-	| unitDeclaration(str name, str symbol, UnitNode unit);
+	| unitDeclaration(str name, str symbol, UnitNode unit)
+	| importDeclaration(str path);
 	
 data SchemeNode = schemeNode(list[str] vars, TypeNode t);
 
@@ -51,6 +53,10 @@ public Schema normalizeSchema(Schema x) = x;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Fetch entities and indices
+
+public list[str] fetchImports(schema(elements)) {
+	return [substring(path,1,size(path)-1) | importDeclaration(path) <- elements];
+}
 
 public map[str, str] fetchBaseUnits(schema(elements)) {
 	return (name: symbol | baseUnitDeclaration(name, symbol) <- elements);

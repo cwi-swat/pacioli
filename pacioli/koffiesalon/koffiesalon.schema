@@ -2,8 +2,9 @@ Base unit dollar: "$";
 Unit pound: "lb" = 0.45359237 * kilo gram;
 
 Entity Product "/home/paul/data/code/cwi/pacioli/cases/case1/product.entity";
-Index Product bom_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.bom_unit";
-Index Product trade_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.trade_unit";
+
+Index Product!bom_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.bom_unit";
+Index Product!trade_unit "/home/paul/data/code/cwi/pacioli/cases/case1/product.trade_unit";
 
 Quantity bom "/home/paul/data/code/cwi/pacioli/cases/case1/bom.csv";
 Quantity output "/home/paul/data/code/cwi/pacioli/cases/case1/output.csv";

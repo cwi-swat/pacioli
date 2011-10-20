@@ -1,23 +1,24 @@
-let
- 
- (* This demo of Fourier Motzkin's algorithm to compute the nullifiers of an integer
-    matrix is an adaptation of Martinez and Silva's algorithm from 'A Simple and
-    Fast Algorithm to Obtain all Invariants of a Generalised Petri Net' (1982).
+Include "/home/paul/data/code/cwi/pacioli/pacioli/standard.pacioli";
+Import "/home/paul/data/code/cwi/pacioli/pacioli/maintenace/maintenance.schema";
+
+(* This demo of Fourier Motzkin's algorithm to compute the nullifiers of an integer
+   matrix is an adaptation of Martinez and Silva's algorithm from 'A Simple and
+   Fast Algorithm to Obtain all Invariants of a Generalised Petri Net' (1982).
     
-    In the algorithm a matrix |A I| is constructed. This matrix grows and shrinks 
-    in the row dimension when a column from A is eliminated. When it ends with 
-    matrix |B C| the rows in C are the nullifiers.
+   In the algorithm a matrix |A I| is constructed. This matrix grows and shrinks 
+   in the row dimension when a column from A is eliminated. When it ends with 
+   matrix |B C| the rows in C are the nullifiers.
    
-	The main data structure in this implementation is a list of quadruples (v,w,sv,sw). 
-	This version does not create matrix |A I| but creates pairs (v,w) of rows v from A and
-	w from I, and operates on these pairs instead of the matrix. Because the support is 
-	often needed these are added to get quadruples (v, w, support(v), support(w)).
+   The main data structure in this implementation is a list of quadruples (v,w,sv,sw). 
+   This version does not create matrix |A I| but creates pairs (v,w) of rows v from A and
+   w from I, and operates on these pairs instead of the matrix. Because the support is 
+   often needed these are added to get quadruples (v, w, support(v), support(w)).
    
-	Also the rows and columns are switched with respect to Martinez and Silva.
+   Also the rows and columns are switched with respect to Martinez and Silva.
 	
-	Paul Griffioen 2011 *)
- 
- eliminate(quadruples, row) =
+   Paul Griffioen 2011 *)
+	
+Function eliminate(quadruples, row) =
 	let combined = [tuple(s1, s2, support(s1), support(s2)) |
 						(v,w) in list combis(quadruples),
 						(v1, v2, _, _) := v,
@@ -31,28 +32,26 @@ let
 		[q | q in list append(combined, quadruples), 
 			 (v1, _, _, _) := q, 
 			 magnitude(v1, row, zero) = 0]
-	end,
-	
- canonical(quadruple) =
+	end;
+
+Function canonical(quadruple) =
 	let (v1, v2, support1, support2) = quadruple,
 	    c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j in matrix v1], gcd[magnitude(v2,i,j) | i,j in matrix v2])
 	in
 		tuple(scale(c,v1), scale(c,v2), support1, support2)
-	end,
-	
- minimize(quadruples) =
+	end;
+
+Function minimize(quadruples) =
 	[q | q in list quadruples, (_, _, qsupport1, qsupport2) := q,
          all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
-             r in list quadruples, (_, _, rsupport1, rsupport2) := r]],
+             r in list quadruples, (_, _, rsupport1, rsupport2) := r]];
 
- fourierMotzkin(matrix) =
+Function fourierMotzkin(matrix) =
  	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
  		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
  		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
  	in 
 		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
-	end
+	end;
 	
-in
-	setSize(fourierMotzkin(backward-forward))
-end
+setSize(fourierMotzkin(backward-forward))

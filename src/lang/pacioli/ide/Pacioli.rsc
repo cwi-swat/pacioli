@@ -4,8 +4,10 @@ import lang::pacioli::utils::Parse;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::parseSchema;
 import lang::pacioli::utils::implodeSchema;
-import lang::pacioli::syntax::KernelPacioli;
-import lang::pacioli::ast::KernelPacioli;
+//import lang::pacioli::syntax::KernelPacioli;
+//import lang::pacioli::ast::KernelPacioli;
+import lang::pacioli::syntax::Pacioli;
+import lang::pacioli::ast::Pacioli;
 import lang::pacioli::syntax::SchemaPacioli;
 import lang::pacioli::ast::SchemaPacioli;
 import lang::pacioli::utils::repl;
@@ -40,9 +42,9 @@ public void registerPacioli() {
 	registerContributions(SCHEMA_LANG, contribs);
 }
 
-public void compilePacioliFile(lang::pacioli::syntax::KernelPacioli::Expression exp, loc l) {
+public void compilePacioliFile(lang::pacioli::syntax::Pacioli::Module mod, loc l) {
 	try {
-		ast = normalize(implode(exp));
+		ast = normalizeModule(implode(mod));
 		compile(ast);
 		alert("compilation done");
 	} catch err: {

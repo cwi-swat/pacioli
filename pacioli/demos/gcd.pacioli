@@ -1,4 +1,6 @@
-let gcd(x,y) = if x=0 then
+Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+
+Function gcd(x,y) = if x=0 then
 				  y
 				else
 				  if y = 0 then
@@ -10,9 +12,8 @@ let gcd(x,y) = if x=0 then
 				      gcd(x-y,y)
 				    end
 				  end
-				end
- in
-   let f(x,y) = gcd(x,y) in
-   	  let a = f in a(164,264) end
-   	end 
- end
+				end;
+				
+let f(x,y) = gcd(x,y) in
+	let a = f in a(164,264) end
+end

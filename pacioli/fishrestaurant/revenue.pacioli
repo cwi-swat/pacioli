@@ -1,1 +1,4 @@
+Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+Import "/home/paul/data/code/cwi/pacioli/pacioli/fishrestaurant/fishrestaurant.schema";
+
 menu_price * menu_sales^T

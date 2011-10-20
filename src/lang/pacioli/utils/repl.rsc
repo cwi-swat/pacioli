@@ -1,10 +1,12 @@
 module lang::pacioli::utils::repl
 
 import List;
+import String;
 import IO;
 
 import units::units;
 
+import lang::pacioli::ast::Pacioli;
 import lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::ast::SchemaPacioli;
 import lang::pacioli::types::inference;
@@ -94,13 +96,8 @@ public str addLoads(Environment env) {
 }
 
 public str addEvals(Repo repo) {
-	funs = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, 
-												   <code,sch> := repo[name], 
-												   isFunction(sch)];
-	nonfuns = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, 
-													  <code,sch> := repo[name], 
-													  !isFunction(sch)];
-	return intercalate(";\n", funs + nonfuns);
+	defs = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, <code,sch> := repo[name]];
+	return intercalate(";\n", defs);
 }		
 
 Scheme inferScheme(Expression exp, Environment env) {
@@ -113,6 +110,10 @@ Scheme inferScheme(Expression exp, Environment env) {
 // IDE hooks
 
 public void importSchema(Schema schema) {
+	imports = fetchImports(schema);
+	for (path <- imports) {
+		importSchemaFile(path);
+	}
 	baseUnits = fetchBaseUnits(schema);
 	for (name <- baseUnits) {
 		println("Base unit <name>: <baseUnits[name]>");
@@ -163,11 +164,41 @@ public void importSchema(Schema schema) {
 	}
 }
 
+public void compile(Module mod) {
+	
+	pacioliModule(items) = mod;
+		
+	for (item <- items) {
+		switch (item) {
+		case schemaImport(s): {
+			path = substring(s,1,size(s)-1);
+			importSchemaFile(path);
+		}
+		case fileImport(s): {
+			path = substring(s,1,size(s)-1);
+			compileFile(path);
+		}
+		case valueDefinition(x,y): {
+			def(x,y);
+		}
+		case functionDefinition(x,y,z): {
+			def(x, abstraction(y,z));
+		}
+		}
+	}
+	
+	expressions = [x | topLevelExpression(x) <- items];
+	if (expressions != []) {
+		// todo: the tail!
+		compile(head(expressions));
+	}
+}
+
 public void compile(Expression exp) {
 	fullEnv = totalEnv(glbReplRepo, glbImports);
 
 	scheme = inferScheme(exp, fullEnv);
-	println("<pprint(exp)>\n  :: <pprint(scheme)>");
+	println("<pprint(exp)> :: <pprint(scheme)>");
 	
 	programStrings = [addUnits(glbBaseUnitRepo, glbUnitRepo),
 					  addEntities(glbEntities),
@@ -199,6 +230,16 @@ public void importSchema(str schema) {
 	importSchema(parseImplodeSchema(schema));
 }
 
+public void importSchemaFile(str path) {
+	text = intercalate("\n", readFile(path));
+	importSchema(text);
+}
+
+public void compileFile(str path) {
+	text = intercalate("\n", readFile(path));
+	compile(text);
+}
+
 public void ls () {
 	env = totalEnv(glbReplRepo, glbImports);
 	for (name <- env) {
@@ -223,9 +264,9 @@ public void parse (str exp) {
 	println(parsed);
 }
 
-public void def(str name, str exp) {
+public void def(str name, Expression exp) {
 	try {
-		parsed = parseImplodePacioli(exp);
+		parsed = exp;
 		env = totalEnv(glbReplRepo, glbImports);
 		
 		// hack for recursive functions
@@ -245,26 +286,6 @@ public void def(str name, str exp) {
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Standaard Library
-
-public void stdLib() {
-	def("combis", "lambda (list) 
-		             let (result, dummy) = loopList(tuple([],list),
-							                        lambda(accu,x)
-							                          let (result,tails) = accu in
-	 						                            tuple(append([tuple(x,y) | y in list tail(tails)], result), tail(tails))
-	 						                          end,
-	 						                        list) in
-	 		           result
-	 		         end");
-	def("columns", "lambda (matrix) [column(matrix,j) | j in list columnDomain(matrix)]");
-	def("rows", "lambda (matrix) [row(matrix,i) | i in list rowDomain(matrix)]");
-	def("magnitudeMatrix", "lambda (mat) \<i,j -\> magnitude(mat,i,j) | i,j in matrix mat\>");
-	def("unitMatrix", "lambda (mat) scale(unitFactor(mat), rowIndex(mat) per columnIndex(mat))");
-	def("support", "lambda (x) \<i,j -\> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)\>");
-	def("leftIdentity", "lambda (x) \<i,i -\> 1 | i in list rowDomain(x)\> * (rowIndex(x) per rowIndex(x))");
-	def("rightIdentity", "lambda (x) \<j,j -\> 1 | j in list columnDomain(x)\> * (columnIndex(x) per columnIndex(x))");
-	def("positives", "lambda (x) x * \<i,j -\> 1 | i,j in matrix x, 0 \< magnitude(x,i,j)\>");
-	def("negatives", "lambda (x) x * \<i,j -\> 1 | i,j in matrix x, magnitude(x,i,j) \< 0\>");
+public void def(str name, str exp) {
+	return def(name, parseImplodePacioli(exp));
 }

@@ -1,7 +1,10 @@
-let agg_matrix = owner.parent*,
-    agg(x) = x.agg_matrix,
-    modules = columnDomain(owner),
-    density = agg(fileSize)/agg(lines)
-in
-    {tuple(m, get(density, zero, m)) | m in list modules} 
-end
+Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+Import "/home/paul/data/code/cwi/pacioli/pacioli/codemetrics/codemetrics.schema";
+
+Value agg_matrix = owner.parent*;
+ 
+Function agg(x) = x.agg_matrix;
+
+Value density = agg(fileSize)/agg(lines);
+
+{tuple(m, get(density, zero, m)) | m in entity Module}

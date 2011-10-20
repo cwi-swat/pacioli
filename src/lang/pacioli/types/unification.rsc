@@ -161,7 +161,11 @@ public Substitution unifyTypes(Type x, Type y) {
 			return unifyVar(b,a);
 		}
 		case <matrix(a,pu0,qv0), matrix(b,pu1,qv1)>:
-			return unifyMatrices(a,pu0,qv0, b,pu1,qv1);
+			try {
+				return unifyMatrices(a,pu0,qv0, b,pu1,qv1);
+			} catch err: {
+				throw "Error while unifying matrices <pprint(matrix(a,pu0,qv0))> and <pprint(matrix(b,pu1,qv1))>: <err>";
+			}
 		case <function(a,b), function(c,d)>: {
 			S1 = unifyTypes(a,c);
 			S2 = merge(S1, unifyTypes(typeSubs(S1,b),typeSubs(S1,d)));
@@ -194,7 +198,7 @@ public Substitution unifyTypes(Type x, Type y) {
 			return ident;
 		}
 		default: {
-			throw "Cannot unify types <pprint(x)> and <pprint(y)> <x> <y>";
+			throw "Cannot unify types <pprint(x)> and <pprint(y)>";
 		}
 	}
 }

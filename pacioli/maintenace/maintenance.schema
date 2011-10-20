@@ -6,8 +6,9 @@ Unit litre: "l" = (deci metre)^3;
 
 Entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
 Entity Transition "/home/paul/data/code/cwi/pacioli/cases/case4/transition.entity";
-Index Place unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
 Entity Conspiracy "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity";
+
+Index Place!unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
 
 Quantity forward "/home/paul/data/code/cwi/pacioli/cases/case4/forward.csv";
 Quantity backward "/home/paul/data/code/cwi/pacioli/cases/case4/backward.csv";

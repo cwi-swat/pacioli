@@ -7,7 +7,8 @@ Unit barrel: "bbl" = 117.347765 * litre;
 Entity Commodity "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.entity";
 Entity Year "/home/paul/data/code/cwi/pacioli/cases/case2/year.entity";
 Entity Region "/home/paul/data/code/cwi/pacioli/cases/case2/region.entity";
-Index Commodity unit "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.unit";
+
+Index Commodity!unit "/home/paul/data/code/cwi/pacioli/cases/case2/commodity.unit";
 
 Quantity sales "/home/paul/data/code/cwi/pacioli/cases/case2/sales.csv";
 Quantity amount "/home/paul/data/code/cwi/pacioli/cases/case2/amount.csv";
