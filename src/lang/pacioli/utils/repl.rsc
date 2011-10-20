@@ -164,7 +164,22 @@ public void importSchema(Schema schema) {
 	}
 }
 
+public void reset() {
+	glbBaseUnitRepo = ();
+	glbUnitRepo = ();
+	glbReplRepo = ();
+	glbImports = ();
+	glbEntities = ();
+	glbProjections = ();
+	glbConversions = ();
+	glbFileLocations = ();
+	glbIndices = ();
+	glbReplRepoOrder = [];
+}
+
 public void compile(Module mod) {
+
+	reset();
 	
 	pacioliModule(items) = mod;
 		

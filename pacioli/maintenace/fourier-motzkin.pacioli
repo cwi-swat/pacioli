@@ -54,4 +54,4 @@ Function fourierMotzkin(matrix) =
 		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
 	end;
 	
-setSize(fourierMotzkin(backward-forward))
+fourierMotzkin(backward-forward)
