@@ -61,39 +61,39 @@ public bool isFunction(forall(_,_,_, Type t)) {
 	}
 }
 
-public str addUnits(str prelude, BaseUnitRepo bases, UnitRepo units) {
+public str addUnits(BaseUnitRepo bases, UnitRepo units) {
 	baseStrings = ["baseunit <name> <bases[name]>" | name <- bases];
 	unitStrings = ["unit <name> <symbol> <serial(unit)>" | name <- units, <symbol, unit> := units[name]];
 	return intercalate(";\n", baseStrings + unitStrings); 
 }
 
-public str addEntities(str prelude, EntityRepo repo) {
+public str addEntities(EntityRepo repo) {
 	return intercalate(";\n", ["entity <name> <repo[name]>" | name <- repo]);
 }
 
-public str addProjections(str prelude, ProjectionRepo repo) {
+public str addProjections(ProjectionRepo repo) {
 	return intercalate(";\n", ["projection <name> \"<serial(row)>\" \"<serial(column)>\"" |
 										name <- repo, <row,column> := repo[name]]);
 }
 
-public str addConversions(str prelude, ConversionRepo repo) {
+public str addConversions(ConversionRepo repo) {
 	return intercalate(";\n", ["conversion <name> \"<ent>\" \"<from>\" \"<to>\"" |
 										name <- repo, <ent,to,from> := repo[name]]);
 }
 
-public str addIndices(str prelude, IndexRepo repo) {
+public str addIndices(IndexRepo repo) {
 	return intercalate(";\n", ["index <ent> <idx> <path>" |
 										name <- repo, <ent,idx,path> := repo[name]]);
 }
 
-public str addLoads(str prelude, Environment env) {
+public str addLoads(Environment env) {
 	return intercalate(";\n", ["load <name> <glbFileLocations[name]> \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
 								name <- env,
 								name in glbFileLocations,
 								forall({},{},{},matrix(f,r,c)) := env[name]]);
 }
 
-public str addEvals(str prelude, Repo repo) {
+public str addEvals(Repo repo) {
 	funs = ["eval <name> <compilePacioli(code)>" | name <- glbReplRepoOrder, 
 												   <code,sch> := repo[name], 
 												   isFunction(sch)];
@@ -169,18 +169,18 @@ public void compile(Expression exp) {
 	scheme = inferScheme(exp, fullEnv);
 	println("<pprint(exp)>\n  :: <pprint(scheme)>");
 	
-	header = "";
-	preludeStrings = [addUnits(header, glbBaseUnitRepo, glbUnitRepo),
-					  addEntities(header, glbEntities),
-					  addIndices(header, glbIndices),
-					  addLoads(header,fullEnv),
-					  addProjections(header,glbProjections),
-					  addConversions(header,glbConversions),
-					  addEvals(header,glbReplRepo)];
-	prog = "<intercalate(";\n", preludeStrings - [""])>;
-	   	   'eval result <compilePacioli(exp)>; 
-       	   'print result";
-       	   
+	programStrings = [addUnits(glbBaseUnitRepo, glbUnitRepo),
+					  addEntities(glbEntities),
+					  addIndices(glbIndices),
+					  addLoads(fullEnv),
+					  addProjections(glbProjections),
+					  addConversions(glbConversions),
+					  addEvals(glbReplRepo),
+					  "eval result <compilePacioli(exp)>",
+					  "print result"];
+					 
+	prog = intercalate(";\n", programStrings - [""]);
+	   	   
 	writeFile(|project://pacioli/cases/tmp.mvm|, [prog]);
 }
 

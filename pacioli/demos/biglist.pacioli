@@ -3,5 +3,5 @@ let nums = [0,1,2,3,4,5],
 	b = [[x,y] | x in list a, y in list a],
 	c = [[x,y] | x in list b, y in list b]
 in
-	size(c)
+	listSize(c)
 end
