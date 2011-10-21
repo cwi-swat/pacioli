@@ -1,0 +1,26 @@
+Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+	
+Function combis(list) = 
+	let (result, dummy) = loopList(tuple([],list),
+								   lambda(accu,x)
+										let (result,tails) = accu in
+											tuple(append([tuple(x,y) | y in list tail(tails)], result), tail(tails))
+										end,
+								   list)
+	in
+		result
+	end;
+	 		         
+Function columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
+Function rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
+
+Function magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
+Function unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
+
+Function support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
+
+Function leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
+Function rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
+
+Function positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
+Function negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>

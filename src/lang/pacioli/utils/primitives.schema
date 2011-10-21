@@ -14,8 +14,8 @@ zero :: forall: Entity(One);
 indexLess :: forall P: (Entity(P), Entity(P)) -> Boole;
 matrixFromTuples :: forall a,P,Q: (Set(Tuple(Entity(P), Entity(Q), Num(a)))) -> Mat(a * P per Q);
 unitFactor :: forall a,b,u,v,P,Q: (Mat(a * P!u per Q!v)) -> Num(a);
-rowIndex :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(1.0 * P!u per One);
-columnIndex :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(1.0 * Q!v per One);
+rowUnits :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(1.0 * P!u per One);
+columnUnits :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(1.0 * Q!v per One);
 rowDomain :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> List(Entity(P));
 columnDomain :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> List(Q);
 row :: forall a,P,Q,v: (Mat(a * P per Q!v), P) -> Mat(a * One per Q!v);
@@ -75,4 +75,13 @@ singletonSet :: forall a: (a) -> Set(a);
 setSize :: forall a: (Set(a)) -> Num(1.0);
 union :: forall a: (Set(a), Set(a)) -> Set(a);
 reduceSet :: forall a,b,c: (c, (a) -> b, (c, b) -> c, Set(a)) -> c;
-adjoinMut :: forall a: (Set(a), a) -> Set(a)
+adjoinMut :: forall a: (Set(a), a) -> Set(a);
+
+(* The SI base units hardcoded. Better to introduce literal syntax!? That also allows prefixes!? *)
+gram :: forall: Mat(gram * One per One);
+metre :: forall: Mat(metre * One per One);
+second :: forall: Mat(second * One per One);
+ampere :: forall: Mat(ampere * One per One);
+kelvin :: forall: Mat(kelvin * One per One);
+mole :: forall: Mat(mole * One per One);
+candela :: forall: Mat(candela * One per One)

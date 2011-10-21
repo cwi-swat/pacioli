@@ -27,7 +27,8 @@ alias IndexRepo = map[str,tuple[str,str,str]];
 alias FileLocations = map[str,str];
 alias BaseUnitRepo = map[str,str];
 alias UnitRepo = map[str,tuple[str,Unit]];
-  			  
+
+// todo: remove these globals because the imports and includes make state acros compilations unnecessary  			  
 BaseUnitRepo glbBaseUnitRepo = ();
 UnitRepo glbUnitRepo = ();
 Repo glbReplRepo = ();

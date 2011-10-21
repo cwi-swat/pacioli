@@ -33,6 +33,7 @@ public class MVM {
 		vm.verbose = verbose;
 		
 		try {
+			vm.init();
 			vm.run(fileName, System.out);
 		} catch (IOException e) {
 			if (verbose) {

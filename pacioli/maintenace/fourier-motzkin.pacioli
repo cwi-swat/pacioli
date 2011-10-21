@@ -36,7 +36,9 @@ Function eliminate(quadruples, row) =
 
 Function canonical(quadruple) =
 	let (v1, v2, support1, support2) = quadruple,
-	    c = 1 / gcd(gcd[magnitude(v1,i,j) | i,j in matrix v1], gcd[magnitude(v2,i,j) | i,j in matrix v2])
+		v1_gcd = gcd[magnitude(v1,i,j) | i,j in matrix v1],
+		v2_gcd = gcd[magnitude(v2,i,j) | i,j in matrix v2],
+	    c = 1 / gcd(v1_gcd, v2_gcd)
 	in
 		tuple(scale(c,v1), scale(c,v2), support1, support2)
 	end;

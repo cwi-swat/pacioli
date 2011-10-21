@@ -27,7 +27,7 @@ import mvm.primitives.Append;
 import mvm.primitives.Apply;
 import mvm.primitives.Column;
 import mvm.primitives.ColumnDomain;
-import mvm.primitives.ColumnIndex;
+import mvm.primitives.ColumnUnits;
 import mvm.primitives.Div;
 import mvm.primitives.Equal;
 import mvm.primitives.Gcd;
@@ -58,7 +58,7 @@ import mvm.primitives.ReduceMatrix;
 import mvm.primitives.ReduceSet;
 import mvm.primitives.Row;
 import mvm.primitives.RowDomain;
-import mvm.primitives.RowIndex;
+import mvm.primitives.RowUnits;
 import mvm.primitives.Scale;
 import mvm.primitives.Set;
 import mvm.primitives.SetSize;
@@ -106,10 +106,21 @@ public class Machine {
 		unitSystem = makeSI();
 		entities = new HashMap<String, Entity>();
 		indices = new HashMap<Base, Unit[]>();
+	}
+	
+	public void init() throws IOException {
+		
+		store.put("gram", new Matrix(unitSystem.lookupUnit("gram")));
+		store.put("metre", new Matrix(unitSystem.lookupUnit("metre")));
+		store.put("second", new Matrix(unitSystem.lookupUnit("second")));
+		store.put("ampere", new Matrix(unitSystem.lookupUnit("ampere")));
+		store.put("kelvin", new Matrix(unitSystem.lookupUnit("kelvin")));
+		store.put("mole", new Matrix(unitSystem.lookupUnit("mole")));
+		store.put("candela", new Matrix(unitSystem.lookupUnit("candela")));
 		
 		store.put("unitFactor", new UnitFactor());
-		store.put("rowIndex", new RowIndex());
-		store.put("columnIndex", new ColumnIndex());
+		store.put("rowUnits", new RowUnits());
+		store.put("columnUnits", new ColumnUnits());
 		store.put("matrixFromTuples", new MatrixFromTuples());
 		store.put("gcd", new Gcd());
 		store.put("listSize", new ListSize());
