@@ -1,4 +1,44 @@
-let positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)> in
-	(*positives(valuation.head(columns(basis)))*)
-	count<x,y -> m | x in entity Product, y in entity Product, m := magnitude(bom,x,y),  0 < m>
-end
+Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+
+(* Vector Norm *)
+Function normSquared(x) = total(x*x);
+Function norm(x) = sqrt(total(x*x));
+	
+(* Lie algebras *)
+Function commutator(x,y) = x.y-y.x;
+	
+(* Some fun with lattices I *)
+Value a0 = [negative];
+Value a1 = [transpose];
+Value a2 = [reciprocal];
+Value a3 = [negative, transpose];
+Value a4 = [negative, reciprocal];
+Value a5 = [transpose, reciprocal];
+Value a6 = [negative, transpose, reciprocal];
+	
+(* Some fun with lattices II *)
+Value b0 = [identity, negative];
+Value b1 = [identity, transpose];
+Value b2 = [identity, reciprocal];
+Value b3 = [identity, negative, transpose];
+Value b4 = [identity, negative, reciprocal];
+Value b5 = [identity, transpose, reciprocal];
+Value b6 = [identity, negative, transpose, reciprocal];
+	
+(* Some fun with lattices of binary functions I *)
+Value c1 = [join];
+Value c2 = [sum];
+Value c3 = [multiply];
+Value c4 = [join, sum];
+Value c5 = [join, multiply];
+Value c6 = [sum, multiply];
+Value c7 = [join, sum, multiply];
+	
+(* Some fun with lattices of binary functions II *)
+Value d0 = [lambda (x,y) if (x=y) then x else y end, join];
+Value d1 = [lambda (x,y) if (x=y) then x else y end, sum];
+Value d2 = [lambda (x,y) if (x=y) then x else y end, multiply];
+Value d3 = [lambda (x,y) if (x=y) then x else y end, join, sum];
+Value d4 = [lambda (x,y) if (x=y) then x else y end, join, multiply];
+Value d5 = [lambda (x,y) if (x=y) then x else y end, sum, multiply];
+Value d6 = [lambda (x,y) if (x=y) then x else y end, join, sum, multiply]
