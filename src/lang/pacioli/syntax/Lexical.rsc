@@ -16,7 +16,7 @@ lexical Number
 	;
 
 lexical Integer 
-	= [0-9]+ !>> [0-9]
+	= [0-9]+ !>> [0-9.]
 	;
 
 lexical Layout 

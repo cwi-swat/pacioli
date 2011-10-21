@@ -13,7 +13,7 @@ Quantity sales_price "/home/paul/data/code/cwi/pacioli/cases/case1/sales_price.c
 
 Conversion conv Product trade_unit bom_unit;
 
-bom :: forall: Mat(1.0 * Product!bom_unit per Product!bom_unit);
-output :: forall: Mat(1.0 * Product!trade_unit per One);
+bom :: forall: Mat(1 * Product!bom_unit per Product!bom_unit);
+output :: forall: Mat(1 * Product!trade_unit per One);
 purchase_price :: forall: Mat(dollar * One per Product!trade_unit);
 sales_price :: forall: Mat(dollar * One per Product!trade_unit)

@@ -2,7 +2,7 @@ module lang::pacioli::ast::SchemaPacioli
 
 import List;
 import String;
-
+import IO;
 import units::units;
 import lang::pacioli::types::Types;
 
@@ -40,6 +40,7 @@ data IndexNode = halfDuoNode(str ent) | duoNode(str ent, UnitNode unit);
 data UnitNode
 	= unitRef(str name)
 	| unitNum(real number)
+	| unitInt(int integer)
 	| unitBrack(UnitNode x)
 	| unitScaled(str prefix, UnitNode x)
 	| unitRaiseNode(UnitNode x, int integer)
@@ -49,7 +50,9 @@ data UnitNode
 ////////////////////////////////////////////////////////////////////////////////
 // Normalization
 
-public Schema normalizeSchema(Schema x) = x;
+public Schema normalizeSchema(Schema x) {
+	return x;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Fetch entities and indices
@@ -142,13 +145,14 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	switch (unitNode) {
 	case unitRef(x): return (x in vars) ? unitVar(x) : named(x,x,self());
 	case unitNum(x): return powerProduct((),x);
+	case unitInt(x): return powerProduct((),x*1.0);
 	case unitBrack(x): return translateUnitNode(x, vars);
 	// todo: factor wegwerken uit prefix()
 	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 123.0));
 	case unitRaiseNode(x,y): return raise(translateUnitNode(x, vars), y);
 	case unitNegRaiseNode(x,y): return raise(translateUnitNode(x, vars), -y);
 	case unitMultNode(x,y): return multiply(translateUnitNode(x, vars), translateUnitNode(y, vars));
-	default: throw "<unitNode>";
+	default: throw "Cannot translate unitNode <unitNode>";
 	}
 }
 

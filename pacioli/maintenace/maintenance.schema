@@ -1,7 +1,7 @@
 Base unit dollar: "$";
 Base unit box: "box";
-Unit each: "each" = 1.0;
-Unit hour: "hr" = 3600.0*second;
+Unit each: "each" = 1;
+Unit hour: "hr" = 3600*second;
 Unit litre: "l" = (deci metre)^3;
 
 Entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
@@ -18,10 +18,10 @@ Quantity isAsset "/home/paul/data/code/cwi/pacioli/cases/case4/isAsset.csv";
 Quantity isLicit "/home/paul/data/code/cwi/pacioli/cases/case4/isLicit.csv";
 Quantity isJournal "/home/paul/data/code/cwi/pacioli/cases/case4/isJournal.csv";
 
-forward :: forall: Mat(1.0 * Place!unit per Transition);
-backward :: forall: Mat(1.0 * Place!unit per Transition);
+forward :: forall: Mat(1 * Place!unit per Transition);
+backward :: forall: Mat(1 * Place!unit per Transition);
 valuation :: forall: Mat(dollar * One per Place!unit);
-basis :: forall: Mat(1.0 * Transition per Conspiracy);
-isAsset :: forall: Mat(1.0 * Place per One);
-isJournal :: forall: Mat(1.0 * Place per One);
-isLicit :: forall: Mat(1.0 * Transition per One)
+basis :: forall: Mat(1 * Transition per Conspiracy);
+isAsset :: forall: Mat(1 * Place per One);
+isJournal :: forall: Mat(1 * Place per One);
+isLicit :: forall: Mat(1 * Transition per One)

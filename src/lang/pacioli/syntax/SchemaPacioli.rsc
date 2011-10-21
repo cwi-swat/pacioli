@@ -35,6 +35,7 @@ syntax IndexNode = halfDuoNode: Ident ent | duoNode: Ident ent "!" UnitNode unit
 syntax UnitNode
 	= unitRef: Ident name
 	| unitNum: Number number
+	| unitInt: Integer integer
 	| unitScaled: Ident prefix UnitNode x
 	| unitBrack: "(" UnitNode x ")"
 	| unitNegRaiseNode: UnitNode x "^" "-" Integer integer

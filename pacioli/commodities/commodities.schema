@@ -18,4 +18,4 @@ Projection P1 Commodity,Year,Region per Commodity,Year;
 Projection P2 Commodity!unit,Year per Commodity!unit,Year,Region;
 
 sales :: forall: Mat(dollar * One per Commodity,Year,Region);
-amount :: forall: Mat(1.0 * Commodity!unit,Year,Region per One)
+amount :: forall: Mat(1 * Commodity!unit,Year,Region per One)
