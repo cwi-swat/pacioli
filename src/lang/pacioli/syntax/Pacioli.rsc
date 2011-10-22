@@ -8,9 +8,9 @@ extend lang::pacioli::syntax::KernelPacioli;
 start syntax Module = pacioliModule: {ModuleItem ";"}* ;
 
 syntax ModuleItem 
-	= schemaImport: "Import" StringConstant path
-	| fileImport: "Include" StringConstant path
+	= schemaImport: "import" StringConstant path
+	| fileImport: "include" StringConstant path
 	| topLevelExpression: Expression exp
-	| valueDefinition: "Value" Ident name "=" Expression exp
-	| functionDefinition: "Function" Ident fn "(" {Ident ","}* args ")" "=" Expression body;
+	| valueDefinition: "define" Ident name "=" Expression exp
+	| functionDefinition: "define" Ident fn "(" {Ident ","}* args ")" "=" Expression body;
 

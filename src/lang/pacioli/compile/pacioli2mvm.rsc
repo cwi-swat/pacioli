@@ -36,6 +36,9 @@ public str compileExpression(Expression exp) {
 		case or(x,y): {
 			return "or(<compileExpression(x)>,<compileExpression(y)>)";
 		}
+		case scaledUnitConst(x,y): {
+			return "<x>:<y>";
+		}
 		case bang(x,y): {
 			//println("bang(<serial(duo(compound([simple(x)]), named(y, y, self())))>)");
 			return "bang(<x>!<y>)";
@@ -67,7 +70,8 @@ public str compileExpression(Expression exp) {
 			return "application(<params>)";
 		}
 		default: {
-			throw("Cannot compile <exp> <pprint(exp)>");
+			message = "Cannot compile <exp> <pprint(exp)>";
+			throw message ;
 		}
 	}
 }

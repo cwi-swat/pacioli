@@ -1,30 +1,30 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
 
-(* Base units are pre-defined for demo purposes. A proper syntax (including prefixes) is still needed. *)
-Value v0 = gram;
-Value v1 = metre;
+(* Base units are pre-defined *)
+define v0 = gram;
+define v1 = metre;
 
 (* Units can always be multiplied *)
-Value v2 = gram*gram;
-Value v3 = gram*metre*second*ampere*kelvin*mole*candela;
+define v2 = gram*gram;
+define v3 = gram*metre*second*ampere*kelvin*mole*candela;
 
 (* Units can not always be summed. Value v5 gives an error. *)
-Value v4 = gram+gram;
-Value v5 = gram+metre;
+define v4 = gram+gram;
+define v5 = gram+metre;
 
 (* The type is semantic, the order of multiplication is irrelevant *)
-Value v6 = gram*metre + gram*metre;
-Value v7 = gram*metre + metre*gram;
+define v6 = gram*metre + gram*metre;
+define v7 = gram*metre + metre*gram;
 
 (*The type system does inference *)
-Function f0(x) = x*metre + gram*metre;
+define f0(x) = x*metre + gram*metre;
 
 (* The type system derives a most general type *)
-Function f1(x,y) = x*y + gram*metre;
-Function f2(x) = f1(x,gram);
-Value v8 = f1(gram,metre);
-Value v9 = f1(metre,gram);
+define f1(x,y) = x*y + gram*metre;
+define f2(x) = f1(x,gram);
+define v8 = f1(gram,metre);
+define v9 = f1(metre,gram);
 
-(* Multiplying left and right is not allowed. A multiplication and division cancel *)
-Value v10 = f1(metre*second,gram*second);
-Value v11 = f1(metre*second,gram/second)
+(* Multiplying left and right is not allowed. Value v10 gives an error. A multiplication and division cancel *)
+define v10 = f1(metre*second,gram*second);
+define v11 = f1(metre*second,gram/second)

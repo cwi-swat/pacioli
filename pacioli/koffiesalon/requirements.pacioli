@@ -1,6 +1,6 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
-Import "/home/paul/data/code/cwi/pacioli/pacioli/koffiesalon/koffiesalon.schema";
+import "pacioli/primitives.schema";
+import "pacioli/koffiesalon/koffiesalon.schema";
 
-Function convert(x) = conv . x . conv^R^T;
+define convert(x) = conv . x . conv^R^T;
 
 convert(bom)* . output

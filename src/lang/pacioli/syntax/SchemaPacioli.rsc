@@ -36,7 +36,7 @@ syntax UnitNode
 	= unitRef: Ident name
 	| unitNum: Number number
 	| unitInt: Integer integer
-	| unitScaled: Ident prefix UnitNode x
+	| unitScaled: Ident prefix ":" UnitNode x
 	| unitBrack: "(" UnitNode x ")"
 	| unitNegRaiseNode: UnitNode x "^" "-" Integer integer
 	> unitRaiseNode: UnitNode x "^" Integer integer

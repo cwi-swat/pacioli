@@ -90,7 +90,13 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 			}
 		}
 		case bang(x,y): {
-			typ = matrix(uno(), duo(compound([simple(x)]), named(y, y, self())), duo(compound([]),uno()));
+			unit = (y == "1") ? uno() : named(y, y, self());
+			typ = matrix(uno(), duo(compound([simple(x)]), unit), duo(compound([]),uno()));
+			pop("<pprint(typ)>");
+			return <typ, ident>;
+		}
+		case scaledUnitConst(x,y): {
+			typ = matrix(scaled(named(y,y,self()), prefix(x,234.0)), duo(compound([]), uno()), duo(compound([]),uno()));
 			pop("<pprint(typ)>");
 			return <typ, ident>;
 		}

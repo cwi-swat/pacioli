@@ -1,4 +1,4 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
 
 let nums = [0,1,2,3,4,5],
 	a = [[x,y] | x in list nums, y in list nums],

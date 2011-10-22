@@ -1,10 +1,10 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
-Import "/home/paul/data/code/cwi/pacioli/pacioli/codemetrics/codemetrics.schema";
+import "pacioli/primitives.schema";
+import "pacioli/codemetrics/codemetrics.schema";
 
-Value agg_matrix = owner.parent*;
+define agg_matrix = owner.parent*;
  
-Function agg(x) = x.agg_matrix;
+define agg(x) = x.agg_matrix;
 
-Value density = agg(fileSize)/agg(lines);
+define density = agg(fileSize)/agg(lines);
 
 {tuple(m, get(density, zero, m)) | m in entity Module}

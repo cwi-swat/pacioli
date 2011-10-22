@@ -1,6 +1,6 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
 
-Function gcd(x,y) = if x=0 then
+define gcd(x,y) = if x=0 then
 				  y
 				else
 				  if y = 0 then

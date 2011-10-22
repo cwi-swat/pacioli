@@ -10,21 +10,21 @@ Base unit bottle: "bottle";
 Base unit case: "case";
 			  
 Unit each: "each" = 1;
-Unit litre: "l" = (deci metre)^3;
+Unit litre: "l" = deci:metre^3;
 Unit hour: "hr" = 3600*second;
-Unit pound: "lb" = 0.45359237 * kilo gram;
+Unit pound: "lb" = 0.45359237 * kilo:gram;
 
-Entity Menu "/home/paul/data/code/cwi/pacioli/cases/case3/menu.entity";
-Entity Ingredient "/home/paul/data/code/cwi/pacioli/cases/case3/ingredient.entity";
+Entity Menu "cases/case3/menu.entity";
+Entity Ingredient "cases/case3/ingredient.entity";
 
-Index Ingredient!unit "/home/paul/data/code/cwi/pacioli/cases/case3/ingredient.unit";
+Index Ingredient!unit "cases/case3/ingredient.unit";
 
-Quantity semi_bom "/home/paul/data/code/cwi/pacioli/cases/case3/semi_bom.csv";
-Quantity stock1 "/home/paul/data/code/cwi/pacioli/cases/case3/stock1.csv";
-Quantity stock2 "/home/paul/data/code/cwi/pacioli/cases/case3/stock2.csv";
-Quantity menu_sales "/home/paul/data/code/cwi/pacioli/cases/case3/menu_sales.csv";
-Quantity ingredient_price "/home/paul/data/code/cwi/pacioli/cases/case3/ingredient_price.csv";
-Quantity menu_price "/home/paul/data/code/cwi/pacioli/cases/case3/menu_price.csv";
+Quantity semi_bom "cases/case3/semi_bom.csv";
+Quantity stock1 "cases/case3/stock1.csv";
+Quantity stock2 "cases/case3/stock2.csv";
+Quantity menu_sales "cases/case3/menu_sales.csv";
+Quantity ingredient_price "cases/case3/ingredient_price.csv";
+Quantity menu_price "cases/case3/menu_price.csv";
  
 semi_bom :: forall: Mat(1 * Ingredient!unit per Menu);
 stock1 :: forall: Mat(1 * Ingredient!unit per One);

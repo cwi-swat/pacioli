@@ -11,6 +11,8 @@ str fresh(str x) {glbcounter += 1; return "<x><glbcounter>";}
 
 data Expression = variable(str name)
 				| bang(str ent, str unit)
+				| bangOne(str ent)
+				| scaledUnitConst(str prefix, str unit)
 				| const(real number)
 				| constInt(int integer)
 				| litSet(list[Expression] items)
@@ -78,6 +80,7 @@ public Expression normalize(Expression exp) {
 
 		case variable("_") => variable(fresh("_"))
 		case constInt(x) => const(x*1.0)
+		case bangOne(x) => bang(x, "1")
 
 		case llet([], body) => body
 		case llet(xs, body) => oneLet(head(xs), normalize(llet(tail(xs), body)))
@@ -239,6 +242,7 @@ public str pprint(Expression exp) {
 	switch(exp) {
 		case variable(x): return "<x>";
 		case bang(x,y): return "<x>!<y>";
+		case scaledUnitConst(x,y): return "<x>:<y>";
 		case const(x): return "<x>";
 		case tup(items): return "(<intercalate(", ", [pprint(x) | x <- items])>)";
 		case abstraction(x,y): return "(lambda <pprint(tup([variable(v) | v <- x]))> <pprint(y)>)";	

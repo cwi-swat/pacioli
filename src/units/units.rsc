@@ -124,7 +124,7 @@ public Unit filterUnit(bool(Unit) fn, Unit unit) =
 public str pprint(Unit u) {
 	switch (u) {
 		case named(_,x,_): return x;
-		case scaled(x,prefix(p,f)): return "(<p> <pprint(x)>)";
+		case scaled(x,prefix(p,f)): return "<p>:<pprint(x)>";
 		//case unitVar(x): return "\'<x>";
 		case unitVar(x): return x;
 		case powerProduct(p, f): {

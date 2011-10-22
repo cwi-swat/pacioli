@@ -1,20 +1,20 @@
-Include "/home/paul/data/code/cwi/pacioli/pacioli/standard.pacioli";
-Import "/home/paul/data/code/cwi/pacioli/pacioli/maintenace/maintenance.schema";
+include "pacioli/standard.pacioli";
+import "pacioli/maintenace/maintenance.schema";
 
-Function logNot(x) = unitMatrix(x) - x;
+define logNot(x) = unitMatrix(x) - x;
 
-Value flow = backward-forward;
+define flow = backward-forward;
 
-Value isReal = logNot(isJournal);
-Value isLiability = logNot(isAsset);
-Value isIllicit = logNot(isLicit);
+define isReal = logNot(isJournal);
+define isLiability = logNot(isAsset);
+define isIllicit = logNot(isLicit);
 
-Value sign = isAsset - isLiability;
+define sign = isAsset - isLiability;
 
-Function pos(x) = positives(sign*x);
-Function neg(x) = negatives(sign*x);
+define pos(x) = positives(sign*x);
+define neg(x) = negatives(sign*x);
 	
-Value tuples = [tuple(conspiracy,
+define tuples = [tuple(conspiracy,
 						valuation.pos(licitProduction),
 						valuation.neg(licitProduction),
 						valuation.pos(illicitProduction),

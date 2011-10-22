@@ -16,6 +16,8 @@ import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::implodeSchema;
 
+str glbPacioliDir = "/home/paul/data/code/cwi/pacioli/";
+
 ////////////////////////////////////////////////////////////////////////////////
 // Repl utilities
 			  
@@ -71,7 +73,8 @@ public str addUnits(BaseUnitRepo bases, UnitRepo units) {
 }
 
 public str addEntities(EntityRepo repo) {
-	return intercalate(";\n", ["entity <name> <repo[name]>" | name <- repo]);
+	//1
+	return intercalate(";\n", ["entity <name> \"<glbPacioliDir><substring(s,1,size(s)-1)>\"" | name <- repo, s := repo[name]]);
 }
 
 public str addProjections(ProjectionRepo repo) {
@@ -85,15 +88,18 @@ public str addConversions(ConversionRepo repo) {
 }
 
 public str addIndices(IndexRepo repo) {
-	return intercalate(";\n", ["index <ent> <idx> <path>" |
+//2
+	return intercalate(";\n", ["index <ent> <idx> \"<glbPacioliDir><substring(path,1,size(path)-1)>\"" |
 										name <- repo, <ent,idx,path> := repo[name]]);
 }
 
 public str addLoads(Environment env) {
-	return intercalate(";\n", ["load <name> <glbFileLocations[name]> \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
+//3
+	return intercalate(";\n", ["load <name> \"<glbPacioliDir><substring(path,1,size(path)-1)>\" \"<serial(f)>\" \"<serial(r)>\" \"<serial(c)>\"" |
 								name <- env,
 								name in glbFileLocations,
-								forall({},{},{},matrix(f,r,c)) := env[name]]);
+								forall({},{},{},matrix(f,r,c)) := env[name],
+								path := glbFileLocations[name]]);
 }
 
 public str addEvals(Repo repo) {
@@ -113,18 +119,26 @@ Scheme inferScheme(Expression exp, Environment env) {
 public void importSchema(Schema schema) {
 	imports = fetchImports(schema);
 	for (path <- imports) {
-		importSchemaFile(path);
+		//4
+		//importSchemaFile(path);
+		importSchemaFile(|project://pacioli/<path>|);
 	}
 	baseUnits = fetchBaseUnits(schema);
 	for (name <- baseUnits) {
 		println("Base unit <name>: <baseUnits[name]>");
 		glbBaseUnitRepo[name] = baseUnits[name];
+		unit = named(name, name, self());
+		matrixType = matrix(unit, duo(compound([]), uno()), duo(compound([]), uno()));
+		glbImports[name] = forall({},{},{},matrixType);
 	}
 	units = fetchUnits(schema);
 	for (name <- units) {
 		<symbol, unit> = units[name];
 		println("Unit <name>: <symbol> = <pprint(unit)>");
 		glbUnitRepo[name] = units[name];
+		unit = named(name, name, self());
+		matrixType = matrix(unit, duo(compound([]), uno()), duo(compound([]), uno()));
+		glbImports[name] = forall({},{},{},matrixType);
 	}
 	locations = fetchFileLocations(schema);
 	for (name <- locations) {
@@ -179,8 +193,6 @@ public void reset() {
 }
 
 public void compile(Module mod) {
-
-	reset();
 	
 	pacioliModule(items) = mod;
 		
@@ -188,11 +200,15 @@ public void compile(Module mod) {
 		switch (item) {
 		case schemaImport(s): {
 			path = substring(s,1,size(s)-1);
-			importSchemaFile(path);
+			//5
+			//importSchemaFile(path);
+			importSchemaFile(|project://pacioli/<path>|);
 		}
 		case fileImport(s): {
 			path = substring(s,1,size(s)-1);
-			compileFile(path);
+			//6
+			//compileFile(path);
+			compileFile(|project://pacioli/<path>|);
 		}
 		case valueDefinition(x,y): {
 			def(x,y);
@@ -246,9 +262,20 @@ public void importSchema(str schema) {
 	importSchema(parseImplodeSchema(schema));
 }
 
+public void importSchemaFile(loc path) {
+	//text = intercalate("\n", readFile(path));
+	text = readFile(path);
+	importSchema(text);
+}
+
 public void importSchemaFile(str path) {
 	text = intercalate("\n", readFile(path));
 	importSchema(text);
+}
+
+public void compileFile(loc path) {
+	text = readFile(path);
+	compile(text);
 }
 
 public void compileFile(str path) {

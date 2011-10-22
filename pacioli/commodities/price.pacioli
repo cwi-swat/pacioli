@@ -1,4 +1,4 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
-Import "/home/paul/data/code/cwi/pacioli/pacioli/commodities/commodities.schema";
+import "pacioli/primitives.schema";
+import "pacioli/commodities/commodities.schema";
 
 sales.P1 / (P2.amount)^T

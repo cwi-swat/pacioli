@@ -1,46 +1,46 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
 
 (* Vector Norm *)
-Function normSquared(x) = total(x*x);
-Function norm(x) = sqrt(total(x*x));
+define normSquared(x) = total(x*x);
+define norm(x) = sqrt(total(x*x));
 	
 (* Lie algebras *)
-Function commutator(x,y) = x.y-y.x;
+define commutator(x,y) = x.y-y.x;
 	
 (* Some fun with lattices I *)
-Value a0 = [negative];
-Value a1 = [transpose];
-Value a2 = [reciprocal];
-Value a3 = [negative, transpose];
-Value a4 = [negative, reciprocal];
-Value a5 = [transpose, reciprocal];
-Value a6 = [negative, transpose, reciprocal];
+define a0 = [negative];
+define a1 = [transpose];
+define a2 = [reciprocal];
+define a3 = [negative, transpose];
+define a4 = [negative, reciprocal];
+define a5 = [transpose, reciprocal];
+define a6 = [negative, transpose, reciprocal];
 	
 (* Some fun with lattices II *)
-Value b0 = [identity, negative];
-Value b1 = [identity, transpose];
-Value b2 = [identity, reciprocal];
-Value b3 = [identity, negative, transpose];
-Value b4 = [identity, negative, reciprocal];
-Value b5 = [identity, transpose, reciprocal];
-Value b6 = [identity, negative, transpose, reciprocal];
+define b0 = [identity, negative];
+define b1 = [identity, transpose];
+define b2 = [identity, reciprocal];
+define b3 = [identity, negative, transpose];
+define b4 = [identity, negative, reciprocal];
+define b5 = [identity, transpose, reciprocal];
+define b6 = [identity, negative, transpose, reciprocal];
 	
 (* Some fun with lattices of binary functions I *)
-Value c1 = [join];
-Value c2 = [sum];
-Value c3 = [multiply];
-Value c4 = [join, sum];
-Value c5 = [join, multiply];
-Value c6 = [sum, multiply];
-Value c7 = [join, sum, multiply];
+define c1 = [join];
+define c2 = [sum];
+define c3 = [multiply];
+define c4 = [join, sum];
+define c5 = [join, multiply];
+define c6 = [sum, multiply];
+define c7 = [join, sum, multiply];
 	
 (* Some fun with lattices of binary functions II *)
-Function identity2(x,y) = if (x=y) then x else y end;
+define identity2(x,y) = if (x=y) then x else y end;
 
-Value d0 = [identity2, join];
-Value d1 = [identity2, sum];
-Value d2 = [identity2, multiply];
-Value d3 = [identity2, join, sum];
-Value d4 = [identity2, join, multiply];
-Value d5 = [identity2, sum, multiply];
-Value d6 = [identity2, join, sum, multiply]
+define d0 = [identity2, join];
+define d1 = [identity2, sum];
+define d2 = [identity2, multiply];
+define d3 = [identity2, join, sum];
+define d4 = [identity2, join, multiply];
+define d5 = [identity2, sum, multiply];
+define d6 = [identity2, join, sum, multiply]

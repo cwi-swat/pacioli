@@ -4,8 +4,6 @@ import lang::pacioli::utils::Parse;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::parseSchema;
 import lang::pacioli::utils::implodeSchema;
-//import lang::pacioli::syntax::KernelPacioli;
-//import lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::syntax::Pacioli;
 import lang::pacioli::ast::Pacioli;
 import lang::pacioli::syntax::SchemaPacioli;
@@ -44,9 +42,9 @@ public void registerPacioli() {
 
 public void compilePacioliFile(lang::pacioli::syntax::Pacioli::Module mod, loc l) {
 	try {
+		reset();
 		ast = normalizeModule(implode(mod));
 		compile(ast);
-		alert("compilation done");
 	} catch err: {
 		println(err);
 		alert("Error while compiling Pacioli expression. See console for more information.");

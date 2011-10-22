@@ -2,21 +2,21 @@ Base unit dollar: "$";
 Base unit box: "box";
 Unit each: "each" = 1;
 Unit hour: "hr" = 3600*second;
-Unit litre: "l" = (deci metre)^3;
+Unit litre: "l" = deci:metre^3;
 
-Entity Place "/home/paul/data/code/cwi/pacioli/cases/case4/place.entity";
-Entity Transition "/home/paul/data/code/cwi/pacioli/cases/case4/transition.entity";
-Entity Conspiracy "/home/paul/data/code/cwi/pacioli/cases/case4/conspiracy.entity";
+Entity Place "cases/case4/place.entity";
+Entity Transition "cases/case4/transition.entity";
+Entity Conspiracy "cases/case4/conspiracy.entity";
 
-Index Place!unit "/home/paul/data/code/cwi/pacioli/cases/case4/place.unit";
+Index Place!unit "cases/case4/place.unit";
 
-Quantity forward "/home/paul/data/code/cwi/pacioli/cases/case4/forward.csv";
-Quantity backward "/home/paul/data/code/cwi/pacioli/cases/case4/backward.csv";
-Quantity valuation "/home/paul/data/code/cwi/pacioli/cases/case4/valuation.csv";
-Quantity basis "/home/paul/data/code/cwi/pacioli/cases/case4/basis.csv";
-Quantity isAsset "/home/paul/data/code/cwi/pacioli/cases/case4/isAsset.csv";
-Quantity isLicit "/home/paul/data/code/cwi/pacioli/cases/case4/isLicit.csv";
-Quantity isJournal "/home/paul/data/code/cwi/pacioli/cases/case4/isJournal.csv";
+Quantity forward "cases/case4/forward.csv";
+Quantity backward "cases/case4/backward.csv";
+Quantity valuation "cases/case4/valuation.csv";
+Quantity basis "cases/case4/basis.csv";
+Quantity isAsset "cases/case4/isAsset.csv";
+Quantity isLicit "cases/case4/isLicit.csv";
+Quantity isJournal "cases/case4/isJournal.csv";
 
 forward :: forall: Mat(1 * Place!unit per Transition);
 backward :: forall: Mat(1 * Place!unit per Transition);

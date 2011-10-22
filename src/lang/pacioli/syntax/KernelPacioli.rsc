@@ -3,13 +3,19 @@ module lang::pacioli::syntax::KernelPacioli
 extend lang::pacioli::syntax::Lexical;
 
 
-start syntax Expression = variable:Ident name
+start syntax Expression
+	= variable:Ident name
+	
 	| bang: Ident ent "!" Ident unit
+	| bangOne: Ident ent "!" "1"
+	| scaledUnitConst: Ident prefix ":" Ident unit
 	| const: Number number
 	| constInt: Integer integer
-	| bracket "(" Expression nested ")"
+		
 	| litList: "[" {Expression ","}* items "]"
 	| litSet: "{" {Expression ","}* items "}"
+	
+	| bracket "(" Expression nested ")"
 	
 	> listComprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"

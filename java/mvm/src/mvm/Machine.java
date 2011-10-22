@@ -110,13 +110,13 @@ public class Machine {
 	
 	public void init() throws IOException {
 		
-		store.put("gram", new Matrix(unitSystem.lookupUnit("gram")));
-		store.put("metre", new Matrix(unitSystem.lookupUnit("metre")));
-		store.put("second", new Matrix(unitSystem.lookupUnit("second")));
-		store.put("ampere", new Matrix(unitSystem.lookupUnit("ampere")));
-		store.put("kelvin", new Matrix(unitSystem.lookupUnit("kelvin")));
-		store.put("mole", new Matrix(unitSystem.lookupUnit("mole")));
-		store.put("candela", new Matrix(unitSystem.lookupUnit("candela")));
+//		store.put("gram", new Matrix(unitSystem.lookupUnit("gram")));
+//		store.put("metre", new Matrix(unitSystem.lookupUnit("metre")));
+//		store.put("second", new Matrix(unitSystem.lookupUnit("second")));
+//		store.put("ampere", new Matrix(unitSystem.lookupUnit("ampere")));
+//		store.put("kelvin", new Matrix(unitSystem.lookupUnit("kelvin")));
+//		store.put("mole", new Matrix(unitSystem.lookupUnit("mole")));
+//		store.put("candela", new Matrix(unitSystem.lookupUnit("candela")));
 		
 		store.put("unitFactor", new UnitFactor());
 		store.put("rowUnits", new RowUnits());
@@ -206,8 +206,6 @@ public class Machine {
 		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
 			if (entry.getValue() instanceof Matrix) {
 				out.println(String.format("%s :: %s", entry.getKey(), ((Matrix) entry.getValue()).typeString()));
-			} else {
-				out.println(String.format("%s :: %s", entry.getKey(), "List"));	
 			}
 			
 		}
@@ -216,7 +214,9 @@ public class Machine {
 	public void dumpState(PrintStream out) {
 		out.println("-- Store contents:");
 		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
-			out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().pprint()));
+			if (entry.getValue() instanceof Matrix) {
+				out.println(String.format("\n%s =\n%s", entry.getKey(), entry.getValue().pprint()));
+			}
 		}
 	}
 	
@@ -313,6 +313,13 @@ public class Machine {
 				return new Bang(index);
 				
 			} else {
+				if (reader.hasCharacter(':')) {
+					reader.readCharacter(':');
+					String ident = reader.readIdentifier();
+					Prefix prefix = unitSystem.lookupPrefix(command);
+					Unit unit = unitSystem.lookupUnit(ident);
+					return new Const(new Matrix(new ScaledUnit(prefix, (NamedUnit) unit))) ;
+				}
 				return new Variable(command);				
 			}
 		} else {
@@ -552,6 +559,7 @@ public class Machine {
 						}
 						
 						unitSystem.addUnit(name, new NamedUnit(symbol, unit));
+						store.put(name, new Matrix(unitSystem.lookupUnit(name)));
 						
 					} else if (command.equals("baseunit")) {
 
@@ -564,7 +572,7 @@ public class Machine {
 						}
 						
 						unitSystem.addUnit(name, new NamedUnit(symbol));
-						
+						store.put(name, new Matrix(unitSystem.lookupUnit(name)));
 						
 					} else if (command.equals("abort")) {
 
@@ -645,6 +653,8 @@ public class Machine {
 	
 	static private UnitSystem makeSI(){
 
+		// Note that currently these units are overwritten by Paicoli's primitives declarations
+		
 		UnitSystem si = new UnitSystem();
 		
 		// The kilogram is the only base unit with a prefix and requires special handling.

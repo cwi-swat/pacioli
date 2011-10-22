@@ -1,3 +1,8 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
+import "pacioli/codemetrics/codemetrics.schema";
 
-0
+define agg(x) = x.owner.parent*;
+
+define density = agg(fileSize) / agg(lines);
+
+{tuple(m,d) | m in entity Module, d := get(density,zero,m), 30*byte/loc < d}

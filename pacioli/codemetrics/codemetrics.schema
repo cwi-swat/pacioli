@@ -2,14 +2,14 @@ Base unit loc: "loc";
 Base unit bit: "bit";
 Unit byte: "byte" = 8*bit;
 			  
-Entity File "/home/paul/data/code/cwi/pacioli/cases/case5/file.entity";
-Entity Module "/home/paul/data/code/cwi/pacioli/cases/case5/module.entity";
+Entity File "cases/case5/file.entity";
+Entity Module "cases/case5/module.entity";
 
-Quantity owner "/home/paul/data/code/cwi/pacioli/cases/case5/owner.csv";
-Quantity parent "/home/paul/data/code/cwi/pacioli/cases/case5/parent.csv";
-Quantity lines "/home/paul/data/code/cwi/pacioli/cases/case5/lines.csv";
-Quantity fileSize "/home/paul/data/code/cwi/pacioli/cases/case5/fileSize.csv";
-Quantity root "/home/paul/data/code/cwi/pacioli/cases/case5/root.csv";
+Quantity owner "cases/case5/owner.csv";
+Quantity parent "cases/case5/parent.csv";
+Quantity lines "cases/case5/lines.csv";
+Quantity fileSize "cases/case5/fileSize.csv";
+Quantity root "cases/case5/root.csv";
 
 owner :: forall: Mat(1 * File per Module);
 parent :: forall: Mat(1 * Module per Module);

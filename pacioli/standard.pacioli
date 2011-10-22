@@ -1,6 +1,6 @@
-Import "/home/paul/data/code/cwi/pacioli/src/lang/pacioli/utils/primitives.schema";
+import "pacioli/primitives.schema";
 	
-Function combis(list) = 
+define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),
 								   lambda(accu,x)
 										let (result,tails) = accu in
@@ -11,16 +11,16 @@ Function combis(list) =
 		result
 	end;
 	 		         
-Function columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
-Function rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
+define columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
+define rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
 
-Function magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
-Function unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
+define magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
+define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
 
-Function support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
+define support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
 
-Function leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
-Function rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
+define leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
+define rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
 
-Function positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
-Function negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>
+define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
+define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>
