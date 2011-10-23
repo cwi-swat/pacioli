@@ -9,9 +9,6 @@ define inverse(x) = rightInverse(x);
 
 define kleene(x) = let I = leftIdentity(x) in inverse(I-x) end;
 define closure(x) = let I = leftIdentity(x) in inverse(I-x) - I end;
-
-(*define kleene(x) = let I = leftIdentity(x) in solve(I-x, I) end;	
-define closure(x) =	let I = leftIdentity(x) in solve(I-x, I) - I end;*)
 	
 define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),

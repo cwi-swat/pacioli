@@ -3,6 +3,4 @@ import "pacioli/koffiesalon/koffiesalon.schema";
 
 define convert(x) = conv . x . conv^R^T;
 
-(* convert(bom)* . output  *)
-
 convert(bom)* . output
