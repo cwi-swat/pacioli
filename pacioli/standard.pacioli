@@ -5,10 +5,22 @@ define rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(
 
 define rightInverse(x) = solve(x, leftIdentity(x));
 define leftInverse(x) = rightInverse(x^T)^T;
-define inverse(x) = rightInverse(x);
 
-define kleene(x) = let I = leftIdentity(x) in inverse(I-x) end;
-define closure(x) = let I = leftIdentity(x) in inverse(I-x) - I end;
+define inverse = rightInverse;
+
+define kleene(x) = inverse(leftIdentity(x) - x);
+define closure(x) = kleene(x) - leftIdentity(x);
+	 		         
+define columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
+define rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
+
+define magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
+define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
+
+define support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
+
+define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
+define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>;
 	
 define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),
@@ -19,16 +31,4 @@ define combis(list) =
 								   list)
 	in
 		result
-	end;
-	 		         
-define columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
-define rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
-
-define magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
-define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
-
-define support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
-
-
-define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
-define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>
+	end

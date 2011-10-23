@@ -3,15 +3,5 @@ import "pacioli/koffiesalon/koffiesalon.schema";
 
 define mags = magnitudeMatrix(bom);
 
-(*plu(leftIdentity(mags) - mags)*)
-(* AX=I   XA = I <=> A^TX^T = I^T*)
-define leftInverseWrong(x) = solve(x, rightIdentity(x));
-define rightInverse(x) = solve(x, leftIdentity(x));
-define leftInverse(x) = rightInverse(x^T)^T;
-define inverse(x) = rightInverse(x);
-
-define kleeneAlt(x) = let I = leftIdentity(x) in inverse(I-x) end;
-
-define closureAlt(x) = let I = leftIdentity(x) in inverse(I-x) - I end;
-
-svd(bom)
+define magsPLU = plu(mags); 
+define bomSVD = svd(bom)
