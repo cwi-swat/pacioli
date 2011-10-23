@@ -1,6 +1,8 @@
 package mvm.values.matrix;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.math.fraction.BigFraction;
 import org.apache.commons.math.fraction.BigFractionField;
@@ -161,7 +163,26 @@ public class MatrixNumbers {
 		FieldLUDecomposition<BigFraction> decomposition = new FieldLUDecompositionImpl<BigFraction>(ident.numbers.subtract(numbers));
 		return new MatrixNumbers(decomposition.getSolver().getInverse());
 	}
-
+	
+	public MatrixNumbers solve(MatrixNumbers other) {
+		FieldLUDecomposition<BigFraction> decomposition = new FieldLUDecompositionImpl<BigFraction>(numbers);
+		return new MatrixNumbers(decomposition.getSolver().solve(other.numbers));
+	}
+	
+	public List<MatrixNumbers> plu() {
+		FieldLUDecomposition<BigFraction> decomposition = new FieldLUDecompositionImpl<BigFraction>(numbers);
+		List<MatrixNumbers> plu = new ArrayList<MatrixNumbers>();
+		FieldMatrix<BigFraction> pMatrix = decomposition.getP();
+		
+		if (pMatrix == null) return plu;
+		
+		plu.add(new MatrixNumbers(pMatrix));
+		plu.add(new MatrixNumbers(decomposition.getL()));
+		plu.add(new MatrixNumbers(decomposition.getU()));
+		
+		return plu;
+	}
+	
 	public BigFraction total() {
 		BigFraction sum = BigFraction.ZERO;
 		for (int i=0; i < nrRows(); i++) {

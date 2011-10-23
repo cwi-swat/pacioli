@@ -1,4 +1,4 @@
-import "pacioli/primitives.schema";
+include "pacioli/standard.pacioli";
 import "pacioli/codemetrics/codemetrics.schema";
 
 define agg_matrix = owner.parent*;

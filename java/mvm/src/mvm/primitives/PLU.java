@@ -7,21 +7,21 @@ import mvm.values.Callable;
 import mvm.values.PacioliValue;
 import mvm.values.matrix.Matrix;
 
-public class PosSeries implements Callable {
+public class PLU implements Callable {
 
 	public String pprint() {
-		return "|closure|";
+		return "|plu|";
 	}
 
 	public PacioliValue apply(List<PacioliValue> params) throws IOException {
 		if (params.size() != 1) {
-			throw new IOException("function 'closure' expects one argument");
+			throw new IOException("function 'plu' expects one argument");
 		}
 		if (!(params.get(0) instanceof Matrix)) {
-			throw new IOException("argument to function 'closure' is not a matrix");
+			throw new IOException("argument to function 'plu' is not a matrix");
 		}
 		Matrix x = (Matrix) params.get(0);
-		return x.closure();
+		return x.plu();
 	}
 
 }

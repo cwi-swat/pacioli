@@ -1,4 +1,17 @@
 import "pacioli/primitives.schema";
+
+define leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
+define rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
+
+define rightInverse(x) = solve(x, leftIdentity(x));
+define leftInverse(x) = rightInverse(x^T)^T;
+define inverse(x) = rightInverse(x);
+
+define kleene(x) = let I = leftIdentity(x) in inverse(I-x) end;
+define closure(x) = let I = leftIdentity(x) in inverse(I-x) - I end;
+
+(*define kleene(x) = let I = leftIdentity(x) in solve(I-x, I) end;	
+define closure(x) =	let I = leftIdentity(x) in solve(I-x, I) - I end;*)
 	
 define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),
@@ -19,8 +32,6 @@ define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(ma
 
 define support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
 
-define leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
-define rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
 
 define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
 define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>

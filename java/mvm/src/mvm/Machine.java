@@ -37,7 +37,6 @@ import mvm.primitives.Identity;
 import mvm.primitives.IndexLess;
 import mvm.primitives.Isolate;
 import mvm.primitives.Join;
-import mvm.primitives.Kleene;
 import mvm.primitives.Less;
 import mvm.primitives.LessEq;
 import mvm.primitives.LoopList;
@@ -48,7 +47,7 @@ import mvm.primitives.Mod;
 import mvm.primitives.Multiply;
 import mvm.primitives.Negative;
 import mvm.primitives.Not;
-import mvm.primitives.PosSeries;
+import mvm.primitives.PLU;
 import mvm.primitives.Print;
 import mvm.primitives.Put;
 import mvm.primitives.Reciprocal;
@@ -65,6 +64,7 @@ import mvm.primitives.SetSize;
 import mvm.primitives.SingletonList;
 import mvm.primitives.SingletonSet;
 import mvm.primitives.ListSize;
+import mvm.primitives.Solve;
 import mvm.primitives.Sum;
 import mvm.primitives.Tail;
 import mvm.primitives.Total;
@@ -109,15 +109,9 @@ public class Machine {
 	}
 	
 	public void init() throws IOException {
-		
-//		store.put("gram", new Matrix(unitSystem.lookupUnit("gram")));
-//		store.put("metre", new Matrix(unitSystem.lookupUnit("metre")));
-//		store.put("second", new Matrix(unitSystem.lookupUnit("second")));
-//		store.put("ampere", new Matrix(unitSystem.lookupUnit("ampere")));
-//		store.put("kelvin", new Matrix(unitSystem.lookupUnit("kelvin")));
-//		store.put("mole", new Matrix(unitSystem.lookupUnit("mole")));
-//		store.put("candela", new Matrix(unitSystem.lookupUnit("candela")));
-		
+				
+		store.put("solve", new Solve());
+		store.put("plu", new PLU());
 		store.put("unitFactor", new UnitFactor());
 		store.put("rowUnits", new RowUnits());
 		store.put("columnUnits", new ColumnUnits());
@@ -161,8 +155,6 @@ public class Machine {
 		store.put("negative", new Negative());
 		store.put("abs", new Abs());
 		store.put("indexLess", new IndexLess());
-		store.put("closure", new PosSeries());
-		store.put("kleene", new Kleene());
 		store.put("singletonSet", new SingletonSet());
 		store.put("union", new Union());					
 		store.put("not", new Not());

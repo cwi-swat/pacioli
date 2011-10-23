@@ -41,8 +41,11 @@ join :: forall a,b,P,u,Q,v,R,w: (Mat(a * P!u per Q!v), Mat(b * Q!v per R!w)) -> 
 transpose :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v)) -> Mat(a * Q!v^-1 per P!u^-1);
 scale :: forall a,b,P,u,Q,v: (Num(a), Mat(b * P!u per Q!v)) -> Mat(a*b * P!u per Q!v);
 total :: forall a,P,Q: (Mat(a * P per Q)) -> Num(a);
-kleene :: forall P,u: (Mat(1 * P!u per P!u)) -> Mat(1 * P!u per P!u);
-closure :: forall P,u: (Mat(1 * P!u per P!u)) -> Mat(1 * P!u per P!u);
+(*kleene :: forall P,u: (Mat(1 * P!u per P!u)) -> Mat(1 * P!u per P!u);
+closure :: forall P,u: (Mat(1 * P!u per P!u)) -> Mat(1 * P!u per P!u);*)
+plu :: forall a,P: (Mat(a * P per P)) -> Tuple(Mat(1 * P per P), Mat(1 * P per P), Mat(1 * P per P));
+svd :: forall a,b,P,u,Q,v,R,w: (Mat(a * P!u per Q!v)) -> Tuple(Mat(1 * P!u per P!u), Mat(a * P!u per Q!v), Mat(1 * Q!v per Q!v));
+solve :: forall a,b,P,u,Q,v,R,w: (Mat(a * P!u per Q!v), Mat(b * P!u per R!w)) -> Mat(a^-1*b * Q!v per R!w);
 
 (* Numerical *)
 div :: forall: (Num(1), Num(1)) -> Num(1);

@@ -10,9 +10,11 @@ import java.util.List;
 import mvm.Reader;
 import mvm.values.Key;
 import mvm.values.PacioliList;
+import mvm.values.PacioliTuple;
 import mvm.values.PacioliValue;
 
 import org.apache.commons.math.fraction.BigFraction;
+import org.apache.commons.math.linear.SingularMatrixException;
 
 import units.PowerProduct;
 import units.Unit;
@@ -436,7 +438,41 @@ public class Matrix implements PacioliValue {
 			throw new IOException("type '" + type.pprint() + "' not square when taking kleene closure");
 		}
 	}
-
+	
+	public Matrix solve(Matrix other) throws IOException {
+		Matrix matrix = new Matrix(type.reciprocal().transpose().join(other.type), columnIndex, other.rowIndex);
+		try {
+			matrix.numbers = numbers.solve(other.numbers);
+		} catch (SingularMatrixException e) {
+			throw new IOException(String.format("cannot solve: %s", e.getLocalizedMessage()));
+		}
+		return matrix; 
+	}
+	
+	public PacioliTuple plu() throws IOException {
+		
+		Index unitlessRowIndex = rowIndex.homogeneousIndex();
+		Index unitlessColumnIndex = columnIndex.homogeneousIndex();
+		
+		List<MatrixNumbers> plu = numbers.plu();
+		
+		List<PacioliValue> items = new ArrayList<PacioliValue>();
+		if (plu.size() > 0) {
+			Matrix matrix;
+			for (MatrixNumbers numbers: plu) {
+				matrix = new Matrix(new PowerProduct(), unitlessRowIndex , unitlessColumnIndex);
+				matrix.numbers = numbers;
+				items.add(matrix);
+			}
+		} else {
+			items.add(new Matrix(new PowerProduct(), unitlessRowIndex , unitlessColumnIndex));
+			items.add(new Matrix(new PowerProduct(), unitlessRowIndex , unitlessColumnIndex));
+			items.add(new Matrix(new PowerProduct(), unitlessRowIndex , unitlessColumnIndex));
+		}
+		
+		return new PacioliTuple(items); 
+	}
+	
 	public Matrix ones() throws IOException {
 		Matrix matrix = new Matrix(type, rowIndex, columnIndex);
 		for (int i=0; i < rowIndex.size(); i++) {
