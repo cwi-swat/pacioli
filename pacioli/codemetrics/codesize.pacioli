@@ -7,4 +7,4 @@ define agg(x) = x.agg_matrix;
 
 define density = agg(fileSize)/agg(lines);
 
-{tuple(m, get(density, zero, m)) | m in entity Module}
+{tuple(m, get(density, _, m)) | m in entity Module}

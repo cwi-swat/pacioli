@@ -10,7 +10,7 @@ less :: forall a,P,u,Q,v: (Mat(a * P!u per Q!v), Mat(a * P!u per Q!v)) -> Boole;
 lessEq :: forall v, u, Q, a, P: (Mat(a * P!u per Q!v), Mat(a * P!u per Q!v)) -> Boole;
 
 (* Matrix Shape *)
-zero :: forall: Entity(One);
+_ :: forall: Entity(One);
 indexLess :: forall P: (Entity(P), Entity(P)) -> Boole;
 matrixFromTuples :: forall a,P,Q: (Set(Tuple(Entity(P), Entity(Q), Num(a)))) -> Mat(a * P per Q);
 unitFactor :: forall a,b,u,v,P,Q: (Mat(a * P!u per Q!v)) -> Num(a);

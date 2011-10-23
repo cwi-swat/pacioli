@@ -52,8 +52,8 @@ public class Environment {
 		if (name.equals("emptySet")) {
 			return new PacioliSet();
 		}
-		
-		if (name.equals("zero")) {
+				
+		if (name.equals("_")) {
 			return new Key();
 		}
 		

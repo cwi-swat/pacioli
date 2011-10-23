@@ -23,8 +23,7 @@ start syntax Expression
 	| opListComprehension: Ident op "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| opSetComprehension: Ident op "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
 	| opVecComprehension: Ident op "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
-	
-	
+
 	| right application: Expression fn Args args
 	> neg: "-" Expression
 	> reci: Expression "^R"

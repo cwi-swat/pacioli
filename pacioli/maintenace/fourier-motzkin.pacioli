@@ -23,15 +23,15 @@ define eliminate(quadruples, row) =
 						(v,w) in list combis(quadruples),
 						(v1, v2, _, _) := v,
 						(w1, w2, _, _) := w,
-						alpha := magnitude(v1, row, zero), 
-						beta := magnitude(w1, row, zero),
+						alpha := magnitude(v1, row, _), 
+						beta := magnitude(w1, row, _),
 						alpha * beta < 0,
 						s1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
 						s2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
 	in
 		[q | q in list append(combined, quadruples), 
 			 (v1, _, _, _) := q, 
-			 magnitude(v1, row, zero) = 0]
+			 magnitude(v1, row, _) = 0]
 	end;
 
 define canonical(quadruple) =

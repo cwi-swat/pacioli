@@ -1,7 +1,7 @@
 module lang::pacioli::ast::KernelPacioli
 
 import List;
-
+import IO;
 
 anno loc Expression@location;
 
@@ -76,14 +76,14 @@ private Expression oneLet(Binding binding, Expression body) {
 }
 
 public Expression normalize(Expression exp) {
+
 	return innermost visit(exp) {
 
-		case variable("_") => variable(fresh("_"))
 		case constInt(x) => const(x*1.0)
 		case bangOne(x) => bang(x, "1")
 
 		case llet([], body) => body
-		case llet(xs, body) => oneLet(head(xs), normalize(llet(tail(xs), body)))
+		case llet(xs, body) => normalize(oneLet(head(xs), llet(tail(xs), body)))
 
 		case litList([]) => variable("emptyList")
 		case litList(xs) => (application(variable("singletonList"), tup([head(xs)])) |
@@ -116,7 +116,11 @@ public Expression normalize(Expression exp) {
 		                              tup([x, application(variable("reciprocal"),
 		                                                  tup([application(variable("transpose"),
 		                                                                   tup([y]))]))]))
-								 				  
+		//case abstraction(vars, body) => abstraction([(x == "_") ? fresh(x) : x | x <- vars], normalize(body))				 				  
+		//case abstraction(x, body) => abstraction([(v == "_") ? fresh(v) : v | v <- x], body)
+		//case abstraction(x, body) => freshAbstraction(x, body)
+		//case abstraction(x, body) => abstraction(freshUnderscores(x), body)
+		case abstraction([v0*,"_",v1*], body) => abstraction([v0,fresh("_"),v1], normalize(body))
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
 		case lesseq(x,y) => application(variable("lessEq"),tup([x,y]))
 		case less(x,y) => application(variable("less"),tup([x,y]))
@@ -134,6 +138,10 @@ public Expression normalize(Expression exp) {
 		case reci(x) => application(variable("reciprocal"),tup([x]))
 	}
 }
+
+Expression freshAbstraction(list[str] vars, Expression body) = abstraction([(v == "_") ? fresh(v) : v | v <- vars], body);
+
+list[str] freshUnderscores(list[str] vars) = [(v == "_") ? fresh(v) : v | v <- vars];
 
 Expression translateOpSetComprehension(op,x,y) {
 	var = fresh("var");

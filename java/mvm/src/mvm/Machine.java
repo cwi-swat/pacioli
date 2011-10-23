@@ -194,13 +194,6 @@ public class Machine {
 		}
 	}
 	
-	private Matrix fetch(String name) throws IOException{
-		if (!store.containsKey(name)) {
-			throw new IOException(String.format("name '%s' unknown", name));
-		}
-		return (Matrix) store.lookup(name);
-	}
-
 	public void dumpTypes(PrintStream out) {
 		out.println("-- Store signature:");
 		for (Map.Entry<String,PacioliValue> entry: store.entrySet()) {
@@ -471,7 +464,7 @@ public class Machine {
 						String source = reader.readIdentifier();
 						reader.readSeparator();
 						
-						store.put(destination, fetch(source));
+						store.put(destination, store.lookup(source));
 						
 					} else if (command.equals("eval")) {
 						
