@@ -55,9 +55,9 @@ public void compileSchemaFile(lang::pacioli::syntax::SchemaPacioli::Schema exp, 
 	try {
 		ast = normalizeSchema(implodeSchema(exp));
 		importSchema(ast);
- 		alert("schema imported");
+ 		alert("Schema imported.");
  	} catch err: {
 		println(err);
-		alert("Error while imporint schema. See console for more information.");
+		alert("Error while importing schema. See console for more information.");
 	}
 }

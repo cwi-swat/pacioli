@@ -9,10 +9,8 @@ Quantity owner "cases/case5/owner.csv";
 Quantity parent "cases/case5/parent.csv";
 Quantity lines "cases/case5/lines.csv";
 Quantity fileSize "cases/case5/fileSize.csv";
-Quantity root "cases/case5/root.csv";
 
 owner :: forall: Mat(1 * File per Module);
 parent :: forall: Mat(1 * Module per Module);
 lines :: forall: Mat(loc * One per File);
-fileSize :: forall: Mat(byte * One per File);
-root :: forall: Mat(1 * Module per One)
+fileSize :: forall: Mat(byte * One per File)

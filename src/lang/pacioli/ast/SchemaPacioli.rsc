@@ -26,6 +26,7 @@ data SchemeNode = schemeNode(list[str] vars, TypeNode t);
 
 data TypeNode 
 	= typeVarNode(str name)
+	| booleNode() // unused
 	| listNode(TypeNode arg)
 	| setNode(TypeNode arg)
 	| tupNode(list[TypeNode] items)
@@ -112,9 +113,10 @@ public tuple[str, Scheme] translateSchemaElement(SchemaElement element) {
 
 public Type translateType(TypeNode typeNode, list[str] vars) {
 	switch (typeNode) {
+	case typeVarNode("Boole"): return boolean();
 	case typeVarNode(name): return typeVar(name);
+	case booleNode(): return boolean(); // unused
 	case listNode(arg): return listType(translateType(arg, vars));
-	
 	case functionNode(args,res): return function(tupType([translateType(arg, vars) | arg <- args]), translateType(res, vars));
 	case functionNodeAlt(from,to): return function(translateType(from, vars), translateType(to, vars));
 	case setNode(arg): return setType(translateType(arg, vars));

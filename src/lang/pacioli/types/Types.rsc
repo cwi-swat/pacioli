@@ -79,6 +79,7 @@ public str pprint(Type t) {
 		case listType(x): return "List(<pprint(x)>)";
 		case setType(x): return "Set(<pprint(x)>)";
 		case boolean(): return "Boole";
+		//case entity(x): return "Entity(<pprint(x)>)";
 		case entity(x): return "<pprint(x)>";
 		default: throw "huh <t>";
 	}
