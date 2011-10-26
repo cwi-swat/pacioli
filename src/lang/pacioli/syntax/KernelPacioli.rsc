@@ -38,6 +38,7 @@ start syntax Expression
 	    assoc sum: Expression "+" Expression
 	  | left sub: Expression "-" Expression
 	)
+	> notequal: Expression "!=" Expression
 	> equal: Expression "=" Expression
 	> lesseq: Expression "\<=" Expression
 	> less: Expression "\<" Expression

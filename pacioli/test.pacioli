@@ -1,17 +1,17 @@
-import "pacioli/primitives.schema";
-(*include "pacioli/standard.pacioli";*)
+include "pacioli/standard.pacioli";
 import "pacioli/koffiesalon/koffiesalon.schema";
 import "pacioli/codemetrics/codemetrics.schema";
 
-(* define mags = magnitudeMatrix(bom);
+define mags = magnitudeMatrix(bom);
 
 define magsPLU = plu(mags); 
-define bomSVD = svd(bom) *)
-
-(* get(parent,i,j) = 1 <=> i hasParent j*)
+(* define bomSVD = svd(bom); *)
 
 define roots(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
 
 define top = roots(parent);
 
-[x | x,_ in matrix top, not(get(top,x,_) = 0)]
+define rowAlt1(x,i) = <_,j -> get(x,i,j) | j in list columnDomain(x)>;
+define rowAlt2(x,i) = <_,j -> magnitude(x,i,j) | j in list columnDomain(x)> * scale(unitFactor(x), columnUnits(x)^R^T);
+
+[x | x,_ in matrix top, get(top, x, _) != 0]

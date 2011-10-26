@@ -17,12 +17,13 @@ define rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
 define magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
 define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
 
-define support(x) = <i,j -> 1 | i,j in matrix x, not(magnitude(x,i,j) = 0)>;	
+define support(x) = <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) != 0>;	
 
 define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
 define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>;
 
-define roots(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
+define rootsVector(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
+define roots(x) = {i | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]};
 	
 define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),

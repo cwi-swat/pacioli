@@ -230,7 +230,7 @@ public void compile(Expression exp) {
 	fullEnv = totalEnv(glbReplRepo, glbImports);
 
 	scheme = inferScheme(exp, fullEnv);
-	println("<pprint(exp)> :: <pprint(scheme)>");
+	println(pprint(scheme));
 	
 	programStrings = [addUnits(glbBaseUnitRepo, glbUnitRepo),
 					  addEntities(glbEntities),
