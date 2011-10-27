@@ -1,4 +1,6 @@
 import "pacioli/primitives.schema";
 import "pacioli/fishrestaurant/fishrestaurant.schema";
 
+ingredient_price . semi_bom;
+
 menu_price * menu_sales^T

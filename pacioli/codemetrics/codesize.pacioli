@@ -12,4 +12,4 @@ define densityZero = density * top^T;
 define densityOne = density * (parent . top)^T;
 define densityTwo = density * (parent . parent . top)^T;
 
-{tuple(m, d) | m in entity Module, d := get(densityOne, _, m), d != 0}
+{tuple(m, d) | m in entity Module, d := get(densityTwo, _, m), d != 0}

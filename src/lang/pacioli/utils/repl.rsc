@@ -244,7 +244,7 @@ public void compile(Expression exp) {
 					 
 	prog = intercalate(";\n", programStrings - [""]);
 	   	   
-	writeFile(|project://pacioli/cases/tmp.mvm|, [prog]);
+	writeFile(|tmp:///tmp.mvm|, [prog]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

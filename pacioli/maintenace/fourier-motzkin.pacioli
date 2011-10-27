@@ -45,15 +45,15 @@ define canonical(quadruple) =
 
 define minimize(quadruples) =
 	[q | q in list quadruples, (_, _, qsupport1, qsupport2) := q,
-         all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
-             r in list quadruples, (_, _, rsupport1, rsupport2) := r]];
+		all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
+			r in list quadruples, (_, _, rsupport1, rsupport2) := r]];
 
 define fourierMotzkin(matrix) =
- 	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
- 		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
- 		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
- 	in 
+	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
+		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
+		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
+	in
 		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
 	end;
-	
+
 fourierMotzkin(backward-forward)

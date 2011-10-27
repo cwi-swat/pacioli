@@ -24,7 +24,7 @@ define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>;
 
 define rootsVector(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
 define roots(x) = {i | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]};
-	
+
 define combis(list) = 
 	let (result, dummy) = loopList(tuple([],list),
 								   lambda(accu,x)

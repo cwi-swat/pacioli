@@ -70,24 +70,39 @@ public default real factor(Unit _) = 1.0;
 
 public set[str] unitVariables(u) = {x | /unitVar(x) <- u};
 
-public Unit powerProduct(powers, 1.0) {
-  if (size(powers) == 1, u <- powers, powers[u] == 1) {
-    return u;
-  }
-  fail;
+//public Unit powerProduct(powers, 1.0) {
+//  if (size(powers) == 1, u <- powers, powers[u] == 1) {
+//    return u;
+//  }
+//  fail;
+//}
+
+public Unit normalizePowerProduct(unit) {
+	switch (unit) {
+	case powerProduct(powers, 1.0): {
+		if (size(powers) == 1, u <- powers, powers[u] == 1) {
+    		return u;
+  		} else {
+  			return unit;
+  		}
+	}
+	default: return unit;
+	}
 }
     
-public Unit multiply(Unit u1, Unit u2) =  
+public Unit multiply(Unit u1, Unit u2) =
+ normalizePowerProduct(  
   powerProduct((base: p | base <- bases(u1) + bases(u2), 
                           p := power(u1, base) + power(u2, base), 
                           p != 0), 
-               factor(u1) * factor(u2));
+               factor(u1) * factor(u2)));
 
-public Unit raise(Unit u, int pwr) = 
+public Unit raise(Unit u, int pwr) =
+ normalizePowerProduct(   
   powerProduct((b: p | b <- bases(u),
                        p := pwr * power(u, b),
                        p != 0),
-               expt(factor(u), pwr));
+               expt(factor(u), pwr)));
 
 public Unit divide(Unit u1, Unit u2) = multiply(u1, reciprocal(u2));
 
