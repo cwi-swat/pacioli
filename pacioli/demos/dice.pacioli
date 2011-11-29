@@ -1,9 +1,9 @@
 import "pacioli/primitives.schema";
 
 define dice = [1,2,3,4,5,6];
-define sums = [x+y | x in list dice, y in list dice];
+define sums = [x+y | x <- list dice, y <- list dice];
 define amount = listSize(sums);
 
-define cnt(n) = count[s | s in list sums, s=n];
+define cnt(n) = count[s | s <- list sums, s=n];
 
-{tuple(i, cnt(i)/amount) | i in set {x+y | x in list dice, y in list dice}}
+{tuple(i, cnt(i)/amount) | i <- set {x+y | x <- list dice, y <- list dice}}

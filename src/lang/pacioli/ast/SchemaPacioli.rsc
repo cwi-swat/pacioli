@@ -34,6 +34,7 @@ data TypeNode
 	| functionNode(list[TypeNode] args, TypeNode res)
 	| functionNodeAlt(TypeNode from, TypeNode to)
 	| numNode(UnitNode singletonUnit)
+	| simpleMatrixNode(list[IndexNode] rowIndex, list[IndexNode] columnIndex)
 	| matrixNode(UnitNode singletonUnit, list[IndexNode] rowIndex, list[IndexNode] columnIndex);
 
 data IndexNode = halfDuoNode(str ent) | duoNode(str ent, UnitNode unit);
@@ -41,7 +42,8 @@ data IndexNode = halfDuoNode(str ent) | duoNode(str ent, UnitNode unit);
 data UnitNode
 	= unitRef(str name)
 	| unitNum(real number)
-	| unitInt(int integer)
+	//| unitInt(int integer)
+	//| unitNeg(UnitNode x)
 	| unitBrack(UnitNode x)
 	| unitScaled(str prefix, UnitNode x)
 	| unitRaiseNode(UnitNode x, int integer)
@@ -52,7 +54,10 @@ data UnitNode
 // Normalization
 
 public Schema normalizeSchema(Schema x) {
-	return x;
+	//return x;
+	return innermost visit(x) {
+		case simpleMatrixNode(x,y) => matrixNode(1,x,y)
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,6 +129,8 @@ public Type translateType(TypeNode typeNode, list[str] vars) {
 	case tupNode(items): return tupType([translateType(item, vars) | item <- items]);
 	case numNode(x): return translateMatrix(x,[],[], vars);
 	case matrixNode(x,y,z): return translateMatrix(x,y,z, vars);
+	// Waarom werkt schemaNormalize niet ?
+	case simpleMatrixNode(y,z): return translateMatrix(unitNum(1.0),y,z, vars);
 	default: throw "todo: <typeNode>";
 	}
 }
@@ -147,12 +154,13 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	switch (unitNode) {
 	case unitRef(x): return (x in vars) ? unitVar(x) : named(x,x,self());
 	case unitNum(x): return powerProduct((),x);
-	case unitInt(x): return powerProduct((),x*1.0);
+	case unitInt(i): return powerProduct((),i*1.0);
 	case unitBrack(x): return translateUnitNode(x, vars);
+	//case unitNeg(x): return multiply(translateUnitNode(x, vars), powerProduct((),-1.0));
 	// todo: factor wegwerken uit prefix()
 	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 123.0));
 	case unitRaiseNode(x,y): return raise(translateUnitNode(x, vars), y);
-	case unitNegRaiseNode(x,y): return raise(translateUnitNode(x, vars), -y);
+	case unitNegRaiseNode(x,i): return raise(translateUnitNode(x, vars), -i);
 	case unitMultNode(x,y): return multiply(translateUnitNode(x, vars), translateUnitNode(y, vars));
 	default: throw "Cannot translate unitNode <unitNode>";
 	}

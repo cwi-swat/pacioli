@@ -5,7 +5,7 @@ define convert(x) = conv . x . conv^R^T;
 
 define convert2(x) = conv . x per conv;
 
-define input = convert(bom)* . output;
+define input = kleene(convert(bom)) . output;
 
 input;
 

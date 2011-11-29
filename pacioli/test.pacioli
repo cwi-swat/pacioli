@@ -1,17 +1,33 @@
 include "pacioli/standard.pacioli";
+
 import "pacioli/koffiesalon/koffiesalon.schema";
 import "pacioli/codemetrics/codemetrics.schema";
 
 define mags = magnitudeMatrix(bom);
 
 define magsPLU = plu(mags); 
-(* define bomSVD = svd(bom); *)
+define bomSVD = svd(mags);
 
-define roots(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
+define yo(x) = all[magnitude(x,j,j) = 0 | j <- list columnDomain(x)];
+
+define roots(x) = [ (i,_) -> 1 | i <- list rowDomain(x), all[magnitude(x,i,j) = 0 | j <- list columnDomain(x)]];
 
 define top = roots(parent);
 
-define rowAlt1(x,i) = <_,j -> get(x,i,j) | j in list columnDomain(x)>;
-define rowAlt2(x,i) = <_,j -> magnitude(x,i,j) | j in list columnDomain(x)> * scale(unitFactor(x), columnUnits(x)^R^T);
+define rowAlt1(x,i) = [(_,j) -> get(x,i,j) | j <- list columnDomain(x)];
+define rowAlt2(x,i) = [(_,j) -> magnitude(x,i,j) | j <- list columnDomain(x)] * scale(unitFactor(x), columnUnits(x)^R^T);
 
-[x | x,_ in matrix top, get(top, x, _) != 0]
+define inner1(x,y) = total(x*y);
+
+define norm1(x) = sqrt(total(x*x));
+define norm2(x) = sqrt(inner(x,x));
+define norm3(x) = sqrtOLD(inner(x,x));
+define norm4(x) = sqrt(inner1(x,x));
+
+sales_price . output;
+
+define foo = Product!1 per Product!bom_unit;
+
+[x | (x,_) <- matrix top, get(top, x, _) != 0];
+
+[x | x <- list top, get(top, x, _) != 0]

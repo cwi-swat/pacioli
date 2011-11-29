@@ -19,7 +19,7 @@ start syntax Expression
 	
 	> listComprehension: "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| setComprehension: "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
-	| vecComprehension: "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
+	| vecComprehension: "[" "(" Ident row "," Ident column ")" "-\>" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| opListComprehension: Ident op "[" Expression head "|" {ComprehensionTerm ","}* rest "]"
 	| opSetComprehension: Ident op "{" Expression head "|" {ComprehensionTerm ","}* rest "}"
 	| opVecComprehension: Ident op "\<" Ident row "," Ident column "-\>" Expression head "|" {ComprehensionTerm ","}* rest "\>"
@@ -53,7 +53,7 @@ start syntax Expression
 	)
 	> llet: "let" {LetBinding ","}+ bindings "in" Expression body "end"
 	> branch: "if" Expression cond "then" Expression pos "else" Expression neg "end"
-	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body;
+	> abstraction: "lambda" "(" {Ident ","}* vars ")" Expression body "end";
 
 syntax Args = tup: "(" {Expression ","}* items ")";
 
@@ -63,12 +63,12 @@ syntax LetBinding
 	| tupleBinding: "(" {Ident ","}* vars ")" "=" Expression val;
 
 syntax ComprehensionTerm 
-	= listGenerator: Ident name "in" "list" Expression exp
-	| listGeneratorLuxe: "(" {Ident ","}* vars ")" "in" "list" Expression exp
-	| setGenerator: Ident name "in" "set" Expression exp
-	| setGeneratorLuxe: "(" {Ident ","}* vars ")" "in" "set" Expression exp
-	| entityGenerator: Ident name "in" "entity" Ident ent
-	| matrixGenerator: Ident row "," Ident col "in" "matrix" Expression exp
+	= listGenerator: Ident name "\<-" "list" Expression exp
+	| listGeneratorLuxe: "(" {Ident ","}* vars ")" "\<-" "list" Expression exp
+	| setGenerator: Ident name "\<-" "set" Expression exp
+	| setGeneratorLuxe: "(" {Ident ","}* vars ")" "\<-" "set" Expression exp
+	| entityGenerator: Ident name "\<-" "entity" Ident ent
+	| matrixGenerator: "(" Ident row "," Ident col ")" "\<-" "matrix" Expression exp
 	| bind: Ident name ":=" Expression exp 
 	| bindLuxe: "(" {Ident ","}* vars ")" ":=" Expression exp
 	| filt: Expression exp;

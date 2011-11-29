@@ -1,7 +1,10 @@
 import "pacioli/primitives.schema";
 
-define leftIdentity(x) = <i,i -> 1 | i in list rowDomain(x)> * (rowUnits(x) per rowUnits(x));
-define rightIdentity(x) = <j,j -> 1 | j in list columnDomain(x)> * (columnUnits(x) per columnUnits(x));
+define inner(x,y) = x^T.y;
+define outer(x,y) = x.y^T;
+
+define leftIdentity(x) = [(i,i) -> 1 | i <- list rowDomain(x)] * (rowUnits(x) per rowUnits(x));
+define rightIdentity(x) = [(j,j) -> 1 | j <- list columnDomain(x)] * (columnUnits(x) per columnUnits(x));
 
 define rightInverse(x) = solve(x, leftIdentity(x));
 define leftInverse(x) = rightInverse(x^T)^T;
@@ -11,27 +14,29 @@ define inverse = rightInverse;
 define kleene(x) = inverse(leftIdentity(x) - x);
 define closure(x) = kleene(x) - leftIdentity(x);
 	 		         
-define columns(matrix) = [column(matrix,j) | j in list columnDomain(matrix)];
-define rows(matrix) = [row(matrix,i) | i in list rowDomain(matrix)];
+define columns(matrix) = [column(matrix,j) | j <- list columnDomain(matrix)];
+define rows(matrix) = [row(matrix,i) | i <- list rowDomain(matrix)];
 
-define magnitudeMatrix(mat) = <i,j -> magnitude(mat,i,j) | i,j in matrix mat>;
+define magnitudeMatrix(mat) = [(i,j) -> magnitude(mat,i,j) | (i,j) <- matrix mat];
 define unitMatrix(mat) = scale(unitFactor(mat), rowUnits(mat) per columnUnits(mat));
 
-define support(x) = <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) != 0>;	
+define support(x) = [(i,j) -> 1 | (i,j) <- matrix x, magnitude(x,i,j) != 0];
 
-define positives(x) = x * <i,j -> 1 | i,j in matrix x, 0 < magnitude(x,i,j)>;
-define negatives(x) = x * <i,j -> 1 | i,j in matrix x, magnitude(x,i,j) < 0>;
+define positives(x) = x * [(i,j) -> 1 | (i,j) <- matrix x, 0 < magnitude(x,i,j)];
+define negatives(x) = x * [(i,j) -> 1 | (i,j) <- matrix x, magnitude(x,i,j) < 0];
 
-define rootsVector(x) = < i,_ -> 1 | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]>;
-define roots(x) = {i | i in list rowDomain(x), all[magnitude(x,i,j) = 0 | j in list columnDomain(x)]};
+define rootsVector(x) = [(i,_) -> 1 | i <- list rowDomain(x), all[magnitude(x,i,j) = 0 | j <- list columnDomain(x)]];
+define roots(x) = {i | i <- list rowDomain(x), all[magnitude(x,i,j) = 0 | j <- list columnDomain(x)]};
 
 define combis(list) = 
-	let (result, dummy) = loopList(tuple([],list),
-								   lambda(accu,x)
-										let (result,tails) = accu in
-											tuple(append([tuple(x,y) | y in list tail(tails)], result), tail(tails))
-										end,
-								   list)
+    let (result, dummy) = 
+       loopList(tuple([],list),
+                lambda(accu,x)
+                  let (result,tails) = accu in
+                      tuple(append([tuple(x,y) | y <- list tail(tails)], result), tail(tails))
+		          end
+		        end,
+		        list)
 	in
 		result
 	end

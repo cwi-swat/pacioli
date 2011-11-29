@@ -1,12 +1,12 @@
-Base unit dollar: "$";
-Unit litre: "l" = deci:metre^3;
-Unit pound: "lb" = 0.45359237 * kilo:gram;
-Unit ounce: "oz" = pound * 16.0^-1;
-Unit barrel: "bbl" = 117.347765 * litre;
+Base: dollar: "$";
+Unit: litre: "l" = deci:metre^3;
+Unit: pound: "lb" = 0.45359237 * kilo:gram;
+Unit: ounce: "oz" = pound / 16.0;
+Unit: barrel: "bbl" = 117.347765 * litre;
 
-Entity Commodity "cases/case2/commodity.entity";
-Entity Year "cases/case2/year.entity";
-Entity Region "cases/case2/region.entity";
+Entity: Commodity "cases/case2/commodity.entity";
+Entity: Year "cases/case2/year.entity";
+Entity: Region "cases/case2/region.entity";
 
 Index Commodity!unit "cases/case2/commodity.unit";
 
@@ -17,5 +17,5 @@ Projection P0 Commodity,Year,Region per Commodity;
 Projection P1 Commodity,Year,Region per Commodity,Year;
 Projection P2 Commodity!unit,Year per Commodity!unit,Year,Region;
 
-sales :: forall: Mat(dollar * One per Commodity,Year,Region);
-amount :: forall: Mat(1 * Commodity!unit,Year,Region per One)
+sales :: forall: Mat(dollar One per Commodity,Year,Region);
+amount :: forall: Mat(Commodity!unit,Year,Region per One)

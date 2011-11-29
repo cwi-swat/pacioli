@@ -1,12 +1,12 @@
-Base unit dollar: "$";
-Base unit box: "box";
-Unit each: "each" = 1;
-Unit hour: "hr" = 3600*second;
-Unit litre: "l" = deci:metre^3;
+Base: dollar: "$";
+Base: box: "box";
+Unit: each: "each" = 1.0;
+Unit: hour: "hr" = 3600.0*second;
+Unit: litre: "l" = deci:metre^3;
 
-Entity Place "cases/case4/place.entity";
-Entity Transition "cases/case4/transition.entity";
-Entity Conspiracy "cases/case4/conspiracy.entity";
+Entity: Place "cases/case4/place.entity";
+Entity: Transition "cases/case4/transition.entity";
+Entity: Conspiracy "cases/case4/conspiracy.entity";
 
 Index Place!unit "cases/case4/place.unit";
 
@@ -18,10 +18,10 @@ Quantity isAsset "cases/case4/isAsset.csv";
 Quantity isLicit "cases/case4/isLicit.csv";
 Quantity isJournal "cases/case4/isJournal.csv";
 
-forward :: forall: Mat(1 * Place!unit per Transition);
-backward :: forall: Mat(1 * Place!unit per Transition);
-valuation :: forall: Mat(dollar * One per Place!unit);
-basis :: forall: Mat(1 * Transition per Conspiracy);
-isAsset :: forall: Mat(1 * Place per One);
-isJournal :: forall: Mat(1 * Place per One);
-isLicit :: forall: Mat(1 * Transition per One)
+forward :: forall: Mat(Place!unit per Transition);
+backward :: forall: Mat(Place!unit per Transition);
+valuation :: forall: Mat(dollar One per Place!unit);
+basis :: forall: Mat(Transition per Conspiracy);
+isAsset :: forall: Mat(Place per One);
+isJournal :: forall: Mat(Place per One);
+isLicit :: forall: Mat(Transition per One)

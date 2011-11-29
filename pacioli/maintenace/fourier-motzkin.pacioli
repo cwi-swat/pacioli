@@ -19,41 +19,43 @@ include "pacioli/standard.pacioli";
    Paul Griffioen 2011 *)
 	
 define eliminate(quadruples, row) =
-	let combined = [tuple(s1, s2, support(s1), support(s2)) |
-						(v,w) in list combis(quadruples),
-						(v1, v2, _, _) := v,
-						(w1, w2, _, _) := w,
-						alpha := magnitude(v1, row, _), 
-						beta := magnitude(w1, row, _),
-						alpha * beta < 0,
-						s1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
-						s2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
-	in
-		[q | q in list append(combined, quadruples), 
-			 (v1, _, _, _) := q, 
-			 magnitude(v1, row, _) = 0]
-	end;
+    let combined = [tuple(s1, s2, support(s1), support(s2)) |
+                     (v,w) <- list combis(quadruples),
+                     (v1, v2, _, _) := v,
+                     (w1, w2, _, _) := w,
+                     alpha := magnitude(v1, row, _), 
+                     beta := magnitude(w1, row, _),
+                     alpha * beta < 0,
+                     s1 := scale(abs(beta),v1) + scale(abs(alpha),w1),
+                     s2 := scale(abs(beta),v2) + scale(abs(alpha),w2)]
+    in
+      [q | q <- list append(combined, quadruples), 
+           (v1, _, _, _) := q, 
+           magnitude(v1, row, _) = 0]
+    end;
 
 define canonical(quadruple) =
-	let (v1, v2, support1, support2) = quadruple,
-		v1_gcd = gcd[magnitude(v1,i,j) | i,j in matrix v1],
-		v2_gcd = gcd[magnitude(v2,i,j) | i,j in matrix v2],
-	    c = 1 / gcd(v1_gcd, v2_gcd)
-	in
-		tuple(scale(c,v1), scale(c,v2), support1, support2)
-	end;
+    let (v1, v2, support1, support2) = quadruple,
+        v1_gcd = gcd[magnitude(v1,i,j) | (i,j) <- matrix v1],
+        v2_gcd = gcd[magnitude(v2,i,j) | (i,j) <- matrix v2],
+        c = 1 / gcd(v1_gcd, v2_gcd)
+    in
+        tuple(scale(c,v1), scale(c,v2), support1, support2)
+    end;
 
 define minimize(quadruples) =
-	[q | q in list quadruples, (_, _, qsupport1, qsupport2) := q,
-		all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
-			r in list quadruples, (_, _, rsupport1, rsupport2) := r]];
+    [q | q <- list quadruples,
+         (_, _, qsupport1, qsupport2) := q,
+         all[(rsupport1 <= qsupport1 && rsupport2 <= qsupport2) ==> q = r |
+               r <- list quadruples,
+               (_, _, rsupport1, rsupport2) := r]];
 
 define fourierMotzkin(matrix) =
-	let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
-		quadruples = [tuple(v, w, support(v), support(w)) | (v,w) in list column_pairs],
-		step(quadruples, row) = minimize([canonical(v) | v in list eliminate(quadruples, row)]) 
-	in
-		{w | (_, w, _, _) in list loopList(quadruples, step, rowDomain(matrix))}
-	end;
+    let column_pairs = zip(columns(matrix), columns(rightIdentity(matrix))),
+        quadruples = [tuple(v, w, support(v), support(w)) | (v,w) <- list column_pairs],
+        step(quadruples, row) = minimize([canonical(v) | v <- list eliminate(quadruples, row)]) 
+    in
+        {w | (_, w, _, _) <- list loopList(quadruples, step, rowDomain(matrix))}
+    end;
 
 fourierMotzkin(backward-forward)

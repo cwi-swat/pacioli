@@ -1,16 +1,24 @@
-Base unit loc: "loc";
-Base unit bit: "bit";
-Unit byte: "byte" = 8*bit;
+Base: loc: "loc";
+Base: bit: "bit";
+Unit: byte: "byte" = 8.0*bit;
+Unit: test: "test" = 8.0 * (bit ^ 3) * (bit ^ 5);
 			  
-Entity File "cases/case5/file.entity";
-Entity Module "cases/case5/module.entity";
+Entity: File "cases/case5/file.entity";
+Entity: Module "cases/case5/module.entity";
+
+(* owner(x,y) = 1    if file x belongs to module y
+                0    otherwise
+   parent(x,y) = 1   if module x belongs to module y
+                 0   otherwise 
+   lines(x) = lines of code in file x
+   fileSize(x) = number of byts in file x *)
 
 Quantity owner "cases/case5/owner.csv";
 Quantity parent "cases/case5/parent.csv";
 Quantity lines "cases/case5/lines.csv";
 Quantity fileSize "cases/case5/fileSize.csv";
 
-owner :: forall: Mat(1 * File per Module);
-parent :: forall: Mat(1 * Module per Module);
-lines :: forall: Mat(loc * One per File);
-fileSize :: forall: Mat(byte * One per File)
+owner :: forall: Mat(File per Module);
+parent :: forall: Mat(Module per Module);
+lines :: forall: Mat(loc One per File);
+fileSize :: forall: Mat(byte One per File)

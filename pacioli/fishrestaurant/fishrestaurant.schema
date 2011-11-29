@@ -1,21 +1,21 @@
-Base unit dollar: "$";
-Base unit bag: "bag";
-Base unit can: "can";
-Base unit tub: "tub";
-Base unit gal: "gal";
-Base unit roll: "roll";
-Base unit sleeve: "sleeve";
-Base unit box: "box";
-Base unit bottle: "bottle";
-Base unit case: "case";
+Base: dollar: "$";
+Base: bag: "bag";
+Base: can: "can";
+Base: tub: "tub";
+Base: gal: "gal";
+Base: roll: "roll";
+Base: sleeve: "sleeve";
+Base: box: "box";
+Base: bottle: "bottle";
+Base: case: "case";
 			  
-Unit each: "each" = 1;
-Unit litre: "l" = deci:metre^3;
-Unit hour: "hr" = 3600*second;
-Unit pound: "lb" = 0.45359237 * kilo:gram;
+Unit: each: "each" = 1.0;
+Unit: litre: "l" = deci:metre^3;
+Unit: hour: "hr" = 3600.0*second;
+Unit: pound: "lb" = 0.45359237 * kilo:gram;
 
-Entity Menu "cases/case3/menu.entity";
-Entity Ingredient "cases/case3/ingredient.entity";
+Entity: Menu "cases/case3/menu.entity";
+Entity: Ingredient "cases/case3/ingredient.entity";
 
 Index Ingredient!unit "cases/case3/ingredient.unit";
 
@@ -26,9 +26,9 @@ Quantity menu_sales "cases/case3/menu_sales.csv";
 Quantity ingredient_price "cases/case3/ingredient_price.csv";
 Quantity menu_price "cases/case3/menu_price.csv";
  
-semi_bom :: forall: Mat(1 * Ingredient!unit per Menu);
-stock1 :: forall: Mat(1 * Ingredient!unit per One);
-stock2 :: forall: Mat(1 * Ingredient!unit per One);
-menu_sales :: forall: Mat(1 * Menu per One);
-ingredient_price :: forall: Mat(dollar * One per Ingredient!unit);
-menu_price :: forall: Mat(dollar * One per Menu)
+semi_bom :: forall: Mat(Ingredient!unit per Menu);
+stock1 :: forall: Mat(Ingredient!unit per One);
+stock2 :: forall: Mat(Ingredient!unit per One);
+menu_sales :: forall: Mat(Menu per One);
+ingredient_price :: forall: Mat(dollar One per Ingredient!unit);
+menu_price :: forall: Mat(dollar One per Menu)

@@ -1,7 +1,7 @@
 include "pacioli/standard.pacioli";
 import "pacioli/codemetrics/codemetrics.schema";
 
-define agg_matrix = owner.parent*;
+define agg_matrix = owner.kleene(parent);
 define top = rootsVector(parent);
  
 define agg(x) = x.agg_matrix;
@@ -12,4 +12,4 @@ define densityZero = density * top^T;
 define densityOne = density * (parent . top)^T;
 define densityTwo = density * (parent . parent . top)^T;
 
-{tuple(m, d) | m in entity Module, d := get(densityTwo, _, m), d != 0}
+{tuple(m, d) | m <- entity Module, d := get(densityTwo, _, m), d != 0}

@@ -1,7 +1,7 @@
-Base unit dollar: "$";
-Unit pound: "lb" = 0.45359237 * kilo:gram;
+Base: dollar: "$";
+Unit: pound: "lb" = 0.45359237 * kilo:gram;
 
-Entity Product "cases/case1/product.entity";
+Entity: Product "cases/case1/product.entity";
 
 Index Product!bom_unit "cases/case1/product.bom_unit";
 Index Product!trade_unit "cases/case1/product.trade_unit";
@@ -11,9 +11,11 @@ Quantity output "cases/case1/output.csv";
 Quantity purchase_price "cases/case1/purchase_price.csv"; 
 Quantity sales_price "cases/case1/sales_price.csv";
 
-Conversion conv Product trade_unit bom_unit;
+(* conv :: forall: Mat(Product!trade_unit per Product!bom_unit); *)
 
-bom :: forall: Mat(1 * Product!bom_unit per Product!bom_unit);
-output :: forall: Mat(1 * Product!trade_unit per One);
-purchase_price :: forall: Mat(dollar * One per Product!trade_unit);
-sales_price :: forall: Mat(dollar * One per Product!trade_unit)
+Conversion conv Product trade_unit per bom_unit;
+
+bom :: forall: Mat(Product!bom_unit per Product!bom_unit);
+output :: forall: Mat(Product!trade_unit per One);
+purchase_price :: forall: Mat(dollar One per Product!trade_unit);
+sales_price :: forall: Mat(dollar One per Product!trade_unit)
