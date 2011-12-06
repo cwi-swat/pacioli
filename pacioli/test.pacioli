@@ -1,4 +1,6 @@
-include "pacioli/standard.pacioli";
+import "pacioli/primitives.schema";
+
+(* include "pacioli/standard.pacioli";
 
 import "pacioli/koffiesalon/koffiesalon.schema";
 import "pacioli/codemetrics/codemetrics.schema";
@@ -9,6 +11,11 @@ define magsPLU = plu(mags);
 define bomSVD = svd(mags);
 
 define yo(x) = all[magnitude(x,j,j) = 0 | j <- list columnDomain(x)];
+
+define yo = [];
+define yoyo = {};
+define yoyoyo = {{}};
+define yoyoyoyo = {{{1}}};
 
 define roots(x) = [ (i,_) -> 1 | i <- list rowDomain(x), all[magnitude(x,i,j) = 0 | j <- list columnDomain(x)]];
 
@@ -28,6 +35,29 @@ sales_price . output;
 
 define foo = Product!1 per Product!bom_unit;
 
-[x | (x,_) <- matrix top, get(top, x, _) != 0];
+define identity2(x,y) = if (x=y) then x else y end;
 
-[x | x <- list top, get(top, x, _) != 0]
+define last = [x=x ==> 1=1/2 | (x,_) <- matrix top, get(top, x, _) != 1];
+
+[x | x <- list top, get(top, x, _) != 0] 
+
+define f(x) = g(x);
+
+define g(x) = f(x) *)
+
+
+define f(x) = x + g(x);
+
+(* define g(x) = 10 + x; *)
+
+// define g(x) = 10 + x;
+
+define g(x) = 10 + x + h(x); 
+
+define h(x) = f(x) + x + i(x);
+
+define i(x) = x;
+
+define map(f,l) = if l=[] then [] else append(singletonList(f(head(l))), map(f, tail(l))) end
+
+(*define nasty(x) = x(x)*)

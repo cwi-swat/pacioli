@@ -110,7 +110,11 @@ public EntityBinding mergeEntities(EntityBinding bindingX, EntityBinding binding
 	return (x: t | x <- bindingX, t := entitySubs(bindingY, bindingX[x]), notIsEntityVar(t,x)) + bindingY;
 }
 
+
+public int subsCounter=0;
+
 public Type typeSubs(Substitution s, Type typ) {
+	subsCounter = subsCounter + 1;
 	substitution(bu,be,bt) = s;
 	switch (typ) {
 		case typeVar(x): {

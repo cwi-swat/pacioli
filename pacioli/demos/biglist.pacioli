@@ -1,9 +1,9 @@
 import "pacioli/primitives.schema";
 
 let nums = [0,1,2,3,4,5],
-	a = [[x,y] | x in list nums, y in list nums],
-	b = [[x,y] | x in list a, y in list a],
-	c = [[x,y] | x in list b, y in list b]
+	a = [[x,y] | x <- list nums, y <- list nums],
+	b = [[x,y] | x <- list a, y <- list a],
+	c = [[x,y] | x <- list b, y <- list b]
 in
 	listSize(c)
 end

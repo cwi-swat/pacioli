@@ -41,7 +41,7 @@ start syntax Expression
 	> notequal: Expression "!=" Expression
 	> equal: Expression "=" Expression
 	> lesseq: Expression "\<=" Expression
-	> less: Expression "\<" Expression
+	> less: Expression "\<" !>> "-" Expression
 	//> not: "!" Expression
 	> left (
 		assoc implies: Expression "==\>" Expression

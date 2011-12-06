@@ -335,21 +335,7 @@ public void def(str name, str exp) {
 
 
 public void yo() {
-	mod = parseImplodePacioli("include \"pacioli/standard.pacioli\";
-import \"pacioli/codemetrics/codemetrics.schema\";
-
-define agg_matrix = owner.kleene(parent);
-define top = rootsVector(parent);
- 
-define agg(x) = x.agg_matrix;
-
-define density = agg(fileSize)/agg(lines);
-
-define densityZero = density * top^T;
-define densityOne = density * (parent . top)^T;
-define densityTwo = density * (parent . parent . top)^T;
-
-{tuple(m, d) | m \<- entity Module, d := get(densityTwo, _, m), d != 0}");
+	mod = parseImplodePacioli("{tuple(i, cnt(i)/amount) | i \<- set {x+y | x \<- list dice, y \<- list dice}}");
 	reset();
 	ast = normalizeModule(mod);
 	compile(ast);	

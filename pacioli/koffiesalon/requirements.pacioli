@@ -1,6 +1,6 @@
 include "pacioli/standard.pacioli";
 import "pacioli/koffiesalon/koffiesalon.schema";
-
+(*
 define convert(x) = conv . x . conv^R^T;
 
 define convert2(x) = conv . x per conv;
@@ -9,4 +9,5 @@ define input = kleene(convert(bom)) . output;
 
 input;
 
-bom
+bom *)
+kleene(bom)

@@ -232,9 +232,9 @@ Expression translateGenerator(str kind, str var, Expression exp, Expression zero
 }
 
 Expression translateSetGenerator(str kind, str var, Expression exp, Expression zero, Expression header, list[Expression] parts) {
-	return application(variable("reduceSet"), 
+	return application(variable("loopSet"), 
 					   tup([zero,
-						    variable("identity"),
+						    //variable("identity"),
 						    abstraction(["accu",var], 
   	                                    translateComprehensionRec(kind, variable("accu"), header, parts)), 
 					        exp]));
