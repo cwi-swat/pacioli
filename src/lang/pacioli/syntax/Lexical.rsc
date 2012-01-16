@@ -30,7 +30,8 @@ layout Layouts = Layout*
 	;
 
 lexical Comment 
-	= @category="Comment"  "(*" CommentChar* "*)" 
+	= @category="Comment" "(*" CommentChar* "*)"
+	| @category="Comment" "//" ![\n]* [\n] 
 	;
 
 lexical CommentChar 

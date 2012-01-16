@@ -14,14 +14,15 @@ define sign = isAsset - isLiability;
 define pos(x) = positives(sign*x);
 define neg(x) = negatives(sign*x);
 	
-define tuples = [tuple(conspiracy,
-						valuation.pos(licitProduction),
-						valuation.neg(licitProduction),
-						valuation.pos(illicitProduction),
-						valuation.neg(illicitProduction)) |
-					conspiracy in entity Conspiracy,
-					semiflow := column(basis,conspiracy),
-					illicitProduction := flow.(semiflow*isIllicit),
-					licitProduction := flow.(semiflow*isLicit)];
+define tuples =
+  [tuple(conspiracy,
+         valuation.pos(licitProduction),
+         valuation.neg(licitProduction),
+         valuation.pos(illicitProduction),
+         valuation.neg(illicitProduction)) |
+   conspiracy <- entity Conspiracy,
+   semiflow := column(basis,conspiracy),
+   illicitProduction := flow.(semiflow*isIllicit),
+   licitProduction := flow.(semiflow*isLicit)];
 					
-[t | t in list tuples, (c, licPos, licNeg, illPos, illNeg) := t, 0 < illPos]
+[t | t <- list tuples, (c, licPos, licNeg, illPos, illNeg) := t, 0 < illPos]
