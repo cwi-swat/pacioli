@@ -16,7 +16,8 @@ import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::implodeSchema;
 
-str glbPacioliDir = "/home/paul/data/code/cwi/pacioli/";
+str glbPacioliDir = "/Users/paulklint/Documents/runtime-New_configuration/pacioli/pacioli/";
+//str glbPacioliDir = "/home/paul/data/code/cwi/pacioli/";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Repl utilities
@@ -192,9 +193,9 @@ public void reset() {
 	glbReplRepoOrder = [];
 }
 
-public void compile(Module mod) {
+public void compile(Module modu) {
 	
-	pacioliModule(items) = mod;
+	pacioliModule(items) = modu;
 		
 	for (item <- items) {
 		switch (item) {
@@ -219,12 +220,14 @@ public void compile(Module mod) {
 		}
 	}
 	
+	
 	expressions = [x | topLevelExpression(x) <- items];
 	if (expressions != []) {
 		// todo: the tail!
 		compile(head(expressions));
 	}
 }
+
 
 public void compile(Expression exp) {
 	fullEnv = totalEnv(glbReplRepo, glbImports);
@@ -333,10 +336,11 @@ public void def(str name, str exp) {
 	return def(name, parseImplodePacioli(exp));
 }
 
-
+/*
 public void yo() {
 	mod = parseImplodePacioli("{tuple(i, cnt(i)/amount) | i \<- set {x+y | x \<- list dice, y \<- list dice}}");
 	reset();
 	ast = normalizeModule(mod);
 	compile(ast);	
 }
+*/

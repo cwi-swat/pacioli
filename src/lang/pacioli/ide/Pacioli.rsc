@@ -40,10 +40,10 @@ public void registerPacioli() {
 	registerContributions(SCHEMA_LANG, contribs);
 }
 
-public void compilePacioliFile(lang::pacioli::syntax::Pacioli::Module mod, loc l) {
+public void compilePacioliFile(lang::pacioli::syntax::Pacioli::Module modu, loc l) {
 	try {
 		reset();
-		ast = normalizeModule(implode(mod));
+		ast = normalizeModule(implode(modu));
 		compile(ast);
 	} catch err: {
 		println(err);
