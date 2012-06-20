@@ -336,6 +336,10 @@ public void def(str name, str exp) {
 	return def(name, parseImplodePacioli(exp));
 }
 
+public void dummy(){
+  compileFile("/Users/paulklint/Documents/runtime-New_configuration/pacioli/pacioli/maintenace/fourier-motzkin.pacioli");
+}
+
 /*
 public void yo() {
 	mod = parseImplodePacioli("{tuple(i, cnt(i)/amount) | i \<- set {x+y | x \<- list dice, y \<- list dice}}");

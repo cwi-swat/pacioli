@@ -121,7 +121,7 @@ public Expression normalize(Expression exp) {
 		//case abstraction(x, body) => abstraction([(v == "_") ? fresh(v) : v | v <- x], body)
 		//case abstraction(x, body) => freshAbstraction(x, body)
 		//case abstraction(x, body) => abstraction(freshUnderscores(x), body)
-		case abstraction([v0*,"_",v1*], body) => abstraction([v0,fresh("_"),v1], normalize(body))
+		case abstraction([v0*,"_",v1*], body) => abstraction([*v0,fresh("_"),*v1], normalize(body))
 		case notequal(x,y) => application(variable("not"),tup([application(variable("equal"),tup([x,y]))]))
 		case equal(x,y) => application(variable("equal"),tup([x,y]))
 		case lesseq(x,y) => application(variable("lessEq"),tup([x,y]))
