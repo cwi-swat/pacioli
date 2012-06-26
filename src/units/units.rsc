@@ -3,12 +3,14 @@ module units::units
 import Map;
 import Set;
 import List;
+import IO;
+import util::Math;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Required mathematical functions
 
-public real abs(real x) = (x < 0.0) ? -x : x;
-public int abs(int x) = (x < 0) ? -x : x;  
+//public real abs(real x) = (x < 0.0) ? -x : x;
+//public int abs(int x) = (x < 0) ? -x : x;  
 
 private real expt(real x, int e) {
 	if (e == 0) {
@@ -46,18 +48,30 @@ data Prefix
   = prefix(str symbolic, real factor)
   ; 
   
-public set[Unit] bases(powerProduct(Powers ps, real _)) = ps.units;
+public set[Unit] bases(powerProduct(Powers ps, real _)) = domain(ps);
   
 //public int power(powerProduct(powers, _), Unit base) = powers[base] ? 0;
-//public int power(Unit u, u) = 1;
-//public default int power(Unit _, Unit _) = 0;
+//public default int power(Unit u, Unit base) = (u==base) ? 1 : 0;
+
+/// Memo version of power function
+
+map[tuple[Unit,Unit], int] powerCache = ();
 
 public int power(Unit u, Unit base) {
+     ub = <u, base>;
+     return powerCache[ub] ? power1(u, base, ub);
+}
+
+int power1(Unit u, Unit base, tuple[Unit,Unit] ub) {
+    r = 0;
+    if(u == base){
+       r = 1;
+    } else
 	if (u is powerProduct) {
-		return (base in u.powers) ? u.powers[base] : 0;
-	} else {
-		return (u==base) ? 1 : 0;
+		r = (base in u.powers) ? u.powers[base] : 0;
 	}
+	powerCache[ub] = r;
+	return r;
 }
 
 //public real factor(powerProduct(_, x), Unit base) = x;
@@ -68,7 +82,7 @@ public default set[Unit] bases(Unit u) = {u};
 
 public default real factor(Unit _) = 1.0;
 
-public set[str] unitVariables(u) = {x | /unitVar(x) <- u};
+public set[str] unitVariables(Unit u) = {x | /unitVar(str x) <- u};
 
 //public Unit powerProduct(powers, 1.0) {
 //  if (size(powers) == 1, u <- powers, powers[u] == 1) {
@@ -77,10 +91,11 @@ public set[str] unitVariables(u) = {x | /unitVar(x) <- u};
 //  fail;
 //}
 
-public Unit normalizePowerProduct(unit) {
+public Unit normalizePowerProduct(Unit unit) {
 	switch (unit) {
 	case powerProduct(powers, 1.0): {
-		if (size(powers) == 1, u <- powers, powers[u] == 1) {
+		//if (size(powers) == 1, u <- powers, powers[u] == 1) {
+		if (size(powers) == 1, [<u, 1>] := toList(powers)) {
     		return u;
   		} else {
   			return unit;
@@ -119,7 +134,7 @@ public Unit nthUnit(Unit unit, int n) {
 	}, unit); 
 }
 
-public &T foldUnit(&T(Unit) baseFun, &T(&T, &T) productFun, &T(&T) inverse, Unit unit, &T init) {
+public Unit foldUnit(Unit(Unit) baseFun, Unit(Unit, Unit) productFun, Unit(Unit) inverse, Unit unit, Unit init) {
  	lst = [];
 	for (x <- bases(unit)) {
 		base = baseFun(x);

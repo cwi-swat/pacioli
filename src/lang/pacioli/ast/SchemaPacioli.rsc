@@ -223,7 +223,7 @@ public str pprint(TypeNode typeNode) {
 	switch (typeNode) {
 	case typeVarNode(x): return x;
 	case functionNode(args,res): return "(<intercalate(", ", [pprint(x) | x <- args])>) -\> <pprint(res)>";
-	case functionNodeAkt(from,to): return "<pprint(from)> -\> <pprint(to)>";
+	case functionNodeAlt(from,to): return "<pprint(from)> -\> <pprint(to)>";
 	case listNode(x): return "List(<pprint(x)>)";
 	case setNode(x): return "Set(<pprint(x)>)";
 	case entityNode(x): return "Entity(<x>)";

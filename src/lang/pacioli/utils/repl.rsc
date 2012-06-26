@@ -246,8 +246,8 @@ public void compile(Expression exp) {
 					  "print result"];
 					 
 	prog = intercalate(";\n", programStrings - [""]);
-	   	   
-	writeFile(|tmp:///tmp.mvm|, [prog]);
+	println("compile: <prog>");
+	writeFile(|home:///tmp.mvm|, [prog]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +257,7 @@ public void compile(str exp) {
 	try {
 		compile(parseImplodePacioli(exp));
 	} catch err: {
-		println(err);
+		println("ERROR: <err>");
 	}
 }
 
@@ -278,6 +278,7 @@ public void importSchemaFile(str path) {
 
 public void compileFile(loc path) {
 	text = readFile(path);
+	
 	compile(text);
 }
 
@@ -337,14 +338,14 @@ public void def(str name, str exp) {
 }
 
 public void dummy(){
+  reset();
   compileFile("/Users/paulklint/Documents/runtime-New_configuration/pacioli/pacioli/maintenace/fourier-motzkin.pacioli");
 }
 
-/*
+
 public void yo() {
-	mod = parseImplodePacioli("{tuple(i, cnt(i)/amount) | i \<- set {x+y | x \<- list dice, y \<- list dice}}");
+	modu = parseImplodePacioli("1 + 2");
 	reset();
-	ast = normalizeModule(mod);
+	ast = normalizeModule(modu);
 	compile(ast);	
 }
-*/
