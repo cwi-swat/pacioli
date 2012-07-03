@@ -35,9 +35,9 @@ public int order(compound(x)) = size(x);
 
 public int order(duo(x,_)) = order(x);
 
-public set[str] entityVariables(Type x) = {name | /entityVar(str name) <- x};
+public set[str] entityVariables(/*Type*/ x) = {name | /entityVar(str name) <- x};
  
-public set[str] typeVariables(Type x) = {name | /typeVar(str name) <- x};
+public set[str] typeVariables(/*Type*/ x) = {name | /typeVar(str name) <- x};
 
 
 private list[tuple[SimpleEntity,Unit]] indexList(list[SimpleEntity] entities, Unit unit) {

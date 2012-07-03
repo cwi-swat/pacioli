@@ -33,20 +33,70 @@ public int floor(int x, int div) {
 ////////////////////////////////////////////////////////////////////////////////
 // Units
 
+alias NamedUnitRef = int;
+
+public map[NamedUnit,Unit] named2ref = ();
+public map[NamedUnitRef,NamedUnit] ref2named = ();
+public int namedCounter = 0;
+
+data NamedUnit = aux_named(str name, str symbolic, Unit definition);
+
+public Unit named(str name, str symbolic, Unit definition){
+  a = aux_named(name, symbolic, definition);
+  return makeNamedUnitRef(a);
+}
+
+public Unit makeNamedUnitRef(NamedUnit nu) {
+   if(named2ref[nu]?){
+      return named2ref[nu];
+   }
+   namedCounter += 1;
+   named2ref[nu] = namedUnitRef(namedCounter);
+   ref2named[namedCounter] = nu;
+   return namedUnitRef(namedCounter);
+}
+
 alias Powers = map[Unit units, int powers];
 
-data Unit
-  = unitVar(str name)
-  | self()
-  | named(str name, str symbolic, Unit definition)
-  | scaled(Unit unit, Prefix prefix)
-  | powerProduct(Powers powers, real factor)
-  | compoundUnit(list[Unit])
-  ;
-  
 data Prefix
   = prefix(str symbolic, real factor)
   ; 
+
+//public map[str,Unit] varNames = ();
+//public int varNameCounter = 0;
+//
+//public Unit unitVar(str name){
+//   if(varNames[name]?)
+//      return varNames[name];
+//   varNameCounter += 1;
+//   varNames[name] = unitVarRef(varNameCounter);
+//   return unitVarRef(varNameCounter);
+//}
+
+data Unit
+  = self()
+  | namedUnitRef(int n)
+  | scaled(Unit unit, Prefix prefix)
+  | powerProduct(Powers powers, real factor)
+  | unitVar(str name)
+  | compoundUnit(list[Unit])
+  ;
+
+//data AtomicUnit
+//  = namedUnit(str name, str symbolic)
+//  | scaledUnit(AtomicUnit unit, Prefix prefix)
+//  | derivedUnit(str name, str symbolic, Unit definition)
+//  ;
+//  
+//
+//data Unit 
+//  = powerProduct(Powers powers, real factor)
+//  ;
+//  
+//data AtomicUnit
+//  = unitVar(str name)
+//  | compoundUnit(list[Unit])
+//  ;
   
 public set[Unit] bases(powerProduct(Powers ps, real _)) = domain(ps);
   
@@ -82,7 +132,7 @@ public default set[Unit] bases(Unit u) = {u};
 
 public default real factor(Unit _) = 1.0;
 
-public set[str] unitVariables(Unit u) = {x | /unitVar(str x) <- u};
+public set[str] unitVariables(/*Unit*/ u) = {x | /unitVar(str x) <- u};
 
 //public Unit powerProduct(powers, 1.0) {
 //  if (size(powers) == 1, u <- powers, powers[u] == 1) {
@@ -181,6 +231,7 @@ public str pprint(Unit u) {
 
 public str serial(Unit u) {
 	switch (u) {
+	    case namedUnitRef(n): ref2named[n].name;
 		case named(x,_,_): return x;
 		case scaled(x,prefix(p,f)): return "(<p> <serial(x)>)";
 		//case unitVar(x): return "\'<x>";

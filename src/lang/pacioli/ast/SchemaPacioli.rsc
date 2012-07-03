@@ -166,6 +166,22 @@ Unit translateUnitNode(unitNode, list[str] vars) {
 	}
 }
 
+//Unit translateUnitNode(unitNode, list[str] vars) {
+//	switch (unitNode) {
+//	case unitRef(x): return (x in vars) ? unitVar(x) : named(x,x,self());
+//	case unitNum(x): return powerProduct((),x);
+//	case unitInt(i): return powerProduct((),i*1.0);
+//	case unitBrack(x): return translateUnitNode(x, vars);
+//	//case unitNeg(x): return multiply(translateUnitNode(x, vars), powerProduct((),-1.0));
+//	// todo: factor wegwerken uit prefix()
+//	case unitScaled(p, x): return scaled(translateUnitNode(x, vars), prefix(p, 123.0));
+//	case unitRaiseNode(x,y): return raise(translateUnitNode(x, vars), y);
+//	case unitNegRaiseNode(x,i): return raise(translateUnitNode(x, vars), -i);
+//	case unitMultNode(x,y): return multiply(translateUnitNode(x, vars), translateUnitNode(y, vars));
+//	default: throw "Cannot translate unitNode <unitNode>";
+//	}
+//}
+
 Unit indexNodeUnit(IndexNode indexNode, list[str] vars) {
 	switch (indexNode) {
 	case halfDuoNode(ent): return uno();
