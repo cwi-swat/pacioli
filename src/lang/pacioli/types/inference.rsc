@@ -82,7 +82,7 @@ public tuple[Type, Substitution] inferType(Expression exp, Environment lib, Envi
 	switch (exp) {
 		case variable(x): {
 			if (x in assumptions || x in lib) {
-				typ = instScheme(assumptions[x] ? lib[x]);
+				typ = instScheme(x in assumptions ? assumptions[x] : lib[x]);
 				pop("<pprint(typ)>");
 				return <typ, ident>;
 			} else {

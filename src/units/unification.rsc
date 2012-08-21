@@ -23,13 +23,13 @@ public Unit unitSubs(UnitBinding b, Unit un) {
 
 public UnitBinding mergeUnits(UnitBinding bindingX, UnitBinding bindingY) {
 	return (x: subs |
-	        x <- domain(bindingX),
-	        subs := unitSubs(bindingY, bindingX[x]),
+	        str x <- domain(bindingX),
+	        Unit subs := unitSubs(bindingY, bindingX[x]),
 	        notIsVar(subs,x)) + bindingY;
 }
 
 
-public bool notIsVar(t,v) {
+public bool notIsVar(value t,value v) {
 	switch (t) {
 	case unitVar(x): return x != v;
 	default: return true; 
@@ -64,7 +64,7 @@ public UnitBinding unifyUnits(Unit u1, Unit u2) {
 	       		}
 	      	} else {
 	      		Unit subst = uno();
-	      		for (base <- bases(unit)) {
+	      		for (Unit base <- bases(unit)) {
 	      			if (base != minBase) {
 	      				p = floor(power(unit, base), power(unit, minBase));
 	      				subst = multiply(subst, raise(base, -p));
@@ -80,6 +80,6 @@ public UnitBinding unifyUnits(Unit u1, Unit u2) {
 
 private Unit minBase(Unit metas) {
 	private int f(base) = abs(power(metas, base));
-	baseList = [b | b <- bases(metas)];
+	baseList = [b | Unit b <- bases(metas)];
 	return (head(baseList) | (f(it) > f(x)) ? x : it | x <- baseList);
 }

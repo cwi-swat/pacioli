@@ -47,7 +47,7 @@ public Unit named(str name, str symbolic, Unit definition){
 }
 
 public Unit makeNamedUnitRef(NamedUnit nu) {
-   if(named2ref[nu]?){
+   if(nu in named2ref){
       return named2ref[nu];
    }
    namedCounter += 1;
@@ -109,7 +109,7 @@ map[tuple[Unit,Unit], int] powerCache = ();
 
 public int power(Unit u, Unit base) {
      ub = <u, base>;
-     return powerCache[ub] ? power1(u, base, ub);
+     return ub in powerCache ? powerCache[ub] : power1(u, base, ub);
      //return power1(u, base, ub);
 }
 
@@ -144,9 +144,9 @@ public set[str] unitVariables(/*Unit*/ u) = {x | /unitVar(str x) <- u};
 
 public Unit normalizePowerProduct(Unit unit) {
 	switch (unit) {
-	case powerProduct(powers, 1.0): {
+	case powerProduct(Powers powers, 1.0): {
 		//if (size(powers) == 1, u <- powers, powers[u] == 1) {
-		if (size(powers) == 1, [<u, 1>] := toList(powers)) {
+		if (size(powers) == 1, [<Unit u, 1>] := toList(powers)) {
     		return u;
   		} else {
   			return unit;
@@ -158,15 +158,15 @@ public Unit normalizePowerProduct(Unit unit) {
     
 public Unit multiply(Unit u1, Unit u2) =
  normalizePowerProduct(  
-  powerProduct((base: p | base <- bases(u1) + bases(u2), 
-                          p := power(u1, base) + power(u2, base), 
+  powerProduct((base: p | Unit base <- bases(u1) + bases(u2), 
+                          int p := power(u1, base) + power(u2, base), 
                           p != 0), 
                factor(u1) * factor(u2)));
 
 public Unit raise(Unit u, int pwr) =
  normalizePowerProduct(   
-  powerProduct((b: p | b <- bases(u),
-                       p := pwr * power(u, b),
+  powerProduct((b: p | Unit b <- bases(u),
+                       int p := pwr * power(u, b),
                        p != 0),
                expt(factor(u), pwr)));
 
@@ -187,11 +187,11 @@ public Unit nthUnit(Unit unit, int n) {
 
 public Unit foldUnit(Unit(Unit) baseFun, Unit(Unit, Unit) productFun, Unit(Unit) inverse, Unit unit, Unit init) {
  	lst = [];
-	for (x <- bases(unit)) {
+	for (Unit x <- bases(unit)) {
 		base = baseFun(x);
 		pwr = power(unit, x);
 		elt = (pwr < 0) ? inverse(base) : base;
-		lst += [elt | _ <- [1..abs(pwr)]];
+		lst += [elt | int _ <- [1..abs(pwr)]];
 	}
 	return ( init | productFun(it, x) | x <- lst );
 }
