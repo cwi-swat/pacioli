@@ -16,8 +16,8 @@ import lang::pacioli::types::unification;
 import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::implodeSchema;
 
-str glbPacioliDir = "/Users/paulklint/Documents/runtime-New_configuration/pacioli/pacioli/";
-//str glbPacioliDir = "/home/paul/data/code/cwi/pacioli/";
+//loc glbPacioliDir = |rascal:///../pacioli|;
+str glbPacioliDir = "/Users/jurgenv/git/pacioli/pacioli/";
 
 ////////////////////////////////////////////////////////////////////////////////
 // Repl utilities
@@ -122,7 +122,7 @@ public void importSchema(Schema schema) {
 	for (path <- imports) {
 		//4
 		//importSchemaFile(path);
-		importSchemaFile(|project://pacioli/<path>|);
+		importSchemaFile(|rascal:///../<path>|);
 	}
 	baseUnits = fetchBaseUnits(schema);
 	for (name <- baseUnits) {
@@ -203,13 +203,13 @@ public void compile(Module modu) {
 			path = substring(s,1,size(s)-1);
 			//5
 			//importSchemaFile(path);
-			importSchemaFile(|project://pacioli/<path>|);
+			importSchemaFile(|rascal:///../<path>|);
 		}
 		case fileImport(s): {
 			path = substring(s,1,size(s)-1);
 			//6
 			//compileFile(path);
-			compileFile(|project://pacioli/<path>|);
+			compileFile(|rascal:///../<path>|);
 		}
 		case valueDefinition(x,y): {
 			def(x,y);
@@ -254,11 +254,11 @@ public void compile(Expression exp) {
 // Some commands
 
 public void compile(str exp) {
-	try {
+	//try {
 		compile(parseImplodePacioli(exp));
-	} catch err: {
-		println("ERROR: <err>");
-	}
+	//} catch err: {
+		//println("ERROR: <err>");
+	//}
 }
 
 public void importSchema(str schema) {
@@ -339,7 +339,7 @@ public void def(str name, str exp) {
 
 public void dummy(){
   reset();
-  compileFile("/Users/paulklint/Documents/runtime-New_configuration/pacioli/pacioli/maintenace/fourier-motzkin.pacioli");
+  compileFile("/Users/jurgenv/git/pacioli/pacioli/maintenace/fourier-motzkin.pacioli");
 }
 
 

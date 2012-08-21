@@ -110,6 +110,7 @@ map[tuple[Unit,Unit], int] powerCache = ();
 public int power(Unit u, Unit base) {
      ub = <u, base>;
      return powerCache[ub] ? power1(u, base, ub);
+     //return power1(u, base, ub);
 }
 
 int power1(Unit u, Unit base, tuple[Unit,Unit] ub) {
