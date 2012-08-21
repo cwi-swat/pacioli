@@ -5,9 +5,10 @@ import lang::pacioli::utils::Implode;
 import lang::pacioli::utils::parseSchema;
 import lang::pacioli::utils::implodeSchema;
 import lang::pacioli::syntax::Pacioli;
-import lang::pacioli::ast::Pacioli;
+extend lang::pacioli::ast::Pacioli;
 import lang::pacioli::syntax::SchemaPacioli;
 import lang::pacioli::ast::SchemaPacioli;
+extend lang::pacioli::ast::KernelPacioli;
 import lang::pacioli::utils::repl;
 import util::Prompt;
 

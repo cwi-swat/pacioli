@@ -1,6 +1,6 @@
 module lang::pacioli::utils::Implode
 
-//import lang::pacioli::ast::KernelPacioli;
+import lang::pacioli::ast::KernelPacioli;
 //import lang::pacioli::syntax::KernelPacioli;
 import lang::pacioli::ast::Pacioli;
 import lang::pacioli::syntax::Pacioli;

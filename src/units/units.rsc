@@ -231,7 +231,7 @@ public str pprint(Unit u) {
 
 public str serial(Unit u) {
 	switch (u) {
-	    case namedUnitRef(n): ref2named[n].name;
+	    case namedUnitRef(n): return ref2named[n].name;
 		case named(x,_,_): return x;
 		case scaled(x,prefix(p,f)): return "(<p> <serial(x)>)";
 		//case unitVar(x): return "\'<x>";
@@ -247,5 +247,7 @@ public str serial(Unit u) {
 		case compoundUnit(units): {
 			return (serial(head(units)) | "<it>,<serial(x)>" | x <- tail(units));
 		}
-	}
+	} 
+	
+	throw "serial does not implement: <u>";
 } 
