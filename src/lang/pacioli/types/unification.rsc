@@ -58,7 +58,7 @@ data Substitution = substitution(UnitBinding units,
 
 public Substitution ident = substitution((),(),());
 
-public bool containsType (substitution(ub,eb,tb), str name) = name in tb;
+public bool containsType (substitution(UnitBinding ub,EntityBinding eb,TypeBinding tb), str name) = name in tb;
 
 public Substitution bindUnitVar(str key, Type typ) = substitution((key: typ),(),()); 
 public Substitution bindEntityVar(str key, Type typ) = substitution((),(key: typ),());
@@ -87,20 +87,21 @@ public EntityBinding entityUnfresh(set[str] variables) {
 	return (name: entityVar("E<f()>") | name <- variables);
 }
 
-public Substitution merge(substitution(ub0,eb0,tb0), substitution(ub1,eb1,tb1)) {
+public Substitution merge(substitution(UnitBinding ub0, EntityBinding eb0, TypeBinding tb0)
+                         ,substitution(UnitBinding ub1,EntityBinding eb1, TypeBinding tb1)) {
 	return substitution(mergeUnits(ub0,ub1),
 						mergeEntities(eb0,eb1),
-				 		(x: t | x <- tb0, t := typeSubs(substitution(ub1,eb1,tb1), tb0[x]), notIsVar(t,x)) + tb1);
+				 		(x: t | x <- tb0, Type t := typeSubs(substitution(ub1,eb1,tb1), tb0[x]), notIsVar(t,x)) + tb1);
 }
 
-public bool notIsVar(t,v) {
+public bool notIsVar(value t, value v) {
 	switch (t) {
 	case typeVar(x): return x != v;
 	default: return true; 
 	}
 }
 
-public bool notIsEntityVar(t,v) {
+public bool notIsEntityVar(value t, value v) {
 	switch (t) {
 		case entityVar(x): return x != v;
 		default: return true; 
@@ -144,8 +145,8 @@ public Substitution unifyTypes(Type x, Type y) {
 		return bindTypeVar(var,b);
 	}
 
-	public Substitution unifyMatrices(a,duo(p0,u0),duo(q0,v0),
-												   b,duo(p1,u1),duo(q1,v1)) { 
+	public Substitution unifyMatrices(Unit a,duo(EntityType p0, Unit u0),duo(EntityType q0,Unit v0),
+												   Unit b,duo(EntityType p1,Unit u1),duo(EntityType q1,Unit v1)) { 
 	    
 		A0 = unifyUnits(a,b);
 		E1 = unifyEntities(p0, p1);
@@ -156,47 +157,47 @@ public Substitution unifyTypes(Type x, Type y) {
 	}
 
 	switch (<x,y>) {
-		case <typeVar(a), typeVar(a)>: {
+		case <typeVar(str a), typeVar(str a)>: {
 			return ident;
 		}
-		case <typeVar(a), Type b>: {
+		case <typeVar(str a), Type b>: {
 			return unifyVar(a,b);
 		}
-		case <Type a, typeVar(b)>: {
+		case <Type a, typeVar(str b)>: {
 			return unifyVar(b,a);
 		}
-		case <matrix(a,pu0,qv0), matrix(b,pu1,qv1)>:
+		case <matrix(Unit a,IndexType pu0,IndexType qv0), matrix(Unit b,IndexType pu1,IndexType qv1)>:
 			try {
 				return unifyMatrices(a,pu0,qv0, b,pu1,qv1);
 			} catch err: {
 				throw "Error while unifying matrices <pprint(matrix(a,pu0,qv0))> and <pprint(matrix(b,pu1,qv1))>: <err>";
 			}
-		case <function(a,b), function(c,d)>: {
+		case <function(Type a,Type b), function(Type c, Type d)>: {
 			S1 = unifyTypes(a,c);
 			S2 = merge(S1, unifyTypes(typeSubs(S1,b),typeSubs(S1,d)));
 			return S2;
 		}
-		case <entity(a), entity(b)>: {
+		case <entity(EntityType a), entity(EntityType b)>: {
 			return substitution((),unifyEntities(a, b),());
 		}
 		case <tupType([]), tupType([])>: {
 			return ident;
 		}
-		case <a,tupType([])>: {
+		case <Type a,tupType([])>: {
 			throw "Incorrect number of arguments";
 		}
-		case <tupType([]), a>: {
+		case <tupType([]), Type a>: {
 			throw "Incorrect number of arguments";
 		}
-		case <tupType(a), tupType(b)>: {
+		case <tupType(list[Type] a), tupType(list[Type] b)>: {
 			S1 = unifyTypes(head(a),head(b));
 			S2 = merge(S1,unifyTypes(typeSubs(S1,tupType(tail(a))),typeSubs(S1,tupType(tail(b)))));
 			return S2;
 		}
-		case <listType(a), listType(b)>: {
+		case <listType(Type a), listType(Type b)>: {
 			return unifyTypes(a,b);
 		}
-		case <setType(a), setType(b)>: {
+		case <setType(Type a), setType(Type b)>: {
 			return unifyTypes(a,b);
 		}
 		case <boolean(), boolean()>: {

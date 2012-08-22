@@ -133,7 +133,7 @@ public default set[Unit] bases(Unit u) = {u};
 
 public default real factor(Unit _) = 1.0;
 
-public set[str] unitVariables(/*Unit*/ u) = {x | /unitVar(str x) <- u};
+public set[str] unitVariables(node u) = {x | /unitVar(str x) <- u};
 
 //public Unit powerProduct(powers, 1.0) {
 //  if (size(powers) == 1, u <- powers, powers[u] == 1) {
@@ -204,7 +204,7 @@ public Unit filterUnit(bool(Unit) fn, Unit unit) =
 
 public str pprint(Unit u) {
 	switch (u) {
-		case named(_,x,_): return x;
+		//case named(_,x,_): return x; // JURGEN: this does not exist
 		case scaled(x,prefix(p,f)): return "<p>:<pprint(x)>";
 		//case unitVar(x): return "\'<x>";
 		case unitVar(x): return x;
@@ -232,11 +232,11 @@ public str pprint(Unit u) {
 
 public str serial(Unit u) {
 	switch (u) {
-	    case namedUnitRef(n): return ref2named[n].name;
-		case named(x,_,_): return x;
-		case scaled(x,prefix(p,f)): return "(<p> <serial(x)>)";
+	    case namedUnitRef(int n): return ref2named[n].name;
+	//	case named(x,_,_): return x; JURGEN: I think this does not exist anymore
+		case scaled(Unit x,prefix(str p,real f)): return "(<p> <serial(x)>)";
 		//case unitVar(x): return "\'<x>";
-		case powerProduct(p, f): {
+		case powerProduct(Powers p, real f): {
 			front = ((f == 1.0) ? "1" : "<f>" |
 					 it + "*<serial(x)>^<p[x]>" |
 					 x <- p);
@@ -245,7 +245,7 @@ public str serial(Unit u) {
 		case compoundUnit([]): {
 			return "1";
 		}
-		case compoundUnit(units): {
+		case compoundUnit(list[Unit] units): {
 			return (serial(head(units)) | "<it>,<serial(x)>" | x <- tail(units));
 		}
 	} 
