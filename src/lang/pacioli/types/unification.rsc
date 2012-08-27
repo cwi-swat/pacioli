@@ -157,7 +157,7 @@ public Substitution unifyTypes(Type x, Type y) {
 	}
 
 	switch (<x,y>) {
-		case <typeVar(str a), typeVar(str a)>: {
+		case <typeVar(str a), typeVar(a)>: {
 			return ident;
 		}
 		case <typeVar(str a), Type b>: {
